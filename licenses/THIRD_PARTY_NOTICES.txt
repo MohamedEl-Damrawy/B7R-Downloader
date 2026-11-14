@@ -1,0 +1,46 @@
+﻿THIRD-PARTY NOTICES (Velo Downloader)
+=====================================
+
+Product: Velo Downloader
+Product copyright (as provided by owner): Copyright (c) 2026 Mohamed El-Damrawy
+Application license (as declared by owner): MIT (see LICENSE in project root). Note: third-party components bundled/distributed with the application remain under their own licenses and may impose additional obligations (e.g. FFmpeg GPLv3 build, Qt/PySide6 license options).
+Publisher/Legal entity: فردي (بدون كيان قانوني)
+
+This document summarizes third-party components observed in the development/runtime environment and/or bundled with the project workspace. It must be reviewed and finalized before any release. Do not distribute final EXE/Setup artifacts without explicit owner approval (Mandatory Pre-Release Approval Gate).
+
+1) PySide6 / Qt for Python / Qt libraries (runtime dependency, installed in dev env)
+- Packages observed: PySide6 6.12.0, PySide6_Essentials 6.12.0, PySide6_Addons 6.12.0, shiboken6 6.12.0
+- Upstream: Qt for Python (The Qt Company / Qt Project)
+- License (per package metadata): LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only
+- Notes: Using/bundling PySide6/Qt in distributed builds has specific obligations depending on chosen Qt license option and distribution method (e.g. LGPL notices, ability for users to relink/replace LGPL components where applicable, provision of license texts). Final distribution terms MUST be validated against the selected license option and packaging approach.
+
+2) yt-dlp (runtime dependency, installed in dev env)
+- Package observed: yt-dlp 2026.10.26
+- Upstream: https://github.com/yt-dlp/yt-dlp
+- License: The Unlicense (public domain dedication) as declared by package metadata
+- Notes: Comply with upstream license text/attribution requirements as applicable. Use must respect source terms and applicable law.
+
+3) FFmpeg / FFprobe (bundled binaries in vendor/ffmpeg/)
+- Binaries bundled: vendor/ffmpeg/ffmpeg.exe, vendor/ffmpeg/ffprobe.exe
+- Source build identified: "FFmpeg 64-bit static Windows build from www.gyan.dev", Version 8.1.2-full_build-www.gyan.dev
+- Source commit noted by bundled README: https://github.com/FFmpeg/FFmpeg/commit/38b88335f9
+- License stated by bundled README: GPL v3 (full build; includes GPL components/libraries as configured)
+- Notes: Bundling/distributing GPLv3 FFmpeg imposes strong copyleft obligations on the distributed work as applicable (including providing corresponding source/offers and license notices consistent with GPLv3). Before any distribution, obtain legal review and ensure full compliance for the exact binaries/configuration shipped. A copy of the applicable license text(s) and complete corresponding-source information/offer must be included as required.
+
+4) Python runtime and standard library (development/runtime environment)
+- Python 3.12.x used in development; packaged distributions may bundle a Python runtime.
+- License: Python Software Foundation License (PSF). Include required notices if bundling.
+
+5) Application assets (icons/images/fonts/styles)
+- resources/icons, resources/images, resources/fonts currently contain only placeholders (.gitkeep) in this workspace; resources/styles/dark.qss is project-authored.
+- If any third-party fonts/icons/images are added before release, document their source, license, and attribution here.
+
+6) Other dependencies
+- Dev/test tools observed: pytest, pytest-qt (not intended for end-user distribution). Any additional runtime dependencies added later must be audited and listed.
+
+Compliance TODO before release
+- Confirm application license and publisher/legal entity (owner).
+- Decide and document Qt license option used for distribution and satisfy all obligations.
+- Include required full license texts in licenses/third_party/ for all distributed components (Qt/PySide6 as applicable, FFmpeg GPLv3, Python if bundled, etc.).
+- Provide FFmpeg corresponding-source information/offer appropriate for the exact bundled build.
+- Re-audit all bundled files and transitive dependencies in the final package on a clean machine.

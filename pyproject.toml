@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "velo-downloader"
+version = "0.1.0"
+description = "Modern Windows desktop downloader for authorized video and playlist content."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "Mohamed El-Damrawy" }]
+dependencies = [
+  "PySide6>=6.7",
+  "yt-dlp>=2025.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0",
+  "pytest-qt>=4.4",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+# Network-marked tests (real downloads) are excluded by default; run them
+# explicitly with: pytest -m network
+addopts = "-q -m \"not network\""
+markers = [
+  "network: tests requiring network access and external services",
+]
+
+[tool.setuptools]
+packages = ["app", "app.core", "app.controllers", "app.ui", "app.ui.pages", "app.ui.widgets", "app.ui.dialogs", "app.ui.theme", "app.services", "app.engine", "app.workers", "app.database", "app.database.repositories", "app.models"]

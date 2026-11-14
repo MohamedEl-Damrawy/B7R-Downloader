@@ -1,0 +1,49 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+
+# Distribution / packaging
+build/
+dist/
+dist_release/
+*.egg-info/
+
+# PyInstaller/Nuitka artifacts (future)
+# NOTE: project spec files (VeloDownloader.spec, pysidedeploy.spec) are kept:
+# the generic *.spec pattern was removed because it ignored them too.
+*.build/
+*.dist/
+*.onefile-build/
+
+# Vendored FFmpeg binaries are large (462 MB); the backup/README documents the
+# source (gyan.dev 8.1.2). Do not commit them.
+vendor/ffmpeg/ffmpeg.exe
+vendor/ffmpeg/ffprobe.exe
+
+# IDE/editor
+.vscode/
+.idea/
+*.swp
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Local runtime data (never commit)
+*.db
+*.sqlite
+*.sqlite3
+logs/
+cache/
+temp/
+
+# Test/coverage
+.pytest_cache/
+.coverage
+htmlcov/

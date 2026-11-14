@@ -1,0 +1,25 @@
+﻿Privacy Notice (reflects current application behavior)
+
+Effective context: Velo Downloader (desktop application)
+Copyright: Copyright (c) 2026 Mohamed El-Damrawy
+Publisher/Legal entity: فردي (بدون كيان قانوني)
+Application license: MIT (third-party components remain under their own licenses; see licenses/THIRD_PARTY_NOTICES.txt)
+
+Data stored locally
+- The application stores settings, download/task metadata, and playlist/item records in a local SQLite database under: %LOCALAPPDATA%\VeloDownloader
+- The application writes logs under: %LOCALAPPDATA%\VeloDownloader\logs
+- Cache/temporary data may be stored under: %LOCALAPPDATA%\VeloDownloader\cache and %LOCALAPPDATA%\VeloDownloader\temp
+- Downloaded media files are saved to the user-selected output folder (default is typically under the user's Downloads folder unless changed in Settings).
+
+Information that may be stored
+- URLs you enter, extracted metadata (e.g. titles, thumbnails URLs, formats), task status/progress, file paths, timestamps, and error messages.
+
+Network and third parties
+- When you request metadata extraction or a download, the application connects to the relevant external source/service using yt-dlp to retrieve information and content you requested.
+- The application does not include built-in analytics/telemetry or automatic update checks in the current baseline.
+
+User responsibilities
+- Use the application only for content you are authorized to access and save, and comply with applicable laws and source/platform terms.
+
+Review required
+- This notice must be reviewed and finalized by the owner (and legal counsel if needed) to ensure it accurately matches shipped behavior and any additional features before release. Do not distribute final artifacts without explicit owner approval.

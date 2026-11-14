@@ -1,0 +1,13 @@
+﻿Usage Notice
+
+Copyright (c) 2026 Mohamed El-Damrawy
+Publisher/Legal entity: فردي (بدون كيان قانوني)
+Application license: MIT (third-party bundled/runtime components remain under their own licenses; see licenses/THIRD_PARTY_NOTICES.txt).
+
+- Velo Downloader is intended for downloading media only from sources you are authorized to access and save, in compliance with copyright, intellectual property rights, platform/source terms of service, and applicable laws.
+- You are solely responsible for how you use this software and for ensuring you have the necessary rights/permissions for any content you download.
+- This application must not be used to circumvent DRM, paywalls, authentication, or any access-control or technological protection measures.
+- This application is not affiliated with, endorsed by, or sponsored by YouTube or any other third-party service or platform.
+- Third-party components are subject to their own licenses; see licenses/THIRD_PARTY_NOTICES.txt and bundled license texts where provided.
+
+Do not create or distribute final EXE/Setup installers without explicit owner approval (Mandatory Pre-Release Approval Gate).
