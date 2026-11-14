@@ -47,12 +47,11 @@ def parse_progress_hook(data: dict[str, Any] | None) -> ProgressInfo:
     downloaded = _safe_int(data.get("downloaded_bytes"))
     total = _safe_int(data.get("total_bytes") or data.get("total_bytes_estimate"))
 
-    percentage = _safe_float(data.get("_percent_str"))
-    if percentage is None:
-        pct_raw = data.get("_percent_str")
-        if isinstance(pct_raw, str):
-            cleaned = pct_raw.strip().replace("%", "").strip()
-            percentage = _safe_float(cleaned)
+    percentage = None
+    pct_raw = data.get("_percent_str")
+    if isinstance(pct_raw, str):
+        cleaned = pct_raw.strip().replace("%", "").strip()
+        percentage = _safe_float(cleaned)
     if percentage is None and downloaded is not None and total:
         try:
             percentage = (downloaded / total) * 100.0

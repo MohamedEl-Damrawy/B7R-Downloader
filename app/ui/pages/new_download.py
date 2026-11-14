@@ -255,11 +255,10 @@ class NewDownloadPage(QWidget):
 
     def _apply_default_destination(self) -> None:
         try:
-            from app.core.config import AppConfig
             from app.core.constants import SETTINGS_DEFAULT_DOWNLOAD_PATH
             from app.core.paths import get_default_download_dir
-            cfg = AppConfig.load()
-            path = cfg.get(SETTINGS_DEFAULT_DOWNLOAD_PATH) or str(get_default_download_dir())
+            from app.services.settings_service import SettingsService
+            path = SettingsService().get(SETTINGS_DEFAULT_DOWNLOAD_PATH) or str(get_default_download_dir())
             self.dest_input.setText(str(path))
         except Exception:
             pass
@@ -282,11 +281,19 @@ class NewDownloadPage(QWidget):
             self._netman = QNetworkAccessManager(self)
 
         req = QNetworkRequest(QUrl(url))
+        # Harden: bounded transfer time and payload size for a metadata URL.
+        try:
+            req.setTransferTimeout(8000)
+        except Exception:
+            pass
         reply = self._netman.get(req)
 
         def _done():
             try:
                 data = bytes(reply.readAll())
+                if len(data) > 5 * 1024 * 1024:
+                    self.thumb_label.setText("Thumbnail: available (preview too large)")
+                    return
                 pix = QPixmap()
                 if pix.loadFromData(data):
                     scaled = pix.scaledToHeight(120, Qt.SmoothTransformation)

@@ -149,6 +149,9 @@ class DownloadController(QObject):
     ) -> list[str]:
         ids: list[str] = []
         for e in entries:
+            if not getattr(e, "available", True):
+                logger.info("Skipping unavailable playlist entry: title=%s", getattr(e, "title", ""))
+                continue
             title = getattr(e, "title", "") or "Untitled"
             thumb = getattr(e, "thumbnail_url", "") or ""
             idx = getattr(e, "index", None)
@@ -366,8 +369,12 @@ class DownloadController(QObject):
             except Exception:
                 pct = None
         status_str = str(payload.get("status") or "downloading").lower()
-        # yt-dlp progress hooks emit only "downloading" and "finished".
-        status = DownloadStatus.PROCESSING if "finished" in status_str else DownloadStatus.DOWNLOADING
+        # yt-dlp progress hooks emit "downloading"/"finished"; our
+        # postprocessor_hooks add "postprocessing" during the ffmpeg merge.
+        if "finished" in status_str or "processing" in status_str:
+            status = DownloadStatus.PROCESSING
+        else:
+            status = DownloadStatus.DOWNLOADING
         self._update_status(
             task_id,
             status,

@@ -15,7 +15,7 @@ def main() -> int:
     except RuntimeError as exc:
         # Phase 1 foundation may run in environments without GUI deps installed yet.
         print(str(exc))
-        return 0
+        return 1
 
 
 if __name__ == "__main__":

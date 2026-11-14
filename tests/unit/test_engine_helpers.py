@@ -6,6 +6,7 @@ import unittest
 
 from app.engine.progress_parser import parse_progress_hook
 from app.engine.format_selector import normalize_formats, pick_format_for_quality
+from app.engine.ytdlp_engine import _entry_is_unavailable
 
 
 class TestEngineHelpers(unittest.TestCase):
@@ -27,6 +28,25 @@ class TestEngineHelpers(unittest.TestCase):
         info2 = parse_progress_hook({"status": "finished", "filename": "x.mp4"})
         self.assertEqual(info2.status, "finished")
         self.assertEqual(info2.filename, "x.mp4")
+
+    def test_parse_progress_hook_postprocessing_passthrough(self):
+        # Status strings injected by our postprocessor hooks pass through intact.
+        info = parse_progress_hook({"status": "postprocessing", "postprocessor": "Merger"})
+        self.assertEqual(info.status, "postprocessing")
+
+    def test_entry_is_unavailable_markers(self):
+        # DL-02: titles rendered by YouTube for unplayable playlist videos.
+        for title in (
+            "[Private video]",
+            "[Deleted video]",
+            "[Unavailable video]",
+            "[Members-only video]",
+            " [private video] ",
+        ):
+            self.assertTrue(_entry_is_unavailable(title), title)
+        self.assertFalse(_entry_is_unavailable("My Normal Video Title"))
+        self.assertFalse(_entry_is_unavailable(""))
+        self.assertFalse(_entry_is_unavailable(None))
 
     def test_pick_format_for_quality_presets_and_id(self):
         self.assertEqual(pick_format_for_quality([], "best"), "bv*+ba/b")

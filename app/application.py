@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import sys
 
-from app.core.constants import APP_NAME
+from app.core.constants import APP_NAME, APP_VERSION
 from app.ui.theme.style_loader import load_dark_qss
 
 
@@ -19,7 +19,7 @@ def run() -> int:
 
     app = QApplication.instance() or QApplication(sys.argv)
     app.setApplicationName(APP_NAME)
-    app.setApplicationVersion("0.1.0")
+    app.setApplicationVersion(APP_VERSION)
 
     qss = load_dark_qss()
     if qss:

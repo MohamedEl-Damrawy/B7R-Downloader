@@ -23,6 +23,24 @@ from app.models.video import VideoMetadata
 ProgressCallback = Callable[[dict[str, Any]], None]
 logger = get_logger(__name__)
 
+# Titles YouTube itself renders in playlist pages for unplayable videos;
+# they pass through yt-dlp unchanged, so matching them is the only reliable
+# per-entry availability signal for playlist metadata.
+_UNAVAILABLE_TITLE_MARKERS = (
+    "[private video]",
+    "[deleted video]",
+    "[unavailable video]",
+    "[members-only video]",
+    "[age-restricted video]",
+    "[premium video]",
+    "[region-locked video]",
+)
+
+
+def _entry_is_unavailable(title: str | None) -> bool:
+    t = str(title or "").strip().lower()
+    return any(t.startswith(marker) or t == marker.strip("[]") for marker in _UNAVAILABLE_TITLE_MARKERS)
+
 
 class CancelToken:
     def __init__(self) -> None:
@@ -56,6 +74,7 @@ def _base_opts(ffmpeg_location: Optional[str] = None) -> dict[str, Any]:
         # Tolerate per-entry failures (private/deleted/age-restricted videos) while
         # extracting playlist metadata, instead of aborting the whole extraction.
         "ignoreerrors": True,
+        "socket_timeout": 30,
     }
     if ffmpeg_location:
         opts["ffmpeg_location"] = ffmpeg_location
@@ -161,18 +180,31 @@ def extract_metadata(url: str, ffmpeg_location: Optional[str] = None) -> tuple[V
         entries: list[PlaylistEntry] = []
         for idx, e in enumerate(entries_raw, start=1):
             if not isinstance(e, dict):
+                # With ignoreerrors enabled, per-entry extraction failures surface
+                # as None; surface them to the UI as unavailable placeholders.
+                entries.append(
+                    PlaylistEntry(
+                        entry_id=f"unavailable-{idx}",
+                        source_url="",
+                        title=f"Unavailable (entry {idx})",
+                        index=idx,
+                        available=False,
+                    )
+                )
                 continue
             entry_url = e.get("url") or e.get("webpage_url") or e.get("original_url") or ""
             if entry_url and not str(entry_url).startswith("http"):
                 # flat/partial entries may only have ids; keep best effort
                 entry_url = e.get("webpage_url") or entry_url
+            title = str(e.get("title") or f"Entry {idx}")
             entries.append(
                 PlaylistEntry(
                     entry_id=str(e.get("id") or idx),
                     source_url=str(entry_url or ""),
-                    title=str(e.get("title") or f"Entry {idx}"),
+                    title=title,
                     thumbnail_url=str(e.get("thumbnail") or ""),
                     index=e.get("playlist_index") or idx,
+                    available=not _entry_is_unavailable(title),
                 )
             )
         playlist = PlaylistMetadata(
@@ -226,6 +258,19 @@ def download_media(
             except Exception:
                 progress_callback({"status": d.get("status", "unknown")})
 
+    def pp_hook(d: dict[str, Any]) -> None:
+        # Cancellation + a visible "Processing" state during the ffmpeg merge,
+        # which plain progress hooks never report (they stop at "finished").
+        if cancel_token and cancel_token.cancelled:
+            raise CancelledError("Download cancelled by user.")
+        if progress_callback:
+            progress_callback(
+                {
+                    "status": "postprocessing",
+                    "postprocessor": d.get("postprocessor"),
+                }
+            )
+
     opts: dict[str, Any] = {
         "outtmpl": outtmpl,
         "format": format_selector or "bv*+ba/b",
@@ -233,9 +278,12 @@ def download_media(
         "no_warnings": True,
         "noprogress": True,
         "progress_hooks": [hook],
+        "postprocessor_hooks": [pp_hook],
         "merge_output_format": "mp4",
         "concurrent_fragment_downloads": 1,
-        "retries": 3,
+        "retries": 10,
+        "fragment_retries": 10,
+        "extractor_retries": 3,
         "socket_timeout": 30,
         "overwrites": False,
         "continuedl": True,
