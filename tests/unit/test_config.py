@@ -11,8 +11,8 @@ class TestConfig(unittest.TestCase):
         with TemporaryDirectory() as td:
             import os
             os.environ["LOCALAPPDATA"] = td
-            import app.core.paths as paths
             import app.core.config as config
+            import app.core.paths as paths
 
             importlib.reload(paths)
             importlib.reload(config)

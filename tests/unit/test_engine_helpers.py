@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import unittest
 
-from app.engine.progress_parser import parse_progress_hook
 from app.engine.format_selector import normalize_formats, pick_format_for_quality
+from app.engine.progress_parser import parse_progress_hook
 from app.engine.ytdlp_engine import _entry_is_unavailable
 
 

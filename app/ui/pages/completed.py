@@ -6,6 +6,7 @@ import os
 import subprocess
 import sys
 
+from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QHBoxLayout, QListWidget, QListWidgetItem, QMessageBox, QPushButton, QVBoxLayout, QWidget
 
 from app.database.repositories.downloads_repo import DownloadsRepository
@@ -50,7 +51,7 @@ class CompletedPage(QWidget):
             title = r.get("title") or r.get("source_url") or r.get("id")
             path = r.get("output_path") or ""
             item = QListWidgetItem(f"{title}   -   {path}")
-            item.setData(256, r)  # Qt.UserRole
+            item.setData(Qt.UserRole, r)
             self.list_widget.addItem(item)
         has = self.list_widget.count() > 0
         self.list_widget.setVisible(has)
@@ -65,7 +66,7 @@ class CompletedPage(QWidget):
         item = self.list_widget.currentItem()
         if not item:
             return
-        rec = item.data(256) or {}
+        rec = item.data(Qt.UserRole) or {}
         path = (rec.get("output_path") or "").strip()
         if not path:
             QMessageBox.information(self, "No path", "No output folder is recorded for this item.")

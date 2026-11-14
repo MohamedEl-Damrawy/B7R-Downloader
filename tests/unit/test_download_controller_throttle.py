@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import time as _real_time
 import unittest
 from types import SimpleNamespace
 from typing import Any
@@ -105,6 +104,22 @@ class TestStatusThrottle(unittest.TestCase):
 
     def test_interval_constant_is_half_second(self):
         self.assertEqual(self.mod._DB_WRITE_INTERVAL_SEC, 0.5)
+
+    def test_invalid_transition_is_flagged_but_applied(self):
+        # State-machine enforcement (Phase 2): an invalid transition is logged
+        # loudly, but still applied so a mis-classified edge cannot strand a
+        # task in a stale status.
+        self.ctrl._update_status("t4", DownloadStatus.COMPLETED, progress=100.0, completed=True)
+        with self.assertLogs(self.mod.logger, level="ERROR") as logs:
+            self.ctrl._update_status("t4", DownloadStatus.DOWNLOADING, progress=50.0)
+        self.assertTrue(any("Invalid status transition" in m for m in logs.output))
+        last = self.repo.status_calls[-1]
+        self.assertEqual(last["status"], DownloadStatus.DOWNLOADING)
+
+    def test_valid_transition_logs_no_error(self):
+        self.ctrl._update_status("t5", DownloadStatus.EXTRACTING, progress=0.0)
+        with self.assertNoLogs(level="ERROR"):
+            self.ctrl._update_status("t5", DownloadStatus.DOWNLOADING, progress=10.0)
 
 
 if __name__ == "__main__":

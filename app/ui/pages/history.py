@@ -6,6 +6,7 @@ import os
 import subprocess
 import sys
 
+from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QHBoxLayout, QListWidget, QListWidgetItem, QMessageBox, QPushButton, QVBoxLayout, QWidget
 
 from app.database.repositories.downloads_repo import DownloadsRepository
@@ -60,7 +61,7 @@ class HistoryPage(QWidget):
                     short = short[:97] + "..."
                 text += f"  -  {short}"
             item = QListWidgetItem(text)
-            item.setData(256, r)
+            item.setData(Qt.UserRole, r)
             self.list_widget.addItem(item)
         has = self.list_widget.count() > 0
         self.list_widget.setVisible(has)
@@ -69,7 +70,7 @@ class HistoryPage(QWidget):
 
     def _update_actions(self) -> None:
         item = self.list_widget.currentItem()
-        rec = item.data(256) if item else {}
+        rec = item.data(Qt.UserRole) if item else {}
         status = (rec or {}).get("status")
         self.open_btn.setEnabled(item is not None)
         self.retry_btn.setEnabled(self._controller is not None and status in ("Failed", "Cancelled"))
@@ -78,7 +79,7 @@ class HistoryPage(QWidget):
         item = self.list_widget.currentItem()
         if not item:
             return
-        rec = item.data(256) or {}
+        rec = item.data(Qt.UserRole) or {}
         path = (rec.get("output_path") or "").strip()
         if not path:
             QMessageBox.information(self, "No path", "No output folder is recorded for this item.")
@@ -104,7 +105,7 @@ class HistoryPage(QWidget):
         item = self.list_widget.currentItem()
         if not item or not self._controller:
             return
-        rec = item.data(256) or {}
+        rec = item.data(Qt.UserRole) or {}
         if rec.get("status") not in ("Failed", "Cancelled"):
             return
         if hasattr(self._controller, "retry_download"):

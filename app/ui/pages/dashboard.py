@@ -2,7 +2,16 @@
 
 from __future__ import annotations
 
-from PySide6.QtWidgets import QGridLayout, QHBoxLayout, QLabel, QListWidget, QListWidgetItem, QPushButton, QVBoxLayout, QWidget
+from PySide6.QtWidgets import (
+    QGridLayout,
+    QHBoxLayout,
+    QLabel,
+    QListWidget,
+    QListWidgetItem,
+    QPushButton,
+    QVBoxLayout,
+    QWidget,
+)
 
 from app.database.repositories.downloads_repo import DownloadsRepository
 from app.ui.widgets.common import EmptyState, PageHeader, StatCard

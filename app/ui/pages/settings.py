@@ -2,7 +2,18 @@
 
 from __future__ import annotations
 
-from PySide6.QtWidgets import QFileDialog, QFormLayout, QHBoxLayout, QLabel, QLineEdit, QMessageBox, QPushButton, QSpinBox, QVBoxLayout, QWidget
+from PySide6.QtWidgets import (
+    QFileDialog,
+    QFormLayout,
+    QHBoxLayout,
+    QLabel,
+    QLineEdit,
+    QMessageBox,
+    QPushButton,
+    QSpinBox,
+    QVBoxLayout,
+    QWidget,
+)
 
 from app.core.constants import (
     DEFAULT_MAX_CONCURRENT_DOWNLOADS,
@@ -44,7 +55,9 @@ class SettingsPage(QWidget):
         self.concurrent_spin.setRange(MIN_CONCURRENT_DOWNLOADS, MAX_CONCURRENT_DOWNLOADS)
         form.addRow("Max concurrent downloads", self.concurrent_spin)
 
-        info = QLabel("About and third-party notices are available below. Release metadata may require owner confirmation.")
+        info = QLabel(
+            "About and third-party notices are available below. Release metadata may require owner confirmation."
+        )
         info.setWordWrap(True)
         info.setStyleSheet("color: #91A2B5;")
         form.addRow("Legal", info)

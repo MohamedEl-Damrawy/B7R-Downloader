@@ -11,6 +11,7 @@ from app.ui.theme.style_loader import load_dark_qss
 def run() -> int:
     try:
         from PySide6.QtWidgets import QApplication
+
         from app.ui.main_window import MainWindow
     except Exception as exc:  # pragma: no cover - runtime environment dependent
         raise RuntimeError(

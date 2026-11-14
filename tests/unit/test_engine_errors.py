@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import unittest
 
-from app.core.exceptions import DownloadError, MetadataExtractionError, UnsupportedSourceError
-from app.engine.ytdlp_engine import _YTdlpCaptureLogger, _classify_download_error, _classify_error
+from app.core.exceptions import MetadataExtractionError, UnsupportedSourceError
+from app.engine.ytdlp_engine import _classify_download_error, _classify_error, _YTdlpCaptureLogger
 
 
 class TestYTdlpCaptureLogger(unittest.TestCase):
@@ -47,7 +47,10 @@ class TestEngineErrors(unittest.TestCase):
     def test_classify_metadata_errors(self):
         self.assertIsInstance(_classify_error(Exception("Unsupported URL: x")), UnsupportedSourceError)
         self.assertIsInstance(_classify_error(Exception("This video is private")), MetadataExtractionError)
-        self.assertEqual(str(_classify_error(Exception("timeout"))), "Network timeout while extracting metadata. Check your connection and try again.")
+        self.assertEqual(
+            str(_classify_error(Exception("timeout"))),
+            "Network timeout while extracting metadata. Check your connection and try again.",
+        )
         self.assertIsInstance(_classify_error(Exception("HTTP Error 404")), MetadataExtractionError)
         self.assertEqual(str(_classify_error(Exception("random"))), "Failed to extract metadata from the provided URL.")
 

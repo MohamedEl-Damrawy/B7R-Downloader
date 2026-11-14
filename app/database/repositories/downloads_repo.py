@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
-from typing import Any, Iterable, Optional
+from typing import Any
 
 from app.database.connection import db_session
+from app.models.download import utc_now_iso
 from app.models.download_status import DownloadStatus
 
 
@@ -84,7 +85,8 @@ class DownloadsRepository:
         placeholders = ",".join(["?"] * len(statuses))
         with db_session() as conn:
             rows = conn.execute(
-                f"SELECT * FROM downloads WHERE status IN ({placeholders}) ORDER BY updated_at DESC, created_at DESC LIMIT ?",
+                f"SELECT * FROM downloads WHERE status IN ({placeholders}) "
+                "ORDER BY updated_at DESC, created_at DESC LIMIT ?",
                 (*statuses, limit),
             ).fetchall()
             return [dict(r) for r in rows]
@@ -105,10 +107,13 @@ class DownloadsRepository:
     def mark_interrupted(self, message: str = "Interrupted by application restart") -> int:
         now_statuses = ("Extracting", "Downloading", "Processing")
         placeholders = ",".join(["?"] * len(now_statuses))
+        # Consistent ISO-8601 UTC timestamps (QUAL-04): datetime('now') emits a
+        # different format than utc_now_iso() used everywhere else.
+        updated_at = utc_now_iso()
         with db_session() as conn:
             cur = conn.execute(
                 f"UPDATE downloads SET status = 'Failed', error_message = COALESCE(error_message, ?), "
-                f"updated_at = datetime('now') WHERE status IN ({placeholders})",
-                (message, *now_statuses),
+                f"updated_at = ? WHERE status IN ({placeholders})",
+                (message, updated_at, *now_statuses),
             )
             return cur.rowcount if cur.rowcount is not None else 0

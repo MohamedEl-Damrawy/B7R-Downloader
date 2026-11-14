@@ -64,4 +64,6 @@ def test_settings_page_loads(qtbot, tmp_path, monkeypatch):
     page = SettingsPage()
     qtbot.addWidget(page)
     page.show()
-    assert page.isVisible() or True
+    # A shown, parentless widget must be visible; the old `or True` made this
+    # assert pass unconditionally.
+    assert page.isVisible()

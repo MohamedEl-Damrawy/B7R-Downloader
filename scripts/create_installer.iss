@@ -3,6 +3,7 @@
 ; Build performed with PyInstaller in this environment (pyside6-deploy/Nuitka blocked: no working C compiler toolchain).
 ; Requires: built standalone output at dist\VeloDownloader\ and Inno Setup 6 (ISCC.exe).
 ; IMPORTANT: Review bundled third-party license/compliance obligations (Qt/PySide6, FFmpeg GPLv3 build, yt-dlp) before distribution.
+; NOTE (QUAL-05): keep MyAppVersion in sync with APP_VERSION in app/core/constants.py (single source of truth).
 
 #define MyAppName "Velo Downloader"
 #define MyAppVersion "0.1.0"

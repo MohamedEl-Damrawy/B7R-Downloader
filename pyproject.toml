@@ -4,7 +4,9 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "velo-downloader"
-version = "0.1.0"
+# Single source of truth for the version is app/core/constants.py (APP_VERSION);
+# setuptools resolves it via attr below (QUAL-05).
+dynamic = ["version"]
 description = "Modern Windows desktop downloader for authorized video and playlist content."
 readme = "README.md"
 requires-python = ">=3.11"
@@ -31,5 +33,18 @@ markers = [
   "network: tests requiring network access and external services",
 ]
 
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+extend-exclude = ["build", "dist", "dist_release"]
+
+[tool.ruff.lint]
+# Keep it pragmatic: errors, warnings, import sorting. Formatting is left to
+# the existing style; add rules gradually rather than a big-bang rewrite.
+select = ["E", "W", "F", "I"]
+
 [tool.setuptools]
 packages = ["app", "app.core", "app.controllers", "app.ui", "app.ui.pages", "app.ui.widgets", "app.ui.dialogs", "app.ui.theme", "app.services", "app.engine", "app.workers", "app.database", "app.database.repositories", "app.models"]
+
+[tool.setuptools.dynamic]
+version = { attr = "app.core.constants.APP_VERSION" }

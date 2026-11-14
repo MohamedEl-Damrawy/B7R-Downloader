@@ -17,7 +17,6 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from app.core.exceptions import UnsupportedSourceError
 from app.ui.widgets.common import CardFrame, PageHeader
 
 
@@ -66,7 +65,9 @@ class NewDownloadPage(QWidget):
         self.thumb_label = QLabel("Thumbnail preview: none")
         self.thumb_label.setMinimumHeight(120)
         self.thumb_label.setAlignment(Qt.AlignCenter)
-        self.thumb_label.setStyleSheet("color: #91A2B5; background-color: #0f1a29; border: 1px solid #2a3c56; border-radius: 8px;")
+        self.thumb_label.setStyleSheet(
+            "color: #91A2B5; background-color: #0f1a29; border: 1px solid #2a3c56; border-radius: 8px;"
+        )
         self.thumb_label.setWordWrap(True)
         form.addRow("Thumbnail", self.thumb_label)
 
@@ -154,9 +155,13 @@ class NewDownloadPage(QWidget):
             thumb = getattr(playlist, "thumbnail_url", "") or ""
             self._set_thumbnail(thumb, getattr(playlist, "title", "Playlist"))
             thumb_line = f"\nThumbnail: {'available' if thumb else 'not available'}"
-            self.preview_label.setText(
-                f"Playlist detected: {getattr(playlist, 'title', 'Playlist')}\nEntries: {count}{thumb_line}\nURL: {getattr(playlist, 'source_url', '')}\n\nOpen Playlists to review and select items."
+            playlist_text = (
+                f"Playlist detected: {getattr(playlist, 'title', 'Playlist')}\n"
+                f"Entries: {count}{thumb_line}\n"
+                f"URL: {getattr(playlist, 'source_url', '')}\n\n"
+                "Open Playlists to review and select items."
             )
+            self.preview_label.setText(playlist_text)
             self.download_btn.setEnabled(False)
         elif video:
             formats = getattr(video, "formats", []) or []
@@ -183,7 +188,9 @@ class NewDownloadPage(QWidget):
                 try:
                     mins, secs = divmod(int(duration), 60)
                     hrs, mins = divmod(mins, 60)
-                    extra.append(f"Duration: {hrs:d}:{mins:02d}:{secs:02d}" if hrs else f"Duration: {mins:d}:{secs:02d}")
+                    extra.append(
+                        f"Duration: {hrs:d}:{mins:02d}:{secs:02d}" if hrs else f"Duration: {mins:d}:{secs:02d}"
+                    )
                 except Exception:
                     pass
             if uploader:
@@ -191,7 +198,9 @@ class NewDownloadPage(QWidget):
             extra.append(f"Thumbnail: {'available' if thumb else 'not available'}")
             extra_text = ("\n" + "\n".join(extra)) if extra else ""
             self.preview_label.setText(
-                f"Title: {getattr(video, 'title', '')}\nURL: {getattr(video, 'source_url', '')}{extra_text}\nFormats found: {len(formats)}\n"
+                f"Title: {getattr(video, 'title', '')}\n"
+                f"URL: {getattr(video, 'source_url', '')}{extra_text}\n"
+                f"Formats found: {len(formats)}\n"
                 "Quality selection uses sensible fallbacks when requested quality is unavailable."
             )
             self.download_btn.setEnabled(True)

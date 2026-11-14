@@ -38,6 +38,8 @@ excluded_qml_plugins =
 modules = Core,Gui,Network,Widgets
 
 # qt plugins used by the application. only relevant for desktop deployment
+# NOTE (QUAL-05): keep --file-version/--product-version below in sync with
+# APP_VERSION in app/core/constants.py (single source of truth).
 plugins = accessiblebridge,egldeviceintegrations,generic,iconengines,imageformats,networkaccess,networkinformation,platforminputcontexts,platforms,platformthemes,styles,tls
 
 [android]

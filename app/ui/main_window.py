@@ -116,7 +116,9 @@ class MainWindow(QMainWindow):
                     "source_url": source_url,
                     "title": getattr(playlist, "title", "") or "Playlist",
                     "thumbnail_url": getattr(playlist, "thumbnail_url", "") or "",
-                    "total_entries": int(getattr(playlist, "total_entries", 0) or len(getattr(playlist, "entries", []) or [])),
+                    "total_entries": int(
+                        getattr(playlist, "total_entries", 0) or len(getattr(playlist, "entries", []) or [])
+                    ),
                     "created_at": utc_now_iso(),
                 }
             )

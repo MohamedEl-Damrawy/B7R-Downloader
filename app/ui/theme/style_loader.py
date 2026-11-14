@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from pathlib import Path
-
 from app.core.paths import get_resources_dir
 from app.ui.theme.palette import PALETTE
 

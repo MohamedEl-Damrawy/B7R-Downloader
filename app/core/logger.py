@@ -46,7 +46,11 @@ def configure_logging(level: int = logging.INFO) -> Path:
     stream_handler.setLevel(level)
 
     # Avoid duplicate handlers in repeated setup/test contexts.
-    if not any(isinstance(h, RotatingFileHandler) and getattr(h, "baseFilename", "") == str(log_path) for h in root.handlers):
+    has_file_handler = any(
+        isinstance(h, RotatingFileHandler) and getattr(h, "baseFilename", "") == str(log_path)
+        for h in root.handlers
+    )
+    if not has_file_handler:
         root.addHandler(file_handler)
     if not any(isinstance(h, logging.StreamHandler) and not isinstance(h, RotatingFileHandler) for h in root.handlers):
         root.addHandler(stream_handler)

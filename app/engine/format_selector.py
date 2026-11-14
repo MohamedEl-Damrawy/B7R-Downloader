@@ -6,7 +6,6 @@ from typing import Iterable
 
 from app.models.video import FormatOption
 
-
 QUALITY_HEIGHT_MAP = {
     "1080p": 1080,
     "720p": 720,

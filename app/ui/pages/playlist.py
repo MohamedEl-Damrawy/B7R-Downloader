@@ -3,7 +3,18 @@
 from __future__ import annotations
 
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QComboBox, QHBoxLayout, QLabel, QLineEdit, QListWidget, QListWidgetItem, QMessageBox, QPushButton, QVBoxLayout, QWidget
+from PySide6.QtWidgets import (
+    QComboBox,
+    QHBoxLayout,
+    QLabel,
+    QLineEdit,
+    QListWidget,
+    QListWidgetItem,
+    QMessageBox,
+    QPushButton,
+    QVBoxLayout,
+    QWidget,
+)
 
 from app.database.repositories.download_items_repo import DownloadItemsRepository
 from app.database.repositories.playlists_repo import PlaylistsRepository
@@ -174,7 +185,14 @@ class PlaylistsPage(QWidget):
             return getattr(entry, "playlist_item_id", None)
         return f"{playlist_id}:{eid}"
 
-    def _format_entry_text(self, title: str, available: bool, status: str | None = None, progress: float | None = None, error: str | None = None) -> str:
+    def _format_entry_text(
+        self,
+        title: str,
+        available: bool,
+        status: str | None = None,
+        progress: float | None = None,
+        error: str | None = None,
+    ) -> str:
         suffix = "" if available else " (Unavailable)"
         text = f"{title}{suffix}"
         if status and status not in ("Available", "Unavailable"):
@@ -359,7 +377,10 @@ class PlaylistsPage(QWidget):
         except Exception:
             status_map = {}
         if selected_items:
-            targets = [iid for iid in selected_items if (status_map.get(iid, {}).get("status") in ("Failed", "Cancelled"))]
+            targets = [
+                iid for iid in selected_items
+                if (status_map.get(iid, {}).get("status") in ("Failed", "Cancelled"))
+            ]
         else:
             targets = [iid for iid, st in status_map.items() if st.get("status") in ("Failed", "Cancelled")]
         if not targets:

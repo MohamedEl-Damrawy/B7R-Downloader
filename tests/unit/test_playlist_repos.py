@@ -12,8 +12,8 @@ class TestPlaylistRepos(unittest.TestCase):
             os.environ["LOCALAPPDATA"] = td
             import app.core.paths as paths
             import app.database.migrations as migrations
-            import app.database.repositories.playlists_repo as pl_repo_mod
             import app.database.repositories.download_items_repo as items_repo_mod
+            import app.database.repositories.playlists_repo as pl_repo_mod
 
             importlib.reload(paths)
             importlib.reload(migrations)
@@ -62,9 +62,11 @@ class TestPlaylistRepos(unittest.TestCase):
 
             items_repo.upsert_many([
                 {"id": "pl1:1", "playlist_id": "pl1", "download_id": None, "entry_index": 1,
-                 "source_url": "https://example.com/v1", "title": "V1", "thumbnail_url": "", "status": "Available", "progress": 0.0, "output_path": None, "error_message": None},
+                 "source_url": "https://example.com/v1", "title": "V1", "thumbnail_url": "",
+                 "status": "Available", "progress": 0.0, "output_path": None, "error_message": None},
                 {"id": "pl1:2", "playlist_id": "pl1", "download_id": None, "entry_index": 2,
-                 "source_url": "https://example.com/v2", "title": "V2", "thumbnail_url": "", "status": "Available", "progress": 0.0, "output_path": None, "error_message": None},
+                 "source_url": "https://example.com/v2", "title": "V2", "thumbnail_url": "",
+                 "status": "Available", "progress": 0.0, "output_path": None, "error_message": None},
             ])
             rows = items_repo.list_by_playlist("pl1")
             self.assertEqual(len(rows), 2)
@@ -80,9 +82,9 @@ class TestPlaylistRepos(unittest.TestCase):
             os.environ["LOCALAPPDATA"] = td
             import app.core.paths as paths
             import app.database.migrations as migrations
-            import app.database.repositories.playlists_repo as pl_repo_mod
             import app.database.repositories.download_items_repo as items_repo_mod
             import app.database.repositories.downloads_repo as dl_repo_mod
+            import app.database.repositories.playlists_repo as pl_repo_mod
 
             importlib.reload(paths)
             importlib.reload(migrations)
@@ -104,7 +106,8 @@ class TestPlaylistRepos(unittest.TestCase):
                 "selected_format": "best", "output_path": td, "status": "Downloading", "progress": 50.0,
                 "downloaded_bytes": None, "total_bytes": None, "speed": None, "eta": None,
                 "error_code": None, "error_message": None, "playlist_id": "pl2",
-                "created_at": "2026-01-01T00:00:00+00:00", "updated_at": "2026-01-01T00:00:00+00:00", "completed_at": None,
+                "created_at": "2026-01-01T00:00:00+00:00",
+                "updated_at": "2026-01-01T00:00:00+00:00", "completed_at": None,
             })
             items_repo.upsert_many([{
                 "id": "pl2:1", "playlist_id": "pl2", "download_id": "d2", "entry_index": 1,

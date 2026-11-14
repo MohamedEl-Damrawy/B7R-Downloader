@@ -47,7 +47,10 @@ class TestDownloadsRepo(unittest.TestCase):
             got = repo.get_by_id("t1")
             self.assertIsNotNone(got)
             self.assertEqual(got["title"], "Video")
-            repo.update_status("t1", "Completed", progress=100.0, total_bytes=1024 * 1024, updated_at="2026-01-01T00:01:00+00:00", completed_at="2026-01-01T00:01:00+00:00")
+            repo.update_status(
+                "t1", "Completed", progress=100.0, total_bytes=1024 * 1024,
+                updated_at="2026-01-01T00:01:00+00:00", completed_at="2026-01-01T00:01:00+00:00",
+            )
             self.assertEqual(repo.counts().get("Completed"), 1)
             self.assertEqual(repo.total_completed_bytes(), 1024 * 1024)
 

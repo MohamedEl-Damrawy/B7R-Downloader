@@ -30,6 +30,7 @@ ALLOWED_TRANSITIONS: dict[DownloadStatus, set[DownloadStatus]] = {
     },
     DownloadStatus.EXTRACTING: {
         DownloadStatus.DOWNLOADING,
+        DownloadStatus.COMPLETED,  # instant/cached success without progress hooks
         DownloadStatus.FAILED,
         DownloadStatus.CANCELLED,
     },
@@ -43,6 +44,8 @@ ALLOWED_TRANSITIONS: dict[DownloadStatus, set[DownloadStatus]] = {
         DownloadStatus.COMPLETED,
         DownloadStatus.FAILED,
         DownloadStatus.CANCELLED,
+        # Multi-file tasks (playlist_items) loop back when the next file starts.
+        DownloadStatus.DOWNLOADING,
     },
     DownloadStatus.COMPLETED: set(),
     DownloadStatus.FAILED: {DownloadStatus.QUEUED},

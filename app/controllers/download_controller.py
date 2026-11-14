@@ -20,7 +20,7 @@ from app.database.repositories.download_items_repo import DownloadItemsRepositor
 from app.database.repositories.downloads_repo import DownloadsRepository
 from app.engine.format_selector import pick_format_for_quality
 from app.models.download import DownloadTask, utc_now_iso
-from app.models.download_status import DownloadStatus
+from app.models.download_status import DownloadStatus, can_transition
 from app.services.settings_service import SettingsService
 from app.workers.download_worker import DownloadWorker
 from app.workers.metadata_worker import MetadataWorker
@@ -268,7 +268,9 @@ class DownloadController(QObject):
         worker.signals.error.connect(self._on_error)
         worker.signals.finished.connect(lambda tid=task_id: self._on_finished(tid))
         logger.info("Task started: id=%s url=%s", task_id, redact_url(spec.get("url", "")))
-        self._update_status(task_id, DownloadStatus.DOWNLOADING, progress=0.0)
+        # Real EXTRACTING state: yt-dlp runs metadata extraction before the first
+        # progress hook fires, which then flips the task to DOWNLOADING (DEAD-10).
+        self._update_status(task_id, DownloadStatus.EXTRACTING, progress=0.0)
         self.pool.start(worker)
 
     def _task_to_record(self, task: DownloadTask) -> dict:
@@ -324,6 +326,19 @@ class DownloadController(QObject):
             self._persisted_status.get(task_id) != status_str
             or (mono - self._last_progress_persist.get(task_id, 0.0)) >= _DB_WRITE_INTERVAL_SEC
         )
+        # Enforce the documented state machine (QUAL/DEAD-09): the previous
+        # status is whatever was last passed through this method, because any
+        # status change is persisted immediately.
+        prev = self._persisted_status.get(task_id)
+        if prev is not None and prev != status_str and not can_transition(
+            DownloadStatus(prev), DownloadStatus(status_str)
+        ):
+            logger.error(
+                "Invalid status transition for task %s: %s -> %s (applying anyway, bug suspected)",
+                task_id,
+                prev,
+                status_str,
+            )
         if should_persist:
             self._persisted_status[task_id] = status_str
             self._last_progress_persist[task_id] = mono
@@ -355,7 +370,12 @@ class DownloadController(QObject):
         }
         self._tasks[task_id] = payload
         if should_persist:
-            self._sync_playlist_item(task_id, status, progress=payload.get("progress"), error_message=error_message, output_path=payload.get("output_path"))
+            self._sync_playlist_item(
+                task_id, status,
+                progress=payload.get("progress"),
+                error_message=error_message,
+                output_path=payload.get("output_path"),
+            )
         self.task_updated.emit(payload)
 
     def _on_progress(self, payload: dict) -> None:

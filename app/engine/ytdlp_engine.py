@@ -19,7 +19,6 @@ from app.engine.progress_parser import parse_progress_hook
 from app.models.playlist import PlaylistEntry, PlaylistMetadata
 from app.models.video import VideoMetadata
 
-
 ProgressCallback = Callable[[dict[str, Any]], None]
 logger = get_logger(__name__)
 
@@ -123,9 +122,13 @@ def _classify_error(exc: Exception) -> Exception:
     if "unsupported url" in msg or "not supported" in msg:
         return UnsupportedSourceError("This source is not supported.")
     if "private video" in msg or "sign in" in msg or "login required" in msg:
-        return MetadataExtractionError("This content requires access that is not available. Authorized/public content only.")
+        return MetadataExtractionError(
+            "This content requires access that is not available. Authorized/public content only."
+        )
     if "timed out" in msg or "timeout" in msg:
-        return MetadataExtractionError("Network timeout while extracting metadata. Check your connection and try again.")
+        return MetadataExtractionError(
+            "Network timeout while extracting metadata. Check your connection and try again."
+        )
     if "unable to download webpage" in msg or "http error" in msg or "network" in msg or "connection" in msg:
         return MetadataExtractionError("Network error while extracting metadata. Check the URL and your connection.")
     return MetadataExtractionError("Failed to extract metadata from the provided URL.")
@@ -151,9 +154,15 @@ def _classify_download_error(exc: Exception) -> Exception:
     return DownloadError("Download failed. Check the URL, network connection, FFmpeg availability, or output path.")
 
 
-def extract_metadata(url: str, ffmpeg_location: Optional[str] = None) -> tuple[VideoMetadata | None, PlaylistMetadata | None]:
+def extract_metadata(
+    url: str, ffmpeg_location: Optional[str] = None
+) -> tuple[VideoMetadata | None, PlaylistMetadata | None]:
     yt_dlp = _lazy_yt_dlp()
     opts = _base_opts(ffmpeg_location)
+    # PERF-03/FEAT-15: playlist previews only need titles/URLs; flat extraction
+    # avoids fetching one full page per entry (minutes + 429 risk on large
+    # playlists). Full per-entry data is still fetched at download time.
+    opts["extract_flat"] = "in_playlist"
     capture = _YTdlpCaptureLogger()
     opts["logger"] = capture
     safe_url = redact_url(url)
