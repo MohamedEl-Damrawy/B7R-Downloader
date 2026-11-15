@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+import shutil
 import time
 import uuid
 from collections import deque
+from pathlib import Path
 
 from PySide6.QtCore import QObject, QThreadPool, Signal
 
@@ -12,13 +14,17 @@ from app.core.constants import (
     DEFAULT_MAX_CONCURRENT_DOWNLOADS,
     MAX_CONCURRENT_DOWNLOADS,
     MIN_CONCURRENT_DOWNLOADS,
+    MIN_FREE_SPACE_BYTES,
+    SETTINGS_COOKIEFILE,
     SETTINGS_MAX_CONCURRENT_DOWNLOADS,
+    SETTINGS_PROXY,
+    SETTINGS_SPONSORBLOCK,
 )
 from app.core.logger import get_logger
 from app.core.validators import is_valid_playlist_items, redact_url
 from app.database.repositories.download_items_repo import DownloadItemsRepository
 from app.database.repositories.downloads_repo import DownloadsRepository
-from app.engine.format_selector import pick_format_for_quality
+from app.engine.format_selector import audio_preset_for_quality, pick_format_for_quality
 from app.models.download import DownloadTask, utc_now_iso
 from app.models.download_status import DownloadStatus, can_transition
 from app.services.settings_service import SettingsService
@@ -62,9 +68,47 @@ class DownloadController(QObject):
             val = DEFAULT_MAX_CONCURRENT_DOWNLOADS
         return max(MIN_CONCURRENT_DOWNLOADS, min(MAX_CONCURRENT_DOWNLOADS, val))
 
+    def _network_opts(self) -> dict[str, str | None]:
+        """Read engine credential options from settings (DL-07/FEAT-04/05)."""
+        try:
+            svc = SettingsService()
+            cookiefile = svc.get(SETTINGS_COOKIEFILE) or None
+            proxy = svc.get(SETTINGS_PROXY) or None
+            cookiefile = cookiefile if cookiefile and Path(cookiefile).exists() else None
+            if cookiefile is None:
+                configured = svc.get(SETTINGS_COOKIEFILE)
+                if configured and not Path(configured).exists():
+                    logger.warning("Configured cookiefile does not exist; ignoring: %s", configured)
+            return {"cookiefile": cookiefile, "proxy": (proxy or "").strip() or None}
+        except Exception:
+            return {"cookiefile": None, "proxy": None}
+
+    def _sponsorblock_enabled(self) -> bool:
+        try:
+            return str(SettingsService().get(SETTINGS_SPONSORBLOCK, "0")).strip() == "1"
+        except Exception:
+            return False
+
+    def _disk_has_space(self, output_dir: str) -> bool:
+        """FEAT-06: refuse enqueueing when the destination drive is nearly full."""
+        try:
+            usage = shutil.disk_usage(str(output_dir))
+        except Exception:
+            return True  # cannot verify (e.g. network drive) -> do not block
+        if usage.free >= MIN_FREE_SPACE_BYTES:
+            return True
+        logger.error(
+            "Not enough free space at %s: %.1f MB available, %.1f MB required",
+            output_dir,
+            usage.free / (1024 * 1024),
+            MIN_FREE_SPACE_BYTES / (1024 * 1024),
+        )
+        return False
+
     def extract_metadata(self, url: str) -> None:
         logger.info("Queue metadata extraction: url=%s", redact_url(url))
-        worker = MetadataWorker(url)
+        net = self._network_opts()
+        worker = MetadataWorker(url, cookiefile=net.get("cookiefile"), proxy=net.get("proxy"))
         worker.signals.result.connect(self.metadata_result)
         worker.signals.error.connect(self.metadata_error)
         worker.signals.finished.connect(self.metadata_finished)
@@ -80,6 +124,9 @@ class DownloadController(QObject):
         playlist_id: str | None = None,
         playlist_items: str | None = None,
         playlist_item_id: str | None = None,
+        embed_metadata: bool = False,
+        embed_thumbnail: bool = False,
+        write_subs: bool = False,
     ) -> str:
         if playlist_items and not is_valid_playlist_items(str(playlist_items)):
             logger.error(
@@ -89,12 +136,11 @@ class DownloadController(QObject):
             )
             return ""
         task_id = uuid.uuid4().hex
+        audio_format = audio_preset_for_quality(quality)
         fmt = pick_format_for_quality([], quality) or "bv*+ba/b"
         # Resolve/prepare the output directory; fall back to the default when empty
         # so a task never ends up writing to the process working directory.
         try:
-            from pathlib import Path
-
             from app.core.paths import get_default_download_dir
 
             out = Path(output_dir).expanduser() if str(output_dir or "").strip() else Path(get_default_download_dir())
@@ -102,6 +148,15 @@ class DownloadController(QObject):
             output_dir = str(out)
         except Exception:
             logger.warning("Could not prepare output directory at enqueue time: %s", output_dir, exc_info=True)
+        # FEAT-06: preflight disk-space check on the resolved destination.
+        if not self._disk_has_space(output_dir):
+            self._tasks[task_id] = {"id": task_id, "source_url": url, "title": title}
+            self._update_status(
+                task_id, DownloadStatus.FAILED,
+                error_message="Not enough free disk space at destination.",
+            )
+            return task_id
+        net = self._network_opts()
         task = DownloadTask(
             id=task_id,
             source_url=url,
@@ -119,6 +174,13 @@ class DownloadController(QObject):
             "format_selector": fmt,
             "playlist_items": playlist_items,
             "playlist_item_id": playlist_item_id,
+            "audio_format": audio_format,
+            "embed_metadata": embed_metadata,
+            "embed_thumbnail": embed_thumbnail,
+            "write_subs": write_subs,
+            "sponsorblock": self._sponsorblock_enabled(),
+            "cookiefile": net.get("cookiefile"),
+            "proxy": net.get("proxy"),
         }
         if playlist_item_id:
             try:
@@ -260,6 +322,13 @@ class DownloadController(QObject):
             output_dir=spec["output_dir"],
             format_selector=spec.get("format_selector") or "bv*+ba/b",
             playlist_items=spec.get("playlist_items"),
+            audio_format=spec.get("audio_format"),
+            embed_metadata=bool(spec.get("embed_metadata")),
+            embed_thumbnail=bool(spec.get("embed_thumbnail")),
+            write_subs=bool(spec.get("write_subs")),
+            sponsorblock=bool(spec.get("sponsorblock")),
+            cookiefile=spec.get("cookiefile"),
+            proxy=spec.get("proxy"),
         )
         self._workers[task_id] = worker
         self._active.add(task_id)

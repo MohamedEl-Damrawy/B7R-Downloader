@@ -4,9 +4,9 @@ from __future__ import annotations
 
 import unittest
 
-from app.engine.format_selector import normalize_formats, pick_format_for_quality
+from app.engine.format_selector import audio_preset_for_quality, normalize_formats, pick_format_for_quality
 from app.engine.progress_parser import parse_progress_hook
-from app.engine.ytdlp_engine import _entry_is_unavailable
+from app.engine.ytdlp_engine import _apply_network_opts, _build_postprocessors, _entry_is_unavailable, get_ytdlp_version
 
 
 class TestEngineHelpers(unittest.TestCase):
@@ -47,6 +47,43 @@ class TestEngineHelpers(unittest.TestCase):
         self.assertFalse(_entry_is_unavailable("My Normal Video Title"))
         self.assertFalse(_entry_is_unavailable(""))
         self.assertFalse(_entry_is_unavailable(None))
+
+    def test_audio_preset_for_quality(self):
+        self.assertEqual(audio_preset_for_quality("audio_mp3"), "mp3")
+        self.assertEqual(audio_preset_for_quality("Audio_M4A"), "m4a")
+        self.assertIsNone(audio_preset_for_quality("best"))
+        self.assertIsNone(audio_preset_for_quality(""))
+        self.assertIsNone(audio_preset_for_quality("720p"))
+
+    def test_pick_format_for_quality_audio_presets(self):
+        self.assertEqual(pick_format_for_quality([], "audio_mp3"), "bestaudio/best")
+        self.assertEqual(pick_format_for_quality([], "audio_m4a"), "bestaudio/best")
+
+    def test_build_postprocessors(self):
+        # FEAT-01/02/03: postprocessor list composition.
+        self.assertEqual(_build_postprocessors(), [])
+        pps = _build_postprocessors(audio_format="mp3")
+        self.assertEqual(pps[0]["key"], "FFmpegExtractAudio")
+        self.assertEqual(pps[0]["preferredcodec"], "mp3")
+        pps = _build_postprocessors(embed_metadata=True, embed_thumbnail=True, sponsorblock=True)
+        keys = [pp["key"] for pp in pps]
+        self.assertEqual(keys, ["SponsorBlock", "EmbedThumbnail", "FFmpegMetadata"])
+
+    def test_apply_network_opts(self):
+        # DL-07/FEAT-04/05: cookies/proxy plumbed into yt-dlp options.
+        opts: dict = {}
+        _apply_network_opts(opts)
+        self.assertEqual(opts, {})
+        _apply_network_opts(opts, cookiefile=" C:\\cookies.txt ", proxy=" http://127.0.0.1:8080 ")
+        self.assertEqual(opts["cookiefile"], "C:\\cookies.txt")
+        self.assertEqual(opts["proxy"], "http://127.0.0.1:8080")
+        # Empty values are ignored, not set.
+        opts2: dict = {}
+        _apply_network_opts(opts2, cookiefile="", proxy="  ")
+        self.assertEqual(opts2, {})
+
+    def test_get_ytdlp_version(self):
+        self.assertNotEqual(get_ytdlp_version(), "")
 
     def test_pick_format_for_quality_presets_and_id(self):
         self.assertEqual(pick_format_for_quality([], "best"), "bv*+ba/b")

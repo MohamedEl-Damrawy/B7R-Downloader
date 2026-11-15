@@ -5,6 +5,7 @@ from __future__ import annotations
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QApplication,
+    QCheckBox,
     QComboBox,
     QFileDialog,
     QFormLayout,
@@ -50,6 +51,9 @@ class NewDownloadPage(QWidget):
         self.format_combo.addItem("1080p (if available)", "1080p")
         self.format_combo.addItem("720p (if available)", "720p")
         self.format_combo.addItem("480p (if available)", "480p")
+        # FEAT-01: audio-only presets (converted with FFmpegExtractAudio).
+        self.format_combo.addItem("Audio only — MP3", "audio_mp3")
+        self.format_combo.addItem("Audio only — M4A", "audio_m4a")
         form.addRow("Quality", self.format_combo)
 
         dest_row = QHBoxLayout()
@@ -61,6 +65,16 @@ class NewDownloadPage(QWidget):
         dest_row.addWidget(self.browse_dest_btn)
         form.addRow("Destination", dest_row)
         self._apply_default_destination()
+
+        # FEAT-02: optional extras applied by yt-dlp postprocessors.
+        extras_row = QHBoxLayout()
+        self.subs_check = QCheckBox("Download subtitles (en/ar)")
+        self.meta_check = QCheckBox("Embed metadata")
+        self.thumb_check = QCheckBox("Embed thumbnail")
+        for cb in (self.subs_check, self.meta_check, self.thumb_check):
+            extras_row.addWidget(cb)
+        extras_row.addStretch(1)
+        form.addRow("Extras", extras_row)
 
         self.thumb_label = QLabel("Thumbnail preview: none")
         self.thumb_label.setMinimumHeight(120)
@@ -150,6 +164,9 @@ class NewDownloadPage(QWidget):
         self.format_combo.addItem("1080p (if available)", "1080p")
         self.format_combo.addItem("720p (if available)", "720p")
         self.format_combo.addItem("480p (if available)", "480p")
+        # FEAT-01: audio-only presets (converted with FFmpegExtractAudio).
+        self.format_combo.addItem("Audio only — MP3", "audio_mp3")
+        self.format_combo.addItem("Audio only — M4A", "audio_m4a")
         if playlist:
             count = len(getattr(playlist, "entries", []) or [])
             thumb = getattr(playlist, "thumbnail_url", "") or ""
@@ -248,6 +265,9 @@ class NewDownloadPage(QWidget):
             quality=str(quality),
             title=getattr(self._last_video, "title", ""),
             thumbnail_url=getattr(self._last_video, "thumbnail_url", ""),
+            embed_metadata=self.meta_check.isChecked(),
+            embed_thumbnail=self.thumb_check.isChecked(),
+            write_subs=self.subs_check.isChecked(),
         )
         self.preview_label.setText(self.preview_label.text() + f"\n\nQueued download task: {task_id[:8]}...")
         self.download_btn.setEnabled(False)

@@ -41,6 +41,46 @@ def _entry_is_unavailable(title: str | None) -> bool:
     return any(t.startswith(marker) or t == marker.strip("[]") for marker in _UNAVAILABLE_TITLE_MARKERS)
 
 
+def _build_postprocessors(
+    audio_format: str | None = None,
+    embed_metadata: bool = False,
+    embed_thumbnail: bool = False,
+    sponsorblock: bool = False,
+) -> list[dict[str, Any]]:
+    """Build the yt-dlp postprocessor list (FEAT-01/02/03). Pure helper."""
+    pps: list[dict[str, Any]] = []
+    if sponsorblock:
+        pps.append(
+            {
+                "key": "SponsorBlock",
+                "categories": ["sponsor", "intro", "outro", "selfpromo", "preview"],
+                "when": "after_video",
+            }
+        )
+    if embed_thumbnail:
+        pps.append({"key": "EmbedThumbnail", "already_have_thumbnail": False})
+    if audio_format:
+        pps.append(
+            {
+                "key": "FFmpegExtractAudio",
+                "preferredcodec": audio_format,
+                "preferredquality": "192",
+            }
+        )
+    if embed_metadata:
+        pps.append({"key": "FFmpegMetadata", "add_metadata": True})
+    return pps
+
+
+def _apply_network_opts(opts: dict[str, Any], cookiefile: Optional[str] = None, proxy: Optional[str] = None) -> None:
+    """Add credentials options (DL-07/FEAT-04/FEAT-05). Pure helper."""
+    if cookiefile and str(cookiefile).strip():
+        # Netscape-format cookie jar; the file may contain session secrets.
+        opts["cookiefile"] = str(cookiefile).strip()
+    if proxy and str(proxy).strip():
+        opts["proxy"] = str(proxy).strip()
+
+
 class CancelToken:
     def __init__(self) -> None:
         self._cancelled = False
@@ -51,6 +91,29 @@ class CancelToken:
     @property
     def cancelled(self) -> bool:
         return self._cancelled
+
+
+def get_ytdlp_version() -> str:
+    """DL-10/FEAT-07: installed yt-dlp version, empty string when unavailable."""
+    try:
+        yt_dlp = _lazy_yt_dlp()
+        return str(yt_dlp.version.__version__)
+    except Exception:
+        return ""
+
+
+def latest_pypi_version(package: str = "yt-dlp", timeout: float = 5.0) -> Optional[str]:
+    """Query PyPI for the latest release of a package; None on any failure."""
+    try:
+        import json
+        import urllib.request
+
+        url = f"https://pypi.org/pypi/{package}/json"
+        with urllib.request.urlopen(url, timeout=timeout) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+        return str(data.get("info", {}).get("version") or "") or None
+    except Exception:
+        return None
 
 
 def _lazy_yt_dlp():
@@ -155,7 +218,10 @@ def _classify_download_error(exc: Exception) -> Exception:
 
 
 def extract_metadata(
-    url: str, ffmpeg_location: Optional[str] = None
+    url: str,
+    ffmpeg_location: Optional[str] = None,
+    cookiefile: Optional[str] = None,
+    proxy: Optional[str] = None,
 ) -> tuple[VideoMetadata | None, PlaylistMetadata | None]:
     yt_dlp = _lazy_yt_dlp()
     opts = _base_opts(ffmpeg_location)
@@ -163,6 +229,7 @@ def extract_metadata(
     # avoids fetching one full page per entry (minutes + 429 risk on large
     # playlists). Full per-entry data is still fetched at download time.
     opts["extract_flat"] = "in_playlist"
+    _apply_network_opts(opts, cookiefile=cookiefile, proxy=proxy)
     capture = _YTdlpCaptureLogger()
     opts["logger"] = capture
     safe_url = redact_url(url)
@@ -246,6 +313,13 @@ def download_media(
     progress_callback: Optional[ProgressCallback] = None,
     cancel_token: Optional[CancelToken] = None,
     playlist_items: Optional[str] = None,
+    audio_format: Optional[str] = None,
+    embed_metadata: bool = False,
+    embed_thumbnail: bool = False,
+    write_subs: bool = False,
+    sponsorblock: bool = False,
+    cookiefile: Optional[str] = None,
+    proxy: Optional[str] = None,
 ) -> dict[str, Any]:
     """Download media to output_dir. Returns basic result info."""
     yt_dlp = _lazy_yt_dlp()
@@ -294,10 +368,29 @@ def download_media(
         "fragment_retries": 10,
         "extractor_retries": 3,
         "socket_timeout": 30,
+        # DL-11: keep generated file names short enough for MAX_PATH-less setups.
+        "trim_file_name": 150,
         "overwrites": False,
         "continuedl": True,
         "noplaylist": playlist_items is None,
     }
+    pps = _build_postprocessors(
+        audio_format=audio_format,
+        embed_metadata=embed_metadata,
+        embed_thumbnail=embed_thumbnail,
+        sponsorblock=sponsorblock,
+    )
+    if pps:
+        opts["postprocessors"] = pps
+        if audio_format:
+            # Audio-only: no video stream and no mp4 merge container.
+            opts["format"] = "bestaudio/best"
+            opts.pop("merge_output_format", None)
+    if write_subs:
+        opts["writesubtitles"] = True
+        opts["subtitleslangs"] = ["en.*", "ar.*"]
+        opts["skip_download"] = False
+    _apply_network_opts(opts, cookiefile=cookiefile, proxy=proxy)
     if playlist_items:
         opts["playlist_items"] = playlist_items
         opts["noplaylist"] = False

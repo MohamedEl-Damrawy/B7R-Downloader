@@ -40,10 +40,18 @@ SETTINGS_DEFAULT_DOWNLOAD_PATH = "default_download_path"
 SETTINGS_MAX_CONCURRENT_DOWNLOADS = "max_concurrent_downloads"
 SETTINGS_THEME = "theme"
 SETTINGS_SCHEMA_VERSION = "schema_version"
+# Phase 3 engine options (DL-07/FEAT-03/FEAT-04/FEAT-05)
+SETTINGS_COOKIEFILE = "ytdlp_cookiefile"
+SETTINGS_PROXY = "ytdlp_proxy"
+SETTINGS_SPONSORBLOCK = "sponsorblock_mark"
+
+# FEAT-06: refuse enqueueing when the destination drive has less free space.
+MIN_FREE_SPACE_BYTES = 100 * 1024 * 1024  # 100 MB
 
 DEFAULT_SETTINGS = {
     SETTINGS_MAX_CONCURRENT_DOWNLOADS: str(DEFAULT_MAX_CONCURRENT_DOWNLOADS),
     SETTINGS_THEME: "dark",
+    SETTINGS_SPONSORBLOCK: "0",
 }
 
 SUPPORTED_QUALITY_PRESETS = ["best", "1080p", "720p", "480p"]

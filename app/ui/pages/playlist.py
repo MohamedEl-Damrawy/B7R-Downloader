@@ -49,6 +49,9 @@ class PlaylistsPage(QWidget):
         self.quality_combo.addItem("1080p (if available)", "1080p")
         self.quality_combo.addItem("720p (if available)", "720p")
         self.quality_combo.addItem("480p (if available)", "480p")
+        # FEAT-01: audio-only presets (converted with FFmpegExtractAudio).
+        self.quality_combo.addItem("Audio only — MP3", "audio_mp3")
+        self.quality_combo.addItem("Audio only — M4A", "audio_m4a")
         opts.addWidget(self.quality_combo)
         opts.addWidget(QLabel("Output:"))
         self.output_input = QLineEdit()

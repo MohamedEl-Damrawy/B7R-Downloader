@@ -19,6 +19,13 @@ class DownloadWorker(BaseWorker):
         output_dir: str,
         format_selector: str = "bv*+ba/b",
         playlist_items: str | None = None,
+        audio_format: str | None = None,
+        embed_metadata: bool = False,
+        embed_thumbnail: bool = False,
+        write_subs: bool = False,
+        sponsorblock: bool = False,
+        cookiefile: str | None = None,
+        proxy: str | None = None,
     ):
         super().__init__()
         self.task_id = task_id
@@ -26,6 +33,13 @@ class DownloadWorker(BaseWorker):
         self.output_dir = output_dir
         self.format_selector = format_selector
         self.playlist_items = playlist_items
+        self.audio_format = audio_format
+        self.embed_metadata = embed_metadata
+        self.embed_thumbnail = embed_thumbnail
+        self.write_subs = write_subs
+        self.sponsorblock = sponsorblock
+        self.cookiefile = cookiefile
+        self.proxy = proxy
         self.cancel_token = CancelToken()
 
     def cancel(self) -> None:
@@ -45,6 +59,13 @@ class DownloadWorker(BaseWorker):
                 ),
                 cancel_token=self.cancel_token,
                 playlist_items=self.playlist_items,
+                audio_format=self.audio_format,
+                embed_metadata=self.embed_metadata,
+                embed_thumbnail=self.embed_thumbnail,
+                write_subs=self.write_subs,
+                sponsorblock=self.sponsorblock,
+                cookiefile=self.cookiefile,
+                proxy=self.proxy,
             )
             self.signals.result.emit({"task_id": self.task_id, "result": result})
         except Exception as exc:

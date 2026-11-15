@@ -54,6 +54,27 @@ class TestDownloadsRepo(unittest.TestCase):
             self.assertEqual(repo.counts().get("Completed"), 1)
             self.assertEqual(repo.total_completed_bytes(), 1024 * 1024)
 
+    def test_downloads_repo_delete(self):
+        with TemporaryDirectory() as td:
+            os.environ["LOCALAPPDATA"] = td
+            import app.core.paths as paths
+            import app.database.migrations as migrations
+            import app.database.repositories.downloads_repo as repo_mod
+
+            importlib.reload(paths)
+            importlib.reload(migrations)
+            importlib.reload(repo_mod)
+
+            migrations.apply_migrations()
+            repo = repo_mod.DownloadsRepository()
+            repo.upsert(
+                {"id": "del1", "source_url": "https://example.com/v", "status": "Failed",
+                 "progress": 0.0, "created_at": "2026-01-01T00:00:00+00:00"}
+            )
+            self.assertTrue(repo.delete("del1"))
+            self.assertFalse(repo.delete("del1"))  # already gone
+            self.assertIsNone(repo.get_by_id("del1"))
+
     def test_mark_interrupted_marks_active_tasks_failed(self):
         with TemporaryDirectory() as td:
             os.environ["LOCALAPPDATA"] = td

@@ -10,6 +10,8 @@ from PySide6.QtWidgets import QHBoxLayout, QMainWindow, QStackedWidget, QStatusB
 
 from app.controllers.download_controller import DownloadController
 from app.core.constants import APP_NAME, APP_VERSION
+from app.core.logger import get_logger
+from app.core.validators import is_http_url
 from app.database.repositories.download_items_repo import DownloadItemsRepository
 from app.database.repositories.playlists_repo import PlaylistsRepository
 from app.models.download import utc_now_iso
@@ -21,6 +23,8 @@ from app.ui.pages.new_download import NewDownloadPage
 from app.ui.pages.playlist import PlaylistsPage
 from app.ui.pages.queue import QueuePage
 from app.ui.pages.settings import SettingsPage
+
+logger = get_logger(__name__)
 
 
 class MainWindow(QMainWindow):
@@ -73,6 +77,74 @@ class MainWindow(QMainWindow):
 
         self._wire_controllers()
         self.navigate_to("dashboard")
+        self._install_nav_shortcuts()
+        self._install_clipboard_watcher()
+        QTimer.singleShot(0, self._offer_resume_interrupted)
+
+    def _install_nav_shortcuts(self) -> None:
+        """FEAT-13: Ctrl+1..7 navigate between pages."""
+        from PySide6.QtGui import QKeySequence, QShortcut
+
+        for i, key in enumerate(
+            ("dashboard", "new_download", "playlists", "queue", "completed", "history", "settings"), start=1
+        ):
+            shortcut = QShortcut(QKeySequence(f"Ctrl+{i}"), self)
+            shortcut.activated.connect(lambda k=key: self.navigate_to(k))
+
+    def _install_clipboard_watcher(self) -> None:
+        """FEAT-09: surface YouTube links copied elsewhere (status-bar hint only)."""
+        try:
+            from PySide6.QtWidgets import QApplication
+
+            self._clipboard = QApplication.clipboard()
+            if self._clipboard:
+                self._clipboard.dataChanged.connect(self._on_clipboard_changed)
+        except Exception:
+            self._clipboard = None
+
+    def _on_clipboard_changed(self) -> None:
+        try:
+            if self._clipboard is None:
+                return
+            text = (self._clipboard.text() or "").strip()
+            if not text or "\n" in text:
+                return
+            if is_http_url(text) and ("youtube.com/" in text or "youtu.be/" in text):
+                self.status.showMessage("YouTube link detected in clipboard — open New Download to grab it", 5000)
+        except Exception:
+            pass
+
+    def _offer_resume_interrupted(self) -> None:
+        """FEAT-10: after startup recovery, offer to retry tasks interrupted by a restart."""
+        try:
+            rows = self.download_controller.repo.list_by_statuses(
+                ["Failed"], limit=50
+            )
+        except Exception:
+            return
+        interrupted = [r for r in rows if "Interrupted by application restart" in str(r.get("error_message") or "")]
+        if not interrupted:
+            return
+        from PySide6.QtWidgets import QMessageBox
+
+        reply = QMessageBox.question(
+            self,
+            "Interrupted downloads",
+            f"{len(interrupted)} download(s) were interrupted by the last app exit.\nRetry them now?",
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.No,
+        )
+        if reply != QMessageBox.Yes:
+            return
+        retried = 0
+        for rec in interrupted:
+            try:
+                if self.download_controller.retry_download(str(rec.get("id"))):
+                    retried += 1
+            except Exception:
+                logger.exception("Failed to retry interrupted task %s", rec.get("id"))
+        if retried:
+            self.status.showMessage(f"Re-queued {retried} interrupted download(s)")
 
     def _wire_controllers(self) -> None:
         nd = self.pages["new_download"]

@@ -104,6 +104,12 @@ class DownloadsRepository:
             ).fetchone()
             return int(row["total"] or 0) if row else 0
 
+    def delete(self, download_id: str) -> bool:
+        """FEAT-11: remove a history record (metadata only; files stay on disk)."""
+        with db_session() as conn:
+            cur = conn.execute("DELETE FROM downloads WHERE id = ?", (download_id,))
+            return (cur.rowcount or 0) > 0
+
     def mark_interrupted(self, message: str = "Interrupted by application restart") -> int:
         now_statuses = ("Extracting", "Downloading", "Processing")
         placeholders = ",".join(["?"] * len(now_statuses))

@@ -68,4 +68,21 @@ def pick_format_for_quality(formats: list[FormatOption], quality: str) -> str | 
     if target:
         # Prefer best video at or below target with best audio, fallback gracefully.
         return f"bv*[height<={target}]+ba/b[height<={target}]/bv*+ba/b"
+    if q_lower in AUDIO_PRESETS:
+        # FEAT-01: audio-only presets select the best audio stream; the actual
+        # codec conversion happens via FFmpegExtractAudio in the engine.
+        return "bestaudio/best"
     return "bv*+ba/b"
+
+
+# FEAT-01: audio-only presets -> FFmpegExtractAudio target codec.
+AUDIO_PRESETS: dict[str, str] = {
+    "audio_mp3": "mp3",
+    "audio_m4a": "m4a",
+}
+
+
+def audio_preset_for_quality(quality: str) -> str | None:
+    """Return the target audio codec ("mp3"/"m4a") when quality is audio-only."""
+    q = (quality or "").strip().lower()
+    return AUDIO_PRESETS.get(q)

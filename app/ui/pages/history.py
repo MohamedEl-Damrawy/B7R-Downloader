@@ -7,7 +7,16 @@ import subprocess
 import sys
 
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QHBoxLayout, QListWidget, QListWidgetItem, QMessageBox, QPushButton, QVBoxLayout, QWidget
+from PySide6.QtWidgets import (
+    QHBoxLayout,
+    QLineEdit,
+    QListWidget,
+    QListWidgetItem,
+    QMessageBox,
+    QPushButton,
+    QVBoxLayout,
+    QWidget,
+)
 
 from app.database.repositories.downloads_repo import DownloadsRepository
 from app.ui.widgets.common import EmptyState, PageHeader
@@ -23,13 +32,26 @@ class HistoryPage(QWidget):
         layout.setSpacing(16)
         layout.addWidget(PageHeader("History", "Past download attempts and outcomes"))
 
+        # FEAT-11: client-side search over the loaded history.
+        search_row = QHBoxLayout()
+        self.search_input = QLineEdit()
+        self.search_input.setPlaceholderText("Filter by title or URL...")
+        self.search_input.setClearButtonEnabled(True)
+        self.search_input.textChanged.connect(self.refresh_data)
+        search_row.addWidget(self.search_input, 1)
+        layout.addLayout(search_row)
+
         actions = QHBoxLayout()
         self.open_btn = QPushButton("Open Folder")
         self.open_btn.clicked.connect(self._open_selected_folder)
         self.retry_btn = QPushButton("Retry Selected")
         self.retry_btn.clicked.connect(self._retry_selected)
+        self.delete_btn = QPushButton("Delete Record")
+        self.delete_btn.setProperty("class", "Danger")
+        self.delete_btn.clicked.connect(self._delete_selected)
         actions.addWidget(self.open_btn)
         actions.addWidget(self.retry_btn)
+        actions.addWidget(self.delete_btn)
         actions.addStretch(1)
         layout.addLayout(actions)
 
@@ -50,6 +72,12 @@ class HistoryPage(QWidget):
             rows = self.repo.list_recent(200)
         except Exception:
             rows = []
+        needle = self.search_input.text().strip().lower() if hasattr(self, "search_input") else ""
+        if needle:
+            rows = [
+                r for r in rows
+                if needle in str(r.get("title") or "").lower() or needle in str(r.get("source_url") or "").lower()
+            ]
         for r in rows:
             title = r.get("title") or r.get("source_url") or r.get("id")
             status = r.get("status", "")
@@ -74,6 +102,31 @@ class HistoryPage(QWidget):
         status = (rec or {}).get("status")
         self.open_btn.setEnabled(item is not None)
         self.retry_btn.setEnabled(self._controller is not None and status in ("Failed", "Cancelled"))
+        self.delete_btn.setEnabled(item is not None)
+
+    def _delete_selected(self) -> None:
+        """FEAT-11: delete the selected history record (files stay on disk)."""
+        item = self.list_widget.currentItem()
+        if not item:
+            return
+        rec = item.data(Qt.UserRole) or {}
+        from PySide6.QtWidgets import QMessageBox
+
+        reply = QMessageBox.question(
+            self,
+            "Delete record",
+            "Remove this entry from history? Downloaded files are not deleted.",
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.No,
+        )
+        if reply != QMessageBox.Yes:
+            return
+        try:
+            self.repo.delete(str(rec.get("id")))
+        except Exception as exc:
+            QMessageBox.warning(self, "Delete failed", str(exc))
+            return
+        self.refresh_data()
 
     def _open_selected_folder(self) -> None:
         item = self.list_widget.currentItem()
