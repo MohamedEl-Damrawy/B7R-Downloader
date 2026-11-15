@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from PySide6.QtWidgets import (
     QCheckBox,
+    QComboBox,
     QFileDialog,
     QFormLayout,
     QHBoxLayout,
@@ -25,6 +26,7 @@ from app.core.constants import (
     SETTINGS_MAX_CONCURRENT_DOWNLOADS,
     SETTINGS_PROXY,
     SETTINGS_SPONSORBLOCK,
+    SETTINGS_THEME,
 )
 from app.core.paths import get_default_download_dir
 from app.services.settings_service import SettingsService
@@ -77,6 +79,17 @@ class SettingsPage(QWidget):
         self.sponsorblock_check = QCheckBox("Mark SponsorBlock segments (sponsor/intro/outro/...)")
         form.addRow("SponsorBlock", self.sponsorblock_check)
 
+        # FEAT-08: theme selection (applied on next launch).
+        self.theme_combo = QComboBox()
+        self.theme_combo.addItem("Dark", "dark")
+        self.theme_combo.addItem("Light", "light")
+        self.theme_hint = QLabel("Applies after restarting the app.")
+        self.theme_hint.setStyleSheet("color: #91A2B5; font-size: 11px;")
+        theme_row = QHBoxLayout()
+        theme_row.addWidget(self.theme_combo, 0)
+        theme_row.addWidget(self.theme_hint, 1)
+        form.addRow("Theme", theme_row)
+
         info = QLabel(
             "About and third-party notices are available below. Release metadata may require owner confirmation."
         )
@@ -123,6 +136,9 @@ class SettingsPage(QWidget):
         self.cookie_input.setText(str(self.settings.get(SETTINGS_COOKIEFILE) or ""))
         self.proxy_input.setText(str(self.settings.get(SETTINGS_PROXY) or ""))
         self.sponsorblock_check.setChecked(str(self.settings.get(SETTINGS_SPONSORBLOCK, "0")).strip() == "1")
+        theme = str(self.settings.get(SETTINGS_THEME, "dark") or "dark").strip().lower()
+        idx = self.theme_combo.findData(theme)
+        self.theme_combo.setCurrentIndex(idx if idx >= 0 else 0)
         self._refresh_ffmpeg_status()
 
     def _refresh_ffmpeg_status(self) -> None:
@@ -165,7 +181,8 @@ class SettingsPage(QWidget):
         self.settings.set(SETTINGS_COOKIEFILE, self.cookie_input.text().strip())
         self.settings.set(SETTINGS_PROXY, self.proxy_input.text().strip())
         self.settings.set(SETTINGS_SPONSORBLOCK, "1" if self.sponsorblock_check.isChecked() else "0")
-        QMessageBox.information(self, "Settings", "Settings saved.")
+        self.settings.set(SETTINGS_THEME, self.theme_combo.currentData() or "dark")
+        QMessageBox.information(self, "Settings", "Settings saved. Theme change applies after restart.")
 
     def _check_ytdlp_update(self) -> None:
         """DL-10/FEAT-07: compare installed yt-dlp with the latest PyPI release."""

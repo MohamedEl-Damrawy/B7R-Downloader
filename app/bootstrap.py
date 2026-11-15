@@ -27,4 +27,14 @@ def bootstrap() -> None:
             )
     except Exception:
         logger.exception("Startup recovery/migrations issue")
+    # DL-09: clean up ffmpeg processes orphaned by a previous unclean exit.
+    # Scoped strictly to the bundled vendor binary; best effort, never fatal.
+    try:
+        from app.engine.ffmpeg_manager import kill_bundled_ffmpeg_orphans
+
+        orphans = kill_bundled_ffmpeg_orphans()
+        if orphans:
+            logger.info("Startup cleanup: terminated %s orphaned bundled ffmpeg process(es)", orphans)
+    except Exception:
+        logger.debug("Orphan ffmpeg cleanup skipped/failed", exc_info=True)
     logger.info("Bootstrap complete. app_data=%s log=%s", get_app_data_dir(), log_path)

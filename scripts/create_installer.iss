@@ -27,6 +27,8 @@ Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
 PrivilegesRequired=lowest
+; FEAT-14: keep in sync with scripts/make_icon.py
+SetupIconFile=..\resources\icons\app.ico
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"

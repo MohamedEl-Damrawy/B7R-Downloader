@@ -5,7 +5,19 @@ from __future__ import annotations
 import sys
 
 from app.core.constants import APP_NAME, APP_VERSION
-from app.ui.theme.style_loader import load_dark_qss
+from app.ui.theme.style_loader import load_theme_qss
+
+
+def _resolve_theme() -> str:
+    """FEAT-08: theme comes from settings; falls back to dark on any failure."""
+    try:
+        from app.core.constants import SETTINGS_THEME
+        from app.services.settings_service import SettingsService
+
+        value = str(SettingsService().get(SETTINGS_THEME, "dark") or "dark").strip().lower()
+        return value if value in ("dark", "light") else "dark"
+    except Exception:
+        return "dark"
 
 
 def run() -> int:
@@ -22,7 +34,19 @@ def run() -> int:
     app.setApplicationName(APP_NAME)
     app.setApplicationVersion(APP_VERSION)
 
-    qss = load_dark_qss()
+    # FEAT-14: window/taskbar icon (best effort; icon may not exist in dev checkouts).
+    try:
+        from PySide6.QtGui import QIcon
+
+        from app.core.paths import get_resources_dir
+
+        icon_path = get_resources_dir() / "icons" / "app.ico"
+        if icon_path.exists():
+            app.setWindowIcon(QIcon(str(icon_path)))
+    except Exception:
+        pass
+
+    qss = load_theme_qss(_resolve_theme())
     if qss:
         app.setStyleSheet(qss)
 

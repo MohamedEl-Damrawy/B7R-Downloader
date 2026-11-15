@@ -1,0 +1,94 @@
+/* Velo Downloader - Clean Light (FEAT-08) */
+QMainWindow, QWidget#Root {
+    background-color: @main_bg@;
+    color: @text_main@;
+    font-family: "Segoe UI", "Inter", sans-serif;
+    font-size: 13px;
+}
+QWidget#Sidebar {
+    background-color: @sidebar@;
+    border-right: 1px solid #DDE4EC;
+}
+QPushButton.NavButton {
+    background: transparent;
+    color: @text_secondary@;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 14px;
+    text-align: left;
+}
+QPushButton.NavButton:hover {
+    background-color: #EEF2F6;
+    color: @text_main@;
+}
+QPushButton.NavButton[active="true"] {
+    background-color: @secondary@;
+    color: @text_main@;
+}
+QFrame.Card, QWidget.Card {
+    background-color: @card@;
+    border: 1px solid #E2E8EF;
+    border-radius: 12px;
+}
+QLabel.Title {
+    font-size: 20px;
+    font-weight: 600;
+    color: @text_main@;
+}
+QLabel.Subtitle {
+    color: @text_secondary@;
+    font-size: 12px;
+}
+QLineEdit, QComboBox, QTextEdit {
+    background-color: #FFFFFF;
+    border: 1px solid #C9D3DE;
+    border-radius: 8px;
+    padding: 8px 10px;
+    color: @text_main@;
+}
+QPushButton.Primary {
+    background-color: @primary@;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 8px;
+    padding: 9px 14px;
+    font-weight: 600;
+}
+QPushButton.Primary:hover { background-color: #269492; }
+QPushButton.Danger {
+    background-color: @accent@;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 12px;
+}
+QListWidget {
+    background-color: @card@;
+    border: 1px solid #E2E8EF;
+    border-radius: 12px;
+}
+QListWidget::item:selected {
+    background-color: @secondary@;
+    border-radius: 8px;
+}
+QProgressBar {
+    background-color: #EDF1F5;
+    border: 1px solid #C9D3DE;
+    border-radius: 4px;
+}
+QProgressBar::chunk {
+    background-color: @primary@;
+    border-radius: 4px;
+}
+QLabel#QueueRowTitle {
+    color: @text_main@;
+    font-weight: 600;
+}
+QLabel#QueueRowInfo {
+    color: @text_secondary@;
+    font-size: 12px;
+}
+QStatusBar {
+    background: @sidebar@;
+    color: @text_secondary@;
+}

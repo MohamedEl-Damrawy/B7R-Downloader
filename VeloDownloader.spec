@@ -22,6 +22,7 @@ exe = EXE(
     [],
     exclude_binaries=True,
     name='VeloDownloader',
+    icon='resources\\icons\\app.ico',  # FEAT-14: keep in sync with scripts/make_icon.py
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,

@@ -9,15 +9,98 @@ import sys
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QHBoxLayout,
+    QLabel,
     QListWidget,
     QListWidgetItem,
     QMessageBox,
+    QProgressBar,
     QPushButton,
     QVBoxLayout,
     QWidget,
 )
 
 from app.ui.widgets.common import EmptyState, PageHeader
+
+
+class _QueueRow(QWidget):
+    """FEAT-12: per-item row widget with title, live info text and progress bar."""
+
+    def __init__(self, parent: QWidget | None = None):
+        super().__init__(parent)
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(10, 6, 10, 6)
+        layout.setSpacing(4)
+        top = QHBoxLayout()
+        top.setSpacing(10)
+        self.title_label = QLabel()
+        self.title_label.setObjectName("QueueRowTitle")
+        self.info_label = QLabel()
+        self.info_label.setObjectName("QueueRowInfo")
+        top.addWidget(self.title_label, 1)
+        top.addWidget(self.info_label, 0)
+        self.progress = QProgressBar()
+        self.progress.setTextVisible(False)
+        self.progress.setFixedHeight(8)
+        self.progress.setRange(0, 1000)
+        layout.addLayout(top)
+        layout.addWidget(self.progress)
+
+    def update_from(self, task: dict) -> None:
+        title = task.get("title") or task.get("source_url") or task.get("id", "")
+        self.title_label.setText(str(title))
+        self.title_label.setToolTip(str(title))
+        self.info_label.setText(_summary_info(task))
+        status = task.get("status", "Queued")
+        if status in ("Completed",):
+            self.progress.setValue(1000)
+        else:
+            try:
+                progress = float(task.get("progress") or 0.0)
+            except Exception:
+                progress = 0.0
+            self.progress.setValue(max(0, min(1000, int(progress * 10))))
+        self.progress.setVisible(status not in ("Failed", "Cancelled", "Completed") or self.progress.value() > 0)
+
+
+def _summary_info(task: dict) -> str:
+    """Compact right-side info text: status, size, speed and ETA."""
+    status = task.get("status", "Queued")
+    parts = [f"[{status}]"]
+    dl = task.get("downloaded_bytes")
+    total = task.get("total_bytes")
+    if dl is not None and total:
+        try:
+            parts.append(f"{float(dl)/1024/1024:.1f}/{float(total)/1024/1024:.1f} MB")
+        except Exception:
+            pass
+    elif dl is not None:
+        try:
+            parts.append(f"{float(dl)/1024/1024:.1f} MB")
+        except Exception:
+            pass
+    speed = task.get("speed")
+    if speed:
+        try:
+            parts.append(f"{float(speed)/1024/1024:.2f} MB/s")
+        except Exception:
+            pass
+    eta = task.get("eta")
+    if eta:
+        try:
+            e = int(eta)
+            if e >= 3600:
+                parts.append(f"ETA {e//3600}h {(e%3600)//60}m")
+            elif e >= 60:
+                parts.append(f"ETA {e//60}m {e%60}s")
+            else:
+                parts.append(f"ETA {e}s")
+        except Exception:
+            pass
+    text = "  ".join(parts)
+    err = task.get("error_message")
+    if err and status in ("Failed", "Cancelled"):
+        text += f"   -  {err}"
+    return text
 
 
 class QueuePage(QWidget):
@@ -62,47 +145,13 @@ class QueuePage(QWidget):
         self.list_widget.setVisible(has)
         self.empty.setVisible(not has)
 
-    def _format_item(self, task: dict) -> str:
-        title = task.get("title") or task.get("source_url") or task.get("id", "")
-        status = task.get("status", "Queued")
-        progress = task.get("progress")
-        pct = f"{float(progress):.1f}%" if progress is not None else "-"
-        parts = [f"[{status}]", pct, str(title)]
-        dl = task.get("downloaded_bytes")
-        total = task.get("total_bytes")
-        if dl is not None and total:
-            try:
-                parts.append(f"{float(dl)/1024/1024:.1f}/{float(total)/1024/1024:.1f} MB")
-            except Exception:
-                pass
-        elif dl is not None:
-            try:
-                parts.append(f"{float(dl)/1024/1024:.1f} MB")
-            except Exception:
-                pass
-        speed = task.get("speed")
-        if speed:
-            try:
-                parts.append(f"{float(speed)/1024/1024:.2f} MB/s")
-            except Exception:
-                pass
-        eta = task.get("eta")
-        if eta:
-            try:
-                e = int(eta)
-                if e >= 3600:
-                    parts.append(f"ETA {e//3600}h {(e%3600)//60}m")
-                elif e >= 60:
-                    parts.append(f"ETA {e//60}m {e%60}s")
-                else:
-                    parts.append(f"ETA {e}s")
-            except Exception:
-                pass
-        base = "  ".join(parts)
-        err = task.get("error_message")
-        if err and status in ("Failed", "Cancelled"):
-            base += f"   -  {err}"
-        return base
+    def _row_for_item(self, item: QListWidgetItem) -> _QueueRow:
+        row = self.list_widget.itemWidget(item)
+        if not isinstance(row, _QueueRow):
+            row = _QueueRow()
+            self.list_widget.setItemWidget(item, row)
+            item.setSizeHint(row.sizeHint())
+        return row
 
     def upsert_task(self, task: dict) -> None:
         tid = task.get("id")
@@ -117,15 +166,16 @@ class QueuePage(QWidget):
             if item.data(Qt.UserRole) == tid:
                 existing = item.data(Qt.UserRole + 1) or {}
                 merged = {**existing, **{k: v for k, v in task.items() if v is not None}}
-                item.setText(self._format_item(merged))
                 item.setData(Qt.UserRole + 1, merged)
+                self._row_for_item(item).update_from(merged)
                 self._refresh_empty()
                 self._update_action_buttons()
                 return
-        item = QListWidgetItem(self._format_item(task))
+        item = QListWidgetItem()
         item.setData(Qt.UserRole, tid)
         item.setData(Qt.UserRole + 1, task)
         self.list_widget.insertItem(0, item)
+        self._row_for_item(item).update_from(task)
         self._refresh_empty()
         self._update_action_buttons()
 
