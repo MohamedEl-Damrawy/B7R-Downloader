@@ -21,19 +21,21 @@ from app.core.constants import (
 class AboutDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setWindowTitle(f"About {APP_NAME}")
+        self.setWindowTitle(self.tr("About %s") % APP_NAME)
         self.resize(540, 360)
         layout = QVBoxLayout(self)
         layout.addWidget(QLabel(f"<b>{APP_NAME}</b>"))
-        layout.addWidget(QLabel(f"Version: {APP_VERSION}"))
+        layout.addWidget(QLabel(self.tr("Version: %s") % APP_VERSION))
         desc = QLabel(APP_DESCRIPTION)
         desc.setWordWrap(True)
         layout.addWidget(desc)
 
         dev = QLabel(
-            f"Developer: {APP_DEVELOPER}<br>"
-            f'LinkedIn: <a href="{APP_DEVELOPER_LINKEDIN}">{APP_DEVELOPER_LINKEDIN.replace("https://", "")}</a><br>'
-            f'GitHub: <a href="{APP_DEVELOPER_GITHUB}">{APP_DEVELOPER_GITHUB.replace("https://", "")}</a>'
+            f"{self.tr('Developer: %s') % APP_DEVELOPER}<br>"
+            f'{self.tr("LinkedIn:")} '
+            f'<a href="{APP_DEVELOPER_LINKEDIN}">{APP_DEVELOPER_LINKEDIN.replace("https://", "")}</a><br>'
+            f'{self.tr("GitHub:")} '
+            f'<a href="{APP_DEVELOPER_GITHUB}">{APP_DEVELOPER_GITHUB.replace("https://", "")}</a>'
         )
         dev.setWordWrap(True)
         dev.setTextFormat(Qt.RichText)
@@ -42,8 +44,8 @@ class AboutDialog(QDialog):
 
         legal = QLabel(
             f"{APP_COPYRIGHT}<br>"
-            f"Publisher/Legal entity: {APP_PUBLISHER}<br>"
-            f"Application license: {APP_LICENSE}"
+            f"{self.tr('Publisher/Legal entity:')} {APP_PUBLISHER}<br>"
+            f"{self.tr('Application license:')} {APP_LICENSE}"
         )
         legal.setWordWrap(True)
         legal.setTextFormat(Qt.RichText)
@@ -51,8 +53,8 @@ class AboutDialog(QDialog):
         layout.addWidget(legal)
 
         note = QLabel(
-            "For authorized sources only. No DRM/paywall/access-control circumvention. "
-            "Not affiliated with YouTube or other third-party services."
+            self.tr("For authorized sources only. No DRM/paywall/access-control circumvention. "
+                    "Not affiliated with YouTube or other third-party services.")
         )
         note.setWordWrap(True)
         note.setStyleSheet("color: #91A2B5;")

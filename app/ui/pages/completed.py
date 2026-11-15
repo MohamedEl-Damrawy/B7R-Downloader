@@ -21,10 +21,10 @@ class CompletedPage(QWidget):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(24, 24, 24, 24)
         layout.setSpacing(16)
-        layout.addWidget(PageHeader("Completed", "Successfully completed downloads"))
+        layout.addWidget(PageHeader(self.tr("Completed"), self.tr("Successfully completed downloads")))
 
         actions = QHBoxLayout()
-        self.open_btn = QPushButton("Open Folder")
+        self.open_btn = QPushButton(self.tr("Open Folder"))
         self.open_btn.clicked.connect(self._open_selected_folder)
         actions.addWidget(self.open_btn)
         actions.addStretch(1)
@@ -33,7 +33,7 @@ class CompletedPage(QWidget):
         self.list_widget = QListWidget()
         self.list_widget.itemSelectionChanged.connect(self._update_actions)
         layout.addWidget(self.list_widget, 1)
-        self.empty = EmptyState("No completed downloads", "Completed items will be listed here.")
+        self.empty = EmptyState(self.tr("No completed downloads"), self.tr("Completed items will be listed here."))
         layout.addWidget(self.empty)
         self._update_actions()
 
@@ -69,7 +69,7 @@ class CompletedPage(QWidget):
         rec = item.data(Qt.UserRole) or {}
         path = (rec.get("output_path") or "").strip()
         if not path:
-            QMessageBox.information(self, "No path", "No output folder is recorded for this item.")
+            QMessageBox.information(self, self.tr("No path"), self.tr("No output folder is recorded for this item."))
             return
         if not os.path.isdir(path):
             # if a file path was stored, open its parent
@@ -77,7 +77,7 @@ class CompletedPage(QWidget):
             if parent and os.path.isdir(parent):
                 path = parent
             else:
-                QMessageBox.warning(self, "Not found", "The output folder could not be found.")
+                QMessageBox.warning(self, self.tr("Not found"), self.tr("The output folder could not be found."))
                 return
         try:
             if sys.platform.startswith("win"):
@@ -87,7 +87,7 @@ class CompletedPage(QWidget):
             else:
                 subprocess.Popen(["xdg-open", path])
         except Exception as exc:
-            QMessageBox.warning(self, "Open failed", str(exc))
+            QMessageBox.warning(self, self.tr("Open failed"), str(exc))
 
     def showEvent(self, event):  # noqa: N802
         super().showEvent(event)

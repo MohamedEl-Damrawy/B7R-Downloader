@@ -23,6 +23,7 @@ from app.core.constants import (
     MIN_CONCURRENT_DOWNLOADS,
     SETTINGS_COOKIEFILE,
     SETTINGS_DEFAULT_DOWNLOAD_PATH,
+    SETTINGS_LANGUAGE,
     SETTINGS_MAX_CONCURRENT_DOWNLOADS,
     SETTINGS_PROXY,
     SETTINGS_SPONSORBLOCK,
@@ -42,7 +43,9 @@ class SettingsPage(QWidget):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(24, 24, 24, 24)
         layout.setSpacing(16)
-        layout.addWidget(PageHeader("Settings", "Configure defaults, concurrency, and application information"))
+        layout.addWidget(
+            PageHeader(self.tr("Settings"), self.tr("Configure defaults, concurrency, and application information"))
+        )
 
         card = CardFrame()
         form = QFormLayout(card)
@@ -51,63 +54,77 @@ class SettingsPage(QWidget):
 
         path_row = QHBoxLayout()
         self.path_input = QLineEdit()
-        self.browse_btn = QPushButton("Browse")
+        self.browse_btn = QPushButton(self.tr("Browse"))
         self.browse_btn.clicked.connect(self._browse_path)
         path_row.addWidget(self.path_input, 1)
         path_row.addWidget(self.browse_btn)
-        form.addRow("Default download path", path_row)
+        form.addRow(self.tr("Default download path"), path_row)
 
         self.concurrent_spin = QSpinBox()
         self.concurrent_spin.setRange(MIN_CONCURRENT_DOWNLOADS, MAX_CONCURRENT_DOWNLOADS)
-        form.addRow("Max concurrent downloads", self.concurrent_spin)
+        form.addRow(self.tr("Max concurrent downloads"), self.concurrent_spin)
 
         # DL-07/FEAT-04/05: optional credentials/network options.
         self.cookie_input = QLineEdit()
-        self.cookie_input.setPlaceholderText("Path to a Netscape-format cookies.txt (optional)")
-        self.cookie_browse_btn = QPushButton("Browse")
+        self.cookie_input.setPlaceholderText(self.tr("Path to a Netscape-format cookies.txt (optional)"))
+        self.cookie_browse_btn = QPushButton(self.tr("Browse"))
         self.cookie_browse_btn.clicked.connect(self._browse_cookiefile)
         cookie_row = QHBoxLayout()
         cookie_row.addWidget(self.cookie_input, 1)
         cookie_row.addWidget(self.cookie_browse_btn)
-        form.addRow("Cookies file", cookie_row)
+        form.addRow(self.tr("Cookies file"), cookie_row)
 
         self.proxy_input = QLineEdit()
-        self.proxy_input.setPlaceholderText("e.g. http://127.0.0.1:8080 (optional)")
-        form.addRow("Proxy", self.proxy_input)
+        self.proxy_input.setPlaceholderText(self.tr("e.g. http://127.0.0.1:8080 (optional)"))
+        form.addRow(self.tr("Proxy"), self.proxy_input)
 
         # FEAT-03: SponsorBlock segment marking.
-        self.sponsorblock_check = QCheckBox("Mark SponsorBlock segments (sponsor/intro/outro/...)")
-        form.addRow("SponsorBlock", self.sponsorblock_check)
+        self.sponsorblock_check = QCheckBox(self.tr("Mark SponsorBlock segments (sponsor/intro/outro/...)"))
+        form.addRow(self.tr("SponsorBlock"), self.sponsorblock_check)
 
         # FEAT-08: theme selection (applied on next launch).
         self.theme_combo = QComboBox()
-        self.theme_combo.addItem("Dark", "dark")
-        self.theme_combo.addItem("Light", "light")
-        self.theme_hint = QLabel("Applies after restarting the app.")
+        self.theme_combo.addItem(self.tr("Dark"), "dark")
+        self.theme_combo.addItem(self.tr("Light"), "light")
+        self.theme_hint = QLabel(self.tr("Applies after restarting the app."))
         self.theme_hint.setStyleSheet("color: #91A2B5; font-size: 11px;")
         theme_row = QHBoxLayout()
         theme_row.addWidget(self.theme_combo, 0)
         theme_row.addWidget(self.theme_hint, 1)
-        form.addRow("Theme", theme_row)
+        form.addRow(self.tr("Theme"), theme_row)
+
+        # i18n: language selection (applied on next launch).
+        self.language_combo = QComboBox()
+        self.language_combo.addItem("English", "en")
+        self.language_combo.addItem("العربية (Arabic)", "ar")
+        self.language_hint = QLabel(self.tr("Applies after restarting the app."))
+        self.language_hint.setStyleSheet("color: #91A2B5; font-size: 11px;")
+        language_row = QHBoxLayout()
+        language_row.addWidget(self.language_combo, 0)
+        language_row.addWidget(self.language_hint, 1)
+        form.addRow(self.tr("Language"), language_row)
 
         info = QLabel(
-            "About and third-party notices are available below. Release metadata may require owner confirmation."
+            self.tr(
+                "About and third-party notices are available below. "
+                "Release metadata may require owner confirmation."
+            )
         )
         info.setWordWrap(True)
         info.setStyleSheet("color: #91A2B5;")
-        form.addRow("Legal", info)
+        form.addRow(self.tr("Legal"), info)
 
         self.ffmpeg_label = QLabel()
         self.ffmpeg_label.setWordWrap(True)
         self.ffmpeg_label.setStyleSheet("color: #91A2B5;")
-        form.addRow("FFmpeg", self.ffmpeg_label)
+        form.addRow(self.tr("FFmpeg"), self.ffmpeg_label)
 
         actions = QHBoxLayout()
-        self.save_btn = QPushButton("Save Settings")
+        self.save_btn = QPushButton(self.tr("Save Settings"))
         self.save_btn.setProperty("class", "Primary")
-        self.update_check_btn = QPushButton("Check yt-dlp Updates")
-        self.about_btn = QPushButton("About")
-        self.licenses_btn = QPushButton("Licenses")
+        self.update_check_btn = QPushButton(self.tr("Check yt-dlp Updates"))
+        self.about_btn = QPushButton(self.tr("About"))
+        self.licenses_btn = QPushButton(self.tr("Licenses"))
         actions.addWidget(self.save_btn)
         actions.addWidget(self.update_check_btn)
         actions.addWidget(self.about_btn)
@@ -139,6 +156,9 @@ class SettingsPage(QWidget):
         theme = str(self.settings.get(SETTINGS_THEME, "dark") or "dark").strip().lower()
         idx = self.theme_combo.findData(theme)
         self.theme_combo.setCurrentIndex(idx if idx >= 0 else 0)
+        language = str(self.settings.get(SETTINGS_LANGUAGE, "en") or "en").strip().lower()
+        idx = self.language_combo.findData(language)
+        self.language_combo.setCurrentIndex(idx if idx >= 0 else 0)
         self._refresh_ffmpeg_status()
 
     def _refresh_ffmpeg_status(self) -> None:
@@ -147,23 +167,29 @@ class SettingsPage(QWidget):
             ff = get_ffmpeg_path()
             fp = get_ffprobe_path()
             if ff and fp:
-                self.ffmpeg_label.setText(f"Detected: ffmpeg ({ff}) | ffprobe ({fp})")
+                self.ffmpeg_label.setText(
+                    self.tr("Detected: ffmpeg (%s) | ffprobe (%s)") % (ff, fp)
+                )
             elif ff or fp:
-                self.ffmpeg_label.setText("Partial detection: ensure both ffmpeg and ffprobe are bundled/available.")
+                self.ffmpeg_label.setText(
+                    self.tr("Partial detection: ensure both ffmpeg and ffprobe are bundled/available.")
+                )
             else:
-                self.ffmpeg_label.setText("Not detected. Bundle FFmpeg/FFprobe in vendor/ffmpeg for packaged builds.")
+                self.ffmpeg_label.setText(
+                    self.tr("Not detected. Bundle FFmpeg/FFprobe in vendor/ffmpeg for packaged builds.")
+                )
         except Exception:
-            self.ffmpeg_label.setText("Status unavailable.")
+            self.ffmpeg_label.setText(self.tr("Status unavailable."))
 
     def _browse_path(self) -> None:
         current = self.path_input.text().strip() or str(get_default_download_dir())
-        folder = QFileDialog.getExistingDirectory(self, "Select default download folder", current)
+        folder = QFileDialog.getExistingDirectory(self, self.tr("Select default download folder"), current)
         if folder:
             self.path_input.setText(folder)
 
     def _browse_cookiefile(self) -> None:
         file, _ = QFileDialog.getOpenFileName(
-            self, "Select cookies.txt (Netscape format)", "", "Cookie files (*.txt);;All files (*)"
+            self, self.tr("Select cookies.txt (Netscape format)"), "", "Cookie files (*.txt);;All files (*)"
         )
         if file:
             self.cookie_input.setText(file)
@@ -174,7 +200,7 @@ class SettingsPage(QWidget):
             import os
             os.makedirs(path, exist_ok=True)
         except Exception as exc:
-            QMessageBox.critical(self, "Invalid folder", f"Cannot use download folder:\n{exc}")
+            QMessageBox.critical(self, self.tr("Invalid folder"), self.tr("Cannot use download folder:\n%s") % exc)
             return
         self.settings.set(SETTINGS_DEFAULT_DOWNLOAD_PATH, path)
         self.settings.set(SETTINGS_MAX_CONCURRENT_DOWNLOADS, str(self.concurrent_spin.value()))
@@ -182,7 +208,12 @@ class SettingsPage(QWidget):
         self.settings.set(SETTINGS_PROXY, self.proxy_input.text().strip())
         self.settings.set(SETTINGS_SPONSORBLOCK, "1" if self.sponsorblock_check.isChecked() else "0")
         self.settings.set(SETTINGS_THEME, self.theme_combo.currentData() or "dark")
-        QMessageBox.information(self, "Settings", "Settings saved. Theme change applies after restart.")
+        self.settings.set(SETTINGS_LANGUAGE, self.language_combo.currentData() or "en")
+        QMessageBox.information(
+            self,
+            self.tr("Settings"),
+            self.tr("Settings saved. Theme and language changes apply after restart."),
+        )
 
     def _check_ytdlp_update(self) -> None:
         """DL-10/FEAT-07: compare installed yt-dlp with the latest PyPI release."""
@@ -197,23 +228,27 @@ class SettingsPage(QWidget):
                 self.done.emit(f"{get_ytdlp_version()}|{latest_pypi_version() or ''}")
 
         self.update_check_btn.setEnabled(False)
-        self.update_check_btn.setText("Checking...")
+        self.update_check_btn.setText(self.tr("Checking..."))
 
         def _finished(result: str) -> None:
             self.update_check_btn.setEnabled(True)
-            self.update_check_btn.setText("Check yt-dlp Updates")
+            self.update_check_btn.setText(self.tr("Check yt-dlp Updates"))
             cur, latest = (result or "").split("|", 1)
             if not latest:
-                QMessageBox.warning(self, "yt-dlp Update", f"Could not reach PyPI.\nInstalled yt-dlp: {cur}")
+                QMessageBox.warning(
+                    self,
+                    self.tr("yt-dlp Update"),
+                    self.tr("Could not reach PyPI.\nInstalled yt-dlp: %s") % cur,
+                )
             elif latest == cur:
-                QMessageBox.information(self, "yt-dlp Update", f"yt-dlp is up to date ({cur}).")
+                QMessageBox.information(self, self.tr("yt-dlp Update"), self.tr("yt-dlp is up to date (%s).") % cur)
             else:
                 QMessageBox.information(
                     self,
-                    "yt-dlp Update",
-                    f"Installed yt-dlp: {cur}\nLatest release: {latest}\n\n"
-                    "Update by upgrading the installed yt-dlp package (pip install -U yt-dlp), "
-                    "then rebuild/repackage the app.",
+                    self.tr("yt-dlp Update"),
+                    self.tr("Installed yt-dlp: %s\nLatest release: %s\n\n"
+                            "Update by upgrading the installed yt-dlp package (pip install -U yt-dlp), "
+                            "then rebuild/repackage the app.") % (cur, latest),
                 )
 
         self._update_thread = _CheckThread()

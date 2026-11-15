@@ -72,7 +72,7 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(root)
 
         self.status = QStatusBar()
-        self.status.showMessage("Ready")
+        self.status.showMessage(self.tr("Ready"))
         self.setStatusBar(self.status)
 
         self._wire_controllers()
@@ -110,7 +110,9 @@ class MainWindow(QMainWindow):
             if not text or "\n" in text:
                 return
             if is_http_url(text) and ("youtube.com/" in text or "youtu.be/" in text):
-                self.status.showMessage("YouTube link detected in clipboard — open New Download to grab it", 5000)
+                self.status.showMessage(
+                    self.tr("YouTube link detected in clipboard — open New Download to grab it"), 5000
+                )
         except Exception:
             pass
 
@@ -129,8 +131,8 @@ class MainWindow(QMainWindow):
 
         reply = QMessageBox.question(
             self,
-            "Interrupted downloads",
-            f"{len(interrupted)} download(s) were interrupted by the last app exit.\nRetry them now?",
+            self.tr("Interrupted downloads"),
+            self.tr("%d download(s) were interrupted by the last app exit.\nRetry them now?") % len(interrupted),
             QMessageBox.Yes | QMessageBox.No,
             QMessageBox.No,
         )
@@ -144,7 +146,7 @@ class MainWindow(QMainWindow):
             except Exception:
                 logger.exception("Failed to retry interrupted task %s", rec.get("id"))
         if retried:
-            self.status.showMessage(f"Re-queued {retried} interrupted download(s)")
+            self.status.showMessage(self.tr("Re-queued %d interrupted download(s)") % retried)
 
     def _wire_controllers(self) -> None:
         nd = self.pages["new_download"]
@@ -231,7 +233,8 @@ class MainWindow(QMainWindow):
     def _on_task_added(self, task: dict) -> None:
         if "queue" in self.pages:
             self.pages["queue"].upsert_task(task)
-        self.status.showMessage("Download started")
+    def _on_download_started(self) -> None:
+        self.status.showMessage(self.tr("Download started"))
         self._refresh_views_soon()
 
     def _on_task_updated(self, task: dict) -> None:
@@ -240,10 +243,12 @@ class MainWindow(QMainWindow):
         self._refresh_views_soon()
 
     def _on_task_error(self, task_id: str, message: str) -> None:
-        self.status.showMessage(f"Task {task_id[:8]}: {message}")
+        from app.ui.i18n import translate_known_error
+
+        self.status.showMessage(f"Task {task_id[:8]}: {translate_known_error(message)}")
 
     def _on_task_finished(self, task_id: str) -> None:
-        self.status.showMessage("Ready")
+        self.status.showMessage(self.tr("Ready"))
         self._refresh_views_soon()
 
     def _refresh_views_soon(self) -> None:

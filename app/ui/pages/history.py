@@ -30,23 +30,23 @@ class HistoryPage(QWidget):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(24, 24, 24, 24)
         layout.setSpacing(16)
-        layout.addWidget(PageHeader("History", "Past download attempts and outcomes"))
+        layout.addWidget(PageHeader(self.tr("History"), self.tr("Past download attempts and outcomes")))
 
         # FEAT-11: client-side search over the loaded history.
         search_row = QHBoxLayout()
         self.search_input = QLineEdit()
-        self.search_input.setPlaceholderText("Filter by title or URL...")
+        self.search_input.setPlaceholderText(self.tr("Filter by title or URL..."))
         self.search_input.setClearButtonEnabled(True)
         self.search_input.textChanged.connect(self.refresh_data)
         search_row.addWidget(self.search_input, 1)
         layout.addLayout(search_row)
 
         actions = QHBoxLayout()
-        self.open_btn = QPushButton("Open Folder")
+        self.open_btn = QPushButton(self.tr("Open Folder"))
         self.open_btn.clicked.connect(self._open_selected_folder)
-        self.retry_btn = QPushButton("Retry Selected")
+        self.retry_btn = QPushButton(self.tr("Retry Selected"))
         self.retry_btn.clicked.connect(self._retry_selected)
-        self.delete_btn = QPushButton("Delete Record")
+        self.delete_btn = QPushButton(self.tr("Delete Record"))
         self.delete_btn.setProperty("class", "Danger")
         self.delete_btn.clicked.connect(self._delete_selected)
         actions.addWidget(self.open_btn)
@@ -58,7 +58,7 @@ class HistoryPage(QWidget):
         self.list_widget = QListWidget()
         self.list_widget.itemSelectionChanged.connect(self._update_actions)
         layout.addWidget(self.list_widget, 1)
-        self.empty = EmptyState("No history yet", "Download history will appear here.")
+        self.empty = EmptyState(self.tr("No history yet"), self.tr("Download history will appear here."))
         layout.addWidget(self.empty)
         self._update_actions()
 
@@ -84,7 +84,9 @@ class HistoryPage(QWidget):
             err = r.get("error_message")
             text = f"[{status}] {title}"
             if err and status in ("Failed", "Cancelled"):
-                short = str(err).strip().replace("\n", " ")
+                from app.ui.i18n import translate_known_error
+
+                short = translate_known_error(err).strip().replace("\n", " ")
                 if len(short) > 100:
                     short = short[:97] + "..."
                 text += f"  -  {short}"
@@ -114,8 +116,8 @@ class HistoryPage(QWidget):
 
         reply = QMessageBox.question(
             self,
-            "Delete record",
-            "Remove this entry from history? Downloaded files are not deleted.",
+            self.tr("Delete record"),
+            self.tr("Remove this entry from history? Downloaded files are not deleted."),
             QMessageBox.Yes | QMessageBox.No,
             QMessageBox.No,
         )
@@ -124,7 +126,7 @@ class HistoryPage(QWidget):
         try:
             self.repo.delete(str(rec.get("id")))
         except Exception as exc:
-            QMessageBox.warning(self, "Delete failed", str(exc))
+            QMessageBox.warning(self, self.tr("Delete failed"), str(exc))
             return
         self.refresh_data()
 
@@ -135,14 +137,14 @@ class HistoryPage(QWidget):
         rec = item.data(Qt.UserRole) or {}
         path = (rec.get("output_path") or "").strip()
         if not path:
-            QMessageBox.information(self, "No path", "No output folder is recorded for this item.")
+            QMessageBox.information(self, self.tr("No path"), self.tr("No output folder is recorded for this item."))
             return
         if not os.path.isdir(path):
             parent = os.path.dirname(path)
             if parent and os.path.isdir(parent):
                 path = parent
             else:
-                QMessageBox.warning(self, "Not found", "The output folder could not be found.")
+                QMessageBox.warning(self, self.tr("Not found"), self.tr("The output folder could not be found."))
                 return
         try:
             if sys.platform.startswith("win"):
@@ -152,7 +154,7 @@ class HistoryPage(QWidget):
             else:
                 subprocess.Popen(["xdg-open", path])
         except Exception as exc:
-            QMessageBox.warning(self, "Open failed", str(exc))
+            QMessageBox.warning(self, self.tr("Open failed"), str(exc))
 
     def _retry_selected(self) -> None:
         item = self.list_widget.currentItem()
@@ -165,7 +167,7 @@ class HistoryPage(QWidget):
             try:
                 self._controller.retry_download(rec.get("id"))
             except Exception as exc:
-                QMessageBox.warning(self, "Retry failed", str(exc))
+                QMessageBox.warning(self, self.tr("Retry failed"), str(exc))
 
     def showEvent(self, event):  # noqa: N802
         super().showEvent(event)

@@ -27,9 +27,9 @@ class DashboardPage(QWidget):
         layout.setSpacing(16)
 
         header_row = QHBoxLayout()
-        header = PageHeader("Dashboard", "Overview of downloads and recent activity")
+        header = PageHeader(self.tr("Dashboard"), self.tr("Overview of downloads and recent activity"))
         header_row.addWidget(header, 1)
-        self.quick_btn = QPushButton("New Download")
+        self.quick_btn = QPushButton(self.tr("New Download"))
         self.quick_btn.setProperty("class", "Primary")
         self.quick_btn.clicked.connect(self._quick_download)
         header_row.addWidget(self.quick_btn)
@@ -37,20 +37,20 @@ class DashboardPage(QWidget):
 
         stats = QGridLayout()
         stats.setSpacing(12)
-        self.active_card = StatCard("Active downloads", "0")
-        self.completed_card = StatCard("Completed downloads", "0")
-        self.failed_card = StatCard("Failed / Cancelled", "0")
-        self.size_card = StatCard("Total downloaded size", "0 MB")
+        self.active_card = StatCard(self.tr("Active downloads"), "0")
+        self.completed_card = StatCard(self.tr("Completed downloads"), "0")
+        self.failed_card = StatCard(self.tr("Failed / Cancelled"), "0")
+        self.size_card = StatCard(self.tr("Total downloaded size"), "0 MB")
         stats.addWidget(self.active_card, 0, 0)
         stats.addWidget(self.completed_card, 0, 1)
         stats.addWidget(self.failed_card, 0, 2)
         stats.addWidget(self.size_card, 0, 3)
         layout.addLayout(stats)
 
-        layout.addWidget(QLabel("Recent activity"))
+        layout.addWidget(QLabel(self.tr("Recent activity")))
         self.recent_list = QListWidget()
         layout.addWidget(self.recent_list, 1)
-        self.empty = EmptyState("No recent activity", "Start a new download to see activity here.")
+        self.empty = EmptyState(self.tr("No recent activity"), self.tr("Start a new download to see activity here."))
         layout.addWidget(self.empty)
 
     def refresh_data(self) -> None:

@@ -31,43 +31,45 @@ class PlaylistsPage(QWidget):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(24, 24, 24, 24)
         layout.setSpacing(16)
-        layout.addWidget(PageHeader("Playlists", "Inspect playlists and select individual items to download"))
+        layout.addWidget(
+            PageHeader(self.tr("Playlists"), self.tr("Inspect playlists and select individual items to download"))
+        )
 
         saved_row = QHBoxLayout()
-        saved_row.addWidget(QLabel("Saved playlists:"))
+        saved_row.addWidget(QLabel(self.tr("Saved playlists:")))
         self.saved_combo = QComboBox()
         self.saved_combo.setMinimumWidth(280)
-        self.load_saved_btn = QPushButton("Load")
+        self.load_saved_btn = QPushButton(self.tr("Load"))
         saved_row.addWidget(self.saved_combo, 1)
         saved_row.addWidget(self.load_saved_btn)
         layout.addLayout(saved_row)
 
         opts = QHBoxLayout()
-        opts.addWidget(QLabel("Quality:"))
+        opts.addWidget(QLabel(self.tr("Quality:")))
         self.quality_combo = QComboBox()
-        self.quality_combo.addItem("Best available", "best")
-        self.quality_combo.addItem("1080p (if available)", "1080p")
-        self.quality_combo.addItem("720p (if available)", "720p")
-        self.quality_combo.addItem("480p (if available)", "480p")
+        self.quality_combo.addItem(self.tr("Best available"), "best")
+        self.quality_combo.addItem(self.tr("1080p (if available)"), "1080p")
+        self.quality_combo.addItem(self.tr("720p (if available)"), "720p")
+        self.quality_combo.addItem(self.tr("480p (if available)"), "480p")
         # FEAT-01: audio-only presets (converted with FFmpegExtractAudio).
-        self.quality_combo.addItem("Audio only — MP3", "audio_mp3")
-        self.quality_combo.addItem("Audio only — M4A", "audio_m4a")
+        self.quality_combo.addItem(self.tr("Audio only — MP3"), "audio_mp3")
+        self.quality_combo.addItem(self.tr("Audio only — M4A"), "audio_m4a")
         opts.addWidget(self.quality_combo)
-        opts.addWidget(QLabel("Output:"))
+        opts.addWidget(QLabel(self.tr("Output:")))
         self.output_input = QLineEdit()
-        self.output_input.setPlaceholderText("Default download folder")
+        self.output_input.setPlaceholderText(self.tr("Default download folder"))
         opts.addWidget(self.output_input, 1)
         layout.addLayout(opts)
 
         actions = QHBoxLayout()
-        self.refresh_btn = QPushButton("Refresh Status")
-        self.select_all_btn = QPushButton("Select All")
-        self.deselect_all_btn = QPushButton("Deselect All")
-        self.retry_failed_btn = QPushButton("Retry Failed")
-        self.download_selected_btn = QPushButton("Download Selected")
+        self.refresh_btn = QPushButton(self.tr("Refresh Status"))
+        self.select_all_btn = QPushButton(self.tr("Select All"))
+        self.deselect_all_btn = QPushButton(self.tr("Deselect All"))
+        self.retry_failed_btn = QPushButton(self.tr("Retry Failed"))
+        self.download_selected_btn = QPushButton(self.tr("Download Selected"))
         self.download_selected_btn.setProperty("class", "Primary")
         self.download_selected_btn.setEnabled(False)
-        self.selected_label = QLabel("Selected: 0")
+        self.selected_label = QLabel(self.tr("Selected: %d") % 0)
         self.selected_label.setStyleSheet("color: #91A2B5;")
         actions.addWidget(self.refresh_btn)
         actions.addWidget(self.select_all_btn)
@@ -81,7 +83,7 @@ class PlaylistsPage(QWidget):
         self.card = CardFrame()
         card_layout = QVBoxLayout(self.card)
         card_layout.setContentsMargins(16, 16, 16, 16)
-        self.meta_label = QLabel("No playlist loaded.")
+        self.meta_label = QLabel(self.tr("No playlist loaded."))
         self.meta_label.setWordWrap(True)
         self.meta_label.setStyleSheet("color: #91A2B5;")
         self.list_widget = QListWidget()
@@ -90,7 +92,10 @@ class PlaylistsPage(QWidget):
         card_layout.addWidget(self.list_widget, 1)
         layout.addWidget(self.card, 1)
 
-        self.empty_state = EmptyState("No playlist loaded", "Paste a playlist URL in New Download to inspect entries.")
+        self.empty_state = EmptyState(
+            self.tr("No playlist loaded"),
+            self.tr("Paste a playlist URL in New Download to inspect entries."),
+        )
         self.empty_state.setVisible(False)
         layout.addWidget(self.empty_state)
 
@@ -114,7 +119,7 @@ class PlaylistsPage(QWidget):
         current = self.saved_combo.currentData()
         self.saved_combo.blockSignals(True)
         self.saved_combo.clear()
-        self.saved_combo.addItem("Select a saved playlist...", None)
+        self.saved_combo.addItem(self.tr("Select a saved playlist..."), None)
         try:
             rows = PlaylistsRepository().list_recent(30)
             for r in rows:
@@ -133,13 +138,13 @@ class PlaylistsPage(QWidget):
     def _load_saved_playlist(self) -> None:
         pid = self.saved_combo.currentData()
         if not pid:
-            QMessageBox.information(self, "Select playlist", "Choose a saved playlist to load.")
+            QMessageBox.information(self, self.tr("Select playlist"), self.tr("Choose a saved playlist to load."))
             return
         try:
             pl = PlaylistsRepository().get(str(pid))
             items = DownloadItemsRepository().list_by_playlist(str(pid))
             if not pl:
-                QMessageBox.warning(self, "Not found", "Saved playlist could not be found.")
+                QMessageBox.warning(self, self.tr("Not found"), self.tr("Saved playlist could not be found."))
                 return
             entries = []
             for it in items:
@@ -176,7 +181,7 @@ class PlaylistsPage(QWidget):
             self.set_playlist(meta)
             self.refresh_item_statuses()
         except Exception as exc:
-            QMessageBox.critical(self, "Error", f"Failed to load saved playlist: {exc}")
+            QMessageBox.critical(self, self.tr("Error"), self.tr("Failed to load saved playlist: %s") % exc)
 
     def _item_id_for_entry(self, playlist_id: str | None, entry) -> str | None:
         if not playlist_id:
@@ -196,7 +201,9 @@ class PlaylistsPage(QWidget):
         progress: float | None = None,
         error: str | None = None,
     ) -> str:
-        suffix = "" if available else " (Unavailable)"
+        from app.ui.i18n import translate_known_error
+
+        suffix = "" if available else self.tr(" (Unavailable)")
         text = f"{title}{suffix}"
         if status and status not in ("Available", "Unavailable"):
             if progress is not None and status in ("Queued", "Extracting", "Downloading", "Processing"):
@@ -204,7 +211,7 @@ class PlaylistsPage(QWidget):
             else:
                 text += f"  [{status}]"
             if error and status in ("Failed", "Cancelled"):
-                short = str(error).strip().replace("\n", " ")
+                short = translate_known_error(error).strip().replace("\n", " ")
                 if len(short) > 80:
                     short = short[:77] + "..."
                 if short:
@@ -216,7 +223,7 @@ class PlaylistsPage(QWidget):
         self.list_widget.clear()
         self._item_widgets = {}
         if not playlist:
-            self.meta_label.setText("No playlist loaded.")
+            self.meta_label.setText(self.tr("No playlist loaded."))
             self._show_empty(True)
             self._update_selected_count()
             return
@@ -227,11 +234,11 @@ class PlaylistsPage(QWidget):
         except Exception:
             pass
         entries = getattr(playlist, "entries", []) or []
-        self.meta_label.setText(f"{getattr(playlist, 'title', 'Playlist')}   -   {len(entries)} entries")
+        self.meta_label.setText(self.tr("%s   -   %d entries") % (getattr(playlist, "title", "Playlist"), len(entries)))
         playlist_id = getattr(playlist, "playlist_id", None)
         status_map = self._load_status_map(playlist_id)
         for e in entries:
-            title = getattr(e, "title", "") or "Untitled"
+            title = getattr(e, "title", "") or self.tr("Untitled")
             available = bool(getattr(e, "available", True))
             item_id = self._item_id_for_entry(playlist_id, e)
             if item_id:
@@ -278,7 +285,7 @@ class PlaylistsPage(QWidget):
         status_map = self._load_status_map(playlist_id)
         for item_id, item in self._item_widgets.items():
             meta = item.data(Qt.UserRole + 1) or {}
-            title = meta.get("title") or "Untitled"
+            title = meta.get("title") or self.tr("Untitled")
             available = bool(meta.get("available", True))
             st = status_map.get(item_id, {})
             status = st.get("status") or ("Unavailable" if not available else "Available")
@@ -308,7 +315,7 @@ class PlaylistsPage(QWidget):
 
     def _update_selected_count(self) -> None:
         count = len(self._selected_entries())
-        self.selected_label.setText(f"Selected: {count}")
+        self.selected_label.setText(self.tr("Selected: %d") % count)
         self.download_selected_btn.setEnabled(count > 0 and self._controller is not None and self._playlist is not None)
 
     def _download_selected(self) -> None:
@@ -316,7 +323,11 @@ class PlaylistsPage(QWidget):
             return
         selected = self._selected_entries()
         if not selected:
-            QMessageBox.information(self, "No selection", "Select at least one available playlist item.")
+            QMessageBox.information(
+                self,
+                self.tr("No selection"),
+                self.tr("Select at least one available playlist item."),
+            )
             return
         output_dir = self.output_input.text().strip()
         if not output_dir:
@@ -326,15 +337,15 @@ class PlaylistsPage(QWidget):
             import os
             os.makedirs(output_dir, exist_ok=True)
         except Exception as exc:
-            QMessageBox.critical(self, "Invalid output folder", f"Cannot use output folder:\n{exc}")
+            QMessageBox.critical(self, self.tr("Invalid output folder"), self.tr("Cannot use output folder:\n%s") % exc)
             return
         try:
             from app.engine.ffmpeg_manager import get_ffmpeg_path, get_ffprobe_path
             if not get_ffmpeg_path() and not get_ffprobe_path():
                 reply = QMessageBox.warning(
                     self,
-                    "FFmpeg not detected",
-                    "FFmpeg/FFprobe were not found. Some downloads or merges may fail.\nContinue anyway?",
+                    self.tr("FFmpeg not detected"),
+                    self.tr("FFmpeg/FFprobe were not found. Some downloads or merges may fail.\nContinue anyway?"),
                     QMessageBox.Ok | QMessageBox.Cancel,
                     QMessageBox.Cancel,
                 )
@@ -353,18 +364,30 @@ class PlaylistsPage(QWidget):
                 entries=selected,
                 playlist_id=playlist_id,
             )
-            QMessageBox.information(self, "Downloads queued", f"Queued {len(ids)} selected item(s).")
+            QMessageBox.information(
+                self,
+                self.tr("Downloads queued"),
+                self.tr("Queued %d selected item(s).") % len(ids),
+            )
             self.refresh_item_statuses()
         except Exception as exc:
-            QMessageBox.critical(self, "Error", str(exc))
+            QMessageBox.critical(self, self.tr("Error"), str(exc))
 
     def _retry_failed(self) -> None:
         if not self._controller or not self._playlist:
-            QMessageBox.information(self, "Unavailable", "Load a playlist and ensure controller is ready.")
+            QMessageBox.information(
+                self,
+                self.tr("Unavailable"),
+                self.tr("Load a playlist and ensure controller is ready."),
+            )
             return
         playlist_id = getattr(self._playlist, "playlist_id", None)
         if not playlist_id:
-            QMessageBox.information(self, "Not saved", "Playlist must be saved/loaded with an ID to retry items.")
+            QMessageBox.information(
+                self,
+                self.tr("Not saved"),
+                self.tr("Playlist must be saved/loaded with an ID to retry items."),
+            )
             return
         # Determine target item IDs: selected failed/cancelled, else all failed/cancelled
         selected_items = []
@@ -387,7 +410,11 @@ class PlaylistsPage(QWidget):
         else:
             targets = [iid for iid, st in status_map.items() if st.get("status") in ("Failed", "Cancelled")]
         if not targets:
-            QMessageBox.information(self, "Nothing to retry", "No failed or cancelled items to retry.")
+            QMessageBox.information(
+                self,
+                self.tr("Nothing to retry"),
+                self.tr("No failed or cancelled items to retry."),
+            )
             return
         retried = 0
         missing = 0
@@ -404,10 +431,11 @@ class PlaylistsPage(QWidget):
                         retried += 1
                 except Exception:
                     pass
-        msg = f"Queued retry for {retried} item(s)."
+        msg = self.tr("Queued retry for %d item(s).") % retried
         if missing:
-            msg += f" {missing} item(s) had no previous download task to retry."
-        QMessageBox.information(self, "Retry", msg)
+            msg += " " + self.tr("%d item(s) had no previous download task to retry.") % missing
+        QMessageBox.information(self, self.tr("Retry"), msg)
+
         self.refresh_item_statuses()
 
     def showEvent(self, event):  # noqa: N802

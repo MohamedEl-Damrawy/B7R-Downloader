@@ -2,8 +2,8 @@
 QMainWindow, QWidget#Root {
     background-color: @main_bg@;
     color: @text_main@;
-    font-family: "Segoe UI", "Inter", sans-serif;
-    font-size: 13px;
+    font-family: @font_family@;
+    font-size: @font_size@;
 }
 QWidget#Sidebar {
     background-color: @sidebar@;

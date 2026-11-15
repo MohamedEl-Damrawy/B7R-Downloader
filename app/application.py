@@ -34,6 +34,12 @@ def run() -> int:
     app.setApplicationName(APP_NAME)
     app.setApplicationVersion(APP_VERSION)
 
+    # i18n: language (translator + RTL layout) must be in place before any
+    # widget is built; English is the default, Arabic flips to RTL + Tajawal.
+    from app.ui.i18n import install_language
+
+    language = install_language(app)
+
     # FEAT-14: window/taskbar icon (best effort; icon may not exist in dev checkouts).
     try:
         from PySide6.QtGui import QIcon
@@ -46,7 +52,7 @@ def run() -> int:
     except Exception:
         pass
 
-    qss = load_theme_qss(_resolve_theme())
+    qss = load_theme_qss(_resolve_theme(), lang=language)
     if qss:
         app.setStyleSheet(qss)
 

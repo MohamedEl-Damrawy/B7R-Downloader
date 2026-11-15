@@ -21,20 +21,20 @@ class Sidebar(QWidget):
 
         brand = QLabel("Velo Downloader")
         brand.setStyleSheet("font-size: 18px; font-weight: 700; color: #F4F7FA;")
-        sub = QLabel("Premium Download Manager")
+        sub = QLabel(self.tr("Premium Download Manager"))
         sub.setStyleSheet("font-size: 11px; color: #91A2B5;")
         layout.addWidget(brand)
         layout.addWidget(sub)
         layout.addSpacing(12)
 
         items = [
-            ("dashboard", "Dashboard"),
-            ("new_download", "New Download"),
-            ("playlists", "Playlists"),
-            ("queue", "Download Queue"),
-            ("completed", "Completed"),
-            ("history", "History"),
-            ("settings", "Settings"),
+            ("dashboard", self.tr("Dashboard")),
+            ("new_download", self.tr("New Download")),
+            ("playlists", self.tr("Playlists")),
+            ("queue", self.tr("Download Queue")),
+            ("completed", self.tr("Completed")),
+            ("history", self.tr("History")),
+            ("settings", self.tr("Settings")),
         ]
         for key, label in items:
             btn = QPushButton(label)

@@ -21,10 +21,10 @@ def _read_if_exists(path: Path) -> str | None:
 class LicensesDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setWindowTitle("Licenses & Legal Notices")
+        self.setWindowTitle(self.tr("Licenses & Legal Notices"))
         self.resize(720, 520)
         layout = QVBoxLayout(self)
-        layout.addWidget(QLabel("Third-party notices and legal information (draft until audited)."))
+        layout.addWidget(QLabel(self.tr("Third-party notices and legal information (draft until audited).")))
         text = QPlainTextEdit()
         text.setReadOnly(True)
 

@@ -64,6 +64,8 @@ class _QueueRow(QWidget):
 
 def _summary_info(task: dict) -> str:
     """Compact right-side info text: status, size, speed and ETA."""
+    from app.ui.i18n import translate_known_error
+
     status = task.get("status", "Queued")
     parts = [f"[{status}]"]
     dl = task.get("downloaded_bytes")
@@ -99,7 +101,7 @@ def _summary_info(task: dict) -> str:
     text = "  ".join(parts)
     err = task.get("error_message")
     if err and status in ("Failed", "Cancelled"):
-        text += f"   -  {err}"
+        text += f"   -  {translate_known_error(err)}"
     return text
 
 
@@ -110,17 +112,17 @@ class QueuePage(QWidget):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(24, 24, 24, 24)
         layout.setSpacing(16)
-        layout.addWidget(PageHeader("Download Queue", "Monitor active and queued downloads"))
+        layout.addWidget(PageHeader(self.tr("Download Queue"), self.tr("Monitor active and queued downloads")))
 
         actions = QHBoxLayout()
-        self.cancel_btn = QPushButton("Cancel Selected")
+        self.cancel_btn = QPushButton(self.tr("Cancel Selected"))
         self.cancel_btn.setProperty("class", "Danger")
         self.cancel_btn.clicked.connect(self._cancel_selected)
-        self.retry_btn = QPushButton("Retry Selected")
+        self.retry_btn = QPushButton(self.tr("Retry Selected"))
         self.retry_btn.clicked.connect(self._retry_selected)
-        self.open_btn = QPushButton("Open Folder")
+        self.open_btn = QPushButton(self.tr("Open Folder"))
         self.open_btn.clicked.connect(self._open_selected_folder)
-        self.clear_btn = QPushButton("Clear Finished")
+        self.clear_btn = QPushButton(self.tr("Clear Finished"))
         self.clear_btn.clicked.connect(self._clear_finished)
         actions.addWidget(self.cancel_btn)
         actions.addWidget(self.retry_btn)
@@ -132,7 +134,7 @@ class QueuePage(QWidget):
         self.list_widget = QListWidget()
         self.list_widget.itemSelectionChanged.connect(self._update_action_buttons)
         layout.addWidget(self.list_widget, 1)
-        self.empty = EmptyState("Queue is empty", "Queued and active downloads will appear here.")
+        self.empty = EmptyState(self.tr("Queue is empty"), self.tr("Queued and active downloads will appear here."))
         layout.addWidget(self.empty)
         self._refresh_empty()
         self._update_action_buttons()
@@ -239,14 +241,14 @@ class QueuePage(QWidget):
         task = item.data(Qt.UserRole + 1) or {}
         path = (task.get("output_path") or "").strip()
         if not path:
-            QMessageBox.information(self, "No path", "No output folder is recorded for this item.")
+            QMessageBox.information(self, self.tr("No path"), self.tr("No output folder is recorded for this item."))
             return
         if not os.path.isdir(path):
             parent = os.path.dirname(path)
             if parent and os.path.isdir(parent):
                 path = parent
             else:
-                QMessageBox.warning(self, "Not found", "The output folder could not be found.")
+                QMessageBox.warning(self, self.tr("Not found"), self.tr("The output folder could not be found."))
                 return
         try:
             if sys.platform.startswith("win"):
@@ -256,7 +258,7 @@ class QueuePage(QWidget):
             else:
                 subprocess.Popen(["xdg-open", path])
         except Exception as exc:
-            QMessageBox.warning(self, "Open failed", str(exc))
+            QMessageBox.warning(self, self.tr("Open failed"), str(exc))
 
     def _update_action_buttons(self) -> None:
         item = self.list_widget.currentItem()
