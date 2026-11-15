@@ -89,22 +89,27 @@ def translate_known_error(message: str | None) -> str:
     if not message:
         return ""
     msg = str(message).strip()
-    known = [
-        "Not enough free disk space at destination.",
-        "Interrupted by application restart",
-        "Cancelled by user.",
-        "Cancelled by user",
-        "Download timed out.",
-        "Download failed. Check the URL, network connection, FFmpeg availability, or output path.",
-        "Download failed.",
-    ]
-    for candidate in known:
+    known = _known_error_translations()
+    for candidate, translated in known.items():
         if msg.startswith(candidate):
-            translated = translate_known_error_key(candidate)
             return translated + msg[len(candidate):]
     return msg
 
 
-def translate_known_error_key(key: str) -> str:
-    """tr() hook for known error messages (exposes them to lupdate)."""
-    return QApplication.tr(key)
+def _known_error_translations() -> dict[str, str]:
+    """Literal tr() calls so lupdate extracts each message (QApplication context)."""
+    return {
+        "Not enough free disk space at destination.": QApplication.tr(
+            "Not enough free disk space at destination."
+        ),
+        "Interrupted by application restart": QApplication.tr(
+            "Interrupted by application restart"
+        ),
+        "Cancelled by user.": QApplication.tr("Cancelled by user."),
+        "Cancelled by user": QApplication.tr("Cancelled by user"),
+        "Download timed out.": QApplication.tr("Download timed out."),
+        "Download failed. Check the URL, network connection, FFmpeg availability, or output path.": QApplication.tr(
+            "Download failed. Check the URL, network connection, FFmpeg availability, or output path."
+        ),
+        "Download failed.": QApplication.tr("Download failed."),
+    }

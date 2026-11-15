@@ -36,6 +36,24 @@ from app.ui.dialogs.licenses_dialog import LicensesDialog
 from app.ui.widgets.common import CardFrame, PageHeader
 
 
+class _YtdlpCheckThread:
+    """PySide6 QThread subclass created lazily to keep module import Qt-light."""
+
+    @staticmethod
+    def make() -> "object":
+        from PySide6.QtCore import QThread, Signal
+
+        class _Thread(QThread):
+            done = Signal(str)
+
+            def run(self) -> None:
+                from app.engine.ytdlp_engine import get_ytdlp_version, latest_pypi_version
+
+                self.done.emit(f"{get_ytdlp_version()}|{latest_pypi_version() or ''}")
+
+        return _Thread()
+
+
 class SettingsPage(QWidget):
     def __init__(self, parent: QWidget | None = None):
         super().__init__(parent)
@@ -217,16 +235,6 @@ class SettingsPage(QWidget):
 
     def _check_ytdlp_update(self) -> None:
         """DL-10/FEAT-07: compare installed yt-dlp with the latest PyPI release."""
-        from PySide6.QtCore import QThread, Signal
-
-        class _CheckThread(QThread):
-            done = Signal(str)
-
-            def run(self) -> None:
-                from app.engine.ytdlp_engine import get_ytdlp_version, latest_pypi_version
-
-                self.done.emit(f"{get_ytdlp_version()}|{latest_pypi_version() or ''}")
-
         self.update_check_btn.setEnabled(False)
         self.update_check_btn.setText(self.tr("Checking..."))
 
@@ -251,7 +259,7 @@ class SettingsPage(QWidget):
                             "then rebuild/repackage the app.") % (cur, latest),
                 )
 
-        self._update_thread = _CheckThread()
+        self._update_thread = _YtdlpCheckThread.make()
         self._update_thread.done.connect(_finished)
         self._update_thread.finished.connect(self._update_thread.deleteLater)
         self._update_thread.start()

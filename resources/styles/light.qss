@@ -15,7 +15,7 @@ QPushButton.NavButton {
     border: none;
     border-radius: 8px;
     padding: 10px 14px;
-    text-align: left;
+    /* no explicit text-align: default alignment follows layout direction (RTL-aware) */
 }
 QPushButton.NavButton:hover {
     background-color: #EEF2F6;
