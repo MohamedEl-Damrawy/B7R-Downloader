@@ -27,6 +27,7 @@ class NewDownloadPage(QWidget):
         self.controller = None
         self._last_video = None
         self._last_playlist = None
+        self._last_plan = None
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(24, 24, 24, 24)
@@ -115,11 +116,20 @@ class NewDownloadPage(QWidget):
         self.format_combo.addItem(self.tr("Audio only — MP3"), "audio_mp3")
         self.format_combo.addItem(self.tr("Audio only — M4A"), "audio_m4a")
 
+    def _add_music_quality_items(self) -> None:
+        """Music presets for Spotify-matched downloads (Spotify plan)."""
+        self.format_combo.clear()
+        self.format_combo.addItem(self.tr("MP3 320 kbps (recommended)"), "mp3_320")
+        self.format_combo.addItem(self.tr("M4A 256 kbps"), "m4a_256")
+        self.format_combo.addItem(self.tr("FLAC (lossy source)"), "flac")
+
     def set_controller(self, controller) -> None:
         self.controller = controller
         self.controller.metadata_result.connect(self.on_metadata_result)
         self.controller.metadata_error.connect(self.on_metadata_error)
         self.controller.metadata_finished.connect(self.on_metadata_finished)
+        if hasattr(controller, "source_plan_ready"):
+            controller.source_plan_ready.connect(self.on_source_plan)
         if hasattr(controller, "task_error"):
             controller.task_error.connect(self.on_task_error)
 
@@ -150,8 +160,13 @@ class NewDownloadPage(QWidget):
             )
             return
         from app.core.validators import is_http_url
-        if not is_http_url(url):
-            QMessageBox.warning(self, self.tr("Invalid URL"), self.tr("Please enter a valid http(s) URL."))
+        from app.sources.spotify import is_spotify_url
+        if not is_http_url(url) and not is_spotify_url(url):
+            QMessageBox.warning(
+                self,
+                self.tr("Invalid URL"),
+                self.tr("Please enter a valid http(s) or Spotify URL."),
+            )
             return
         if not self.controller:
             QMessageBox.critical(
@@ -162,17 +177,65 @@ class NewDownloadPage(QWidget):
             return
         self._last_video = None
         self._last_playlist = None
+        self._last_plan = None
         self._set_thumbnail("", "")
         self.extract_btn.setEnabled(False)
         self.download_btn.setEnabled(False)
         self.preview_label.setText(self.tr("Extracting metadata..."))
         self.controller.extract_metadata(url)
 
+    def on_source_plan(self, plan) -> None:
+        """Spotify provider result (source_plan_ready): track → direct preview;
+        playlist → the main window persists it and navigates to Playlists."""
+        if plan is None:
+            return
+        self._last_plan = plan
+        kind = getattr(plan, "kind", "")
+        entries = getattr(plan, "entries", []) or []
+        if kind == "track" and entries:
+            track = entries[0]
+            self._add_music_quality_items()
+            thumb = track.cover_url or ""
+            self._set_thumbnail(thumb, track.title or "Track")
+            duration = track.duration_sec
+            extra = []
+            if duration:
+                try:
+                    mins, secs = divmod(int(duration), 60)
+                    extra.append(self.tr("Duration: %d:%02d") % (mins, secs))
+                except Exception:
+                    pass
+            extra.append(self._thumb_availability(thumb))
+            extra_text = ("\n" + "\n".join(extra)) if extra else ""
+            self.preview_label.setText(
+                self.tr(
+                    "Spotify track detected: %s\nArtist: %s\nAlbum: %s\n\n"
+                    "Audio will be sourced from YouTube Music and tagged with Spotify metadata.\nURL: %s%s"
+                )
+                % (track.title or "", track.artist or "", track.album or "", plan.source_url or "", extra_text)
+            )
+            self.download_btn.setEnabled(bool(track.available) and bool(track.search_query))
+        elif kind == "playlist":
+            count = len(entries)
+            self._add_music_quality_items()
+            self._set_thumbnail(getattr(plan, "thumbnail_url", "") or "", getattr(plan, "title", "Playlist"))
+            self.preview_label.setText(
+                self.tr(
+                    "Spotify playlist/album detected: %s\nEntries: %d\n\nOpening Playlists to review and select items."
+                )
+                % (getattr(plan, "title", "Playlist"), count)
+            )
+            self.download_btn.setEnabled(False)
+        else:
+            self.preview_label.setText(self.tr("No metadata could be extracted."))
+            self.download_btn.setEnabled(False)
+
     def on_metadata_result(self, payload: dict) -> None:
         video = (payload or {}).get("video")
         playlist = (payload or {}).get("playlist")
         self._last_video = video
         self._last_playlist = playlist
+        self._last_plan = None
         # Reset quality options to defaults, then enrich for single video
         self._add_default_quality_items()
         if playlist:
@@ -241,6 +304,9 @@ class NewDownloadPage(QWidget):
         return self.tr("Thumbnail: available") if thumb else self.tr("Thumbnail: not available")
 
     def _on_download(self) -> None:
+        # Spotify matched-track flow (source plan).
+        if getattr(self, "_last_plan", None) is not None:
+            return self._on_download_plan()
         url = self.url_input.text().strip()
         if not url or not self._last_video:
             QMessageBox.warning(self, self.tr("Not ready"), self.tr("Extract video metadata first."))
@@ -285,6 +351,33 @@ class NewDownloadPage(QWidget):
         )
         queued_note = self.tr("Queued download task: %s") % task_id[:8]
         self.preview_label.setText(self.preview_label.text() + "\n\n" + queued_note)
+        self.download_btn.setEnabled(False)
+
+    def _on_download_plan(self) -> None:
+        """Spotify plan download (track plan previewed on this page)."""
+        plan = getattr(self, "_last_plan", None)
+        if plan is None or not self.controller or not hasattr(self.controller, "start_source_plan"):
+            QMessageBox.critical(self, self.tr("Unavailable"), self.tr("Download controller is not available."))
+            return
+        entries = getattr(plan, "entries", []) or []
+        if not entries or not entries[0].available:
+            QMessageBox.warning(self, self.tr("Not available"), self.tr("This track is not available for download."))
+            return
+        output_dir = self.dest_input.text().strip()
+        if not output_dir:
+            from app.core.paths import get_default_download_dir
+            output_dir = str(get_default_download_dir())
+        try:
+            import os
+            os.makedirs(output_dir, exist_ok=True)
+        except Exception as exc:
+            QMessageBox.critical(self, self.tr("Invalid output folder"), self.tr("Cannot use output folder:\n%s") % exc)
+            return
+        quality = self.format_combo.currentData() or "mp3_320"
+        ids = self.controller.start_source_plan(plan, output_dir, str(quality))
+        if ids:
+            note = self.tr("Queued download task: %s") % ids[0][:8]
+            self.preview_label.setText(self.preview_label.text() + "\n\n" + note)
         self.download_btn.setEnabled(False)
 
     def on_task_error(self, task_id: str, message: str) -> None:

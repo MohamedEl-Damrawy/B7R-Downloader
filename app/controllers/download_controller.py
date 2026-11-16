@@ -382,6 +382,7 @@ class DownloadController(QObject):
                 title=track.title or "",
                 thumbnail_url=track.cover_url or "",
                 playlist_id=playlist_id,
+                playlist_item_id=getattr(track, "playlist_item_id", None),
                 search_query=track.search_query,
                 meta=self._spec_meta_from_track(track),
                 source_type=track.source_type or "spotify",

@@ -88,3 +88,11 @@ Spotify (Phase B) is a *metadata* provider: audio never comes from Spotify
 - Spotify provider is registered in Phase B when `resolve()` is implemented;
   until then Spotify URLs fall through to the YouTube catch-all, exactly as
   before (yt-dlp rejects them).
+- Matched downloads tag files with **mutagen** (`app/engine/audio_tags.py`)
+  instead of yt-dlp postprocessor metadata injection: the YouTube-sourced
+  info dict carries YouTube titles, so post-download tagging is the only
+  reliable way to write Spotify title/artist/album + embedded cover art.
+  Tagging is best-effort and never fails a successful download.
+- Loose duration matches (no candidate within ±12 s of the Spotify duration)
+  still download (first candidate) and are recorded as
+  `match_quality=loose` in `downloads.error_code` so history surfaces them.

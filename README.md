@@ -15,6 +15,11 @@ The app can also check for updates itself: **Settings → Check App Updates**.
 
 - Video and playlist downloads with quality selection (up to best available)
 - Audio-only presets (MP3 / M4A)
+- **Spotify support:** paste a Spotify track/album/playlist link and the app
+  fetches its metadata (title/artist/album/cover) and downloads the audio
+  from YouTube Music, embedded and converted to MP3 320 / M4A 256 / FLAC
+  (lossy source). No Spotify login; no DRM circumvention — Spotify is used
+  for metadata only. Optional free API credentials in Settings → Spotify.
 - Optional subtitles, embedded metadata and thumbnail, SponsorBlock marking
 - Playlist inspector: see all entries and pick exactly the items you want
 - Live queue with per-item progress, cancel, retry, and searchable history

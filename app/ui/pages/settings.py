@@ -27,6 +27,8 @@ from app.core.constants import (
     SETTINGS_MAX_CONCURRENT_DOWNLOADS,
     SETTINGS_PROXY,
     SETTINGS_SPONSORBLOCK,
+    SETTINGS_SPOTIFY_CLIENT_ID,
+    SETTINGS_SPOTIFY_CLIENT_SECRET,
     SETTINGS_THEME,
 )
 from app.core.paths import get_default_download_dir
@@ -119,6 +121,26 @@ class SettingsPage(QWidget):
         self.sponsorblock_check = QCheckBox(self.tr("Mark SponsorBlock segments (sponsor/intro/outro/...)"))
         form.addRow(self.tr("SponsorBlock"), self.sponsorblock_check)
 
+        # Spotify plan: metadata API credentials (client-credentials flow).
+        # Audio never comes from Spotify; a free pair comes from the dashboard.
+        self.spotify_id_input = QLineEdit()
+        self.spotify_id_input.setPlaceholderText(self.tr("Spotify Client ID (optional)"))
+        form.addRow(self.tr("Spotify Client ID"), self.spotify_id_input)
+        self.spotify_secret_input = QLineEdit()
+        self.spotify_secret_input.setPlaceholderText(self.tr("Spotify Client Secret (optional)"))
+        self.spotify_secret_input.setEchoMode(QLineEdit.Password)
+        form.addRow(self.tr("Spotify Client Secret"), self.spotify_secret_input)
+        self.spotify_hint = QLabel(
+            self.tr(
+                "Free credentials: developer.spotify.com/dashboard. "
+                "Spotify is used for metadata only; audio comes from YouTube Music."
+            )
+        )
+        self.spotify_hint.setWordWrap(True)
+        self.spotify_hint.setStyleSheet("color: #91A2B5; font-size: 11px;")
+        self.spotify_hint.setOpenExternalLinks(False)
+        form.addRow("", self.spotify_hint)
+
         # FEAT-08: theme selection (applied on next launch).
         self.theme_combo = QComboBox()
         self.theme_combo.addItem(self.tr("Dark"), "dark")
@@ -192,6 +214,8 @@ class SettingsPage(QWidget):
         self.concurrent_spin.setValue(max(MIN_CONCURRENT_DOWNLOADS, min(MAX_CONCURRENT_DOWNLOADS, mc)))
         self.cookie_input.setText(str(self.settings.get(SETTINGS_COOKIEFILE) or ""))
         self.proxy_input.setText(str(self.settings.get(SETTINGS_PROXY) or ""))
+        self.spotify_id_input.setText(str(self.settings.get(SETTINGS_SPOTIFY_CLIENT_ID) or ""))
+        self.spotify_secret_input.setText(str(self.settings.get(SETTINGS_SPOTIFY_CLIENT_SECRET) or ""))
         self.sponsorblock_check.setChecked(str(self.settings.get(SETTINGS_SPONSORBLOCK, "0")).strip() == "1")
         theme = str(self.settings.get(SETTINGS_THEME, "dark") or "dark").strip().lower()
         idx = self.theme_combo.findData(theme)
@@ -246,6 +270,8 @@ class SettingsPage(QWidget):
         self.settings.set(SETTINGS_MAX_CONCURRENT_DOWNLOADS, str(self.concurrent_spin.value()))
         self.settings.set(SETTINGS_COOKIEFILE, self.cookie_input.text().strip())
         self.settings.set(SETTINGS_PROXY, self.proxy_input.text().strip())
+        self.settings.set(SETTINGS_SPOTIFY_CLIENT_ID, self.spotify_id_input.text().strip())
+        self.settings.set(SETTINGS_SPOTIFY_CLIENT_SECRET, self.spotify_secret_input.text().strip())
         self.settings.set(SETTINGS_SPONSORBLOCK, "1" if self.sponsorblock_check.isChecked() else "0")
         self.settings.set(SETTINGS_THEME, self.theme_combo.currentData() or "dark")
         self.settings.set(SETTINGS_LANGUAGE, self.language_combo.currentData() or "en")

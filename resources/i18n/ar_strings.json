@@ -191,5 +191,18 @@
   "The app is up to date (version %s).": "نسخة التطبيق محدثة (إصدار %s).",
   "No published releases yet (installed: %s).\nCheck the project's GitHub page for new versions:\n%s": "لا توجد إصدارات منشورة بعد (المثبت: %s).\nراجع صفحة المشروع على GitHub للإصدارات الجديدة:\n%s",
   "Could not reach GitHub.\nInstalled: %s": "تعذر الوصول إلى GitHub.\nالمثبت: %s",
-  "Project page / downloads:": "صفحة المشروع / التنزيلات:"
+  "Project page / downloads:": "صفحة المشروع / التنزيلات:",
+  "MP3 320 kbps (recommended)": "MP3 320 كيلوبت/ثانية (موصى به)",
+  "M4A 256 kbps": "M4A 256 كيلوبت/ثانية",
+  "FLAC (lossy source)": "FLAC (المصدر ضائع الجودة)",
+  "Please enter a valid http(s) or Spotify URL.": "الرجاء إدخال رابط http(s) أو رابط Spotify صحيح.",
+  "Spotify track detected: %s\nArtist: %s\nAlbum: %s\n\nAudio will be sourced from YouTube Music and tagged with Spotify metadata.\nURL: %s%s": "تم اكتشاف مقطوعة من Spotify: %s\nالفنان: %s\nالألبوم: %s\n\nسيؤخذ الصوت من YouTube Music ويُدمج وصف Spotify في الملف.\nالرابط: %s%s",
+  "Spotify playlist/album detected: %s\nEntries: %d\n\nOpening Playlists to review and select items.": "تم اكتشاف قائمة تشغيل/ألبوم من Spotify: %s\nالمقاطع: %d\n\nيتم فتح صفحة قوائم التشغيل للمراجعة والاختيار.",
+  "Not available": "غير متاح",
+  "This track is not available for download.": "هذه المقطوعة غير متاحة للتحميل.",
+  "Spotify Client ID (optional)": "معرّف عميل Spotify (اختياري)",
+  "Spotify Client ID": "معرّف عميل Spotify",
+  "Spotify Client Secret (optional)": "سرّ عميل Spotify (اختياري)",
+  "Spotify Client Secret": "سرّ عميل Spotify",
+  "Free credentials: developer.spotify.com/dashboard. Spotify is used for metadata only; audio comes from YouTube Music.": "بيانات اعتماد مجانية: developer.spotify.com/dashboard. يُستخدم Spotify للبيانات الوصفية فقط؛ الصوت يأتي من YouTube Music."
 }

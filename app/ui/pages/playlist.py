@@ -54,6 +54,10 @@ class PlaylistsPage(QWidget):
         # FEAT-01: audio-only presets (converted with FFmpegExtractAudio).
         self.quality_combo.addItem(self.tr("Audio only — MP3"), "audio_mp3")
         self.quality_combo.addItem(self.tr("Audio only — M4A"), "audio_m4a")
+        # Spotify plan: music presets also apply to YouTube audio-only items.
+        self.quality_combo.addItem(self.tr("MP3 320 kbps (recommended)"), "mp3_320")
+        self.quality_combo.addItem(self.tr("M4A 256 kbps"), "m4a_256")
+        self.quality_combo.addItem(self.tr("FLAC (lossy source)"), "flac")
         opts.addWidget(self.quality_combo)
         opts.addWidget(QLabel(self.tr("Output:")))
         self.output_input = QLineEdit()
@@ -162,6 +166,26 @@ class PlaylistsPage(QWidget):
                         available=available,
                     )
                 )
+                entry = entries[-1]
+                # Saved Spotify items carry music metadata + a rebuilt search.
+                artist = str(it.get("artist") or "")
+                album = str(it.get("album") or "")
+                cover = str(it.get("cover_url") or "")
+                if artist:
+                    try:
+                        setattr(entry, "artist", artist)
+                        setattr(entry, "album", album)
+                        if cover:
+                            setattr(entry, "cover_url", cover)
+                        setattr(entry, "source_type", "spotify")
+                        from app.sources.match import build_search_query
+                        setattr(
+                            entry,
+                            "search_query",
+                            build_search_query(it.get("title") or "", artist),
+                        )
+                    except Exception:
+                        pass
             meta = PlaylistMetadata(
                 source_url=pl.get("source_url") or "",
                 title=pl.get("title") or "Playlist",
@@ -239,6 +263,10 @@ class PlaylistsPage(QWidget):
         status_map = self._load_status_map(playlist_id)
         for e in entries:
             title = getattr(e, "title", "") or self.tr("Untitled")
+            artist = getattr(e, "artist", "") or ""
+            if artist:
+                # Spotify entries: show "Title — Artist" (album in tooltip).
+                title = f"{title} — {artist}"
             available = bool(getattr(e, "available", True))
             item_id = self._item_id_for_entry(playlist_id, e)
             if item_id:
@@ -251,6 +279,9 @@ class PlaylistsPage(QWidget):
             progress = st.get("progress") if st else None
             error = st.get("error_message") if st else None
             item = QListWidgetItem(self._format_entry_text(title, available, status, progress, error))
+            album = getattr(e, "album", "") or ""
+            if album:
+                item.setToolTip(album)
             item.setFlags(item.flags() | Qt.ItemIsUserCheckable | Qt.ItemIsEnabled | Qt.ItemIsSelectable)
             item.setCheckState(Qt.Unchecked)
             item.setData(Qt.UserRole, e)
@@ -356,15 +387,34 @@ class PlaylistsPage(QWidget):
         quality = self.quality_combo.currentData() or "best"
         playlist_url = getattr(self._playlist, "source_url", "")
         playlist_id = getattr(self._playlist, "playlist_id", None)
+        # Spotify plan: matched playlists download via start_source_plan
+        # (per-track ytsearch tasks; batching stays YouTube-only).
+        is_spotify = "open.spotify.com" in str(playlist_url) or any(
+            getattr(e, "search_query", "") for e in selected
+        )
         try:
-            ids = self._controller.start_playlist_downloads(
-                playlist_url=playlist_url,
-                output_dir=output_dir,
-                quality=quality,
-                entries=selected,
-                playlist_id=playlist_id,
-                playlist_title=str(getattr(self._playlist, "title", "") or ""),
-            )
+            if is_spotify and hasattr(self._controller, "start_source_plan"):
+                from app.sources.base import SourcePlan
+
+                plan = SourcePlan(
+                    kind="playlist",
+                    title=str(getattr(self._playlist, "title", "") or "Playlist"),
+                    entries=list(selected),
+                    source_url=playlist_url,
+                    thumbnail_url=str(getattr(self._playlist, "thumbnail_url", "") or ""),
+                )
+                ids = self._controller.start_source_plan(
+                    plan, output_dir, str(quality), playlist_id=playlist_id
+                )
+            else:
+                ids = self._controller.start_playlist_downloads(
+                    playlist_url=playlist_url,
+                    output_dir=output_dir,
+                    quality=quality,
+                    entries=selected,
+                    playlist_id=playlist_id,
+                    playlist_title=str(getattr(self._playlist, "title", "") or ""),
+                )
             QMessageBox.information(
                 self,
                 self.tr("Downloads queued"),

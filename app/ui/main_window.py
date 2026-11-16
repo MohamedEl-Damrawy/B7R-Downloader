@@ -166,10 +166,25 @@ class MainWindow(QMainWindow):
             comp.set_controller(self.download_controller)
 
         self.download_controller.metadata_result.connect(self._on_metadata_result)
+        self.download_controller.source_plan_ready.connect(self._on_source_plan)
         self.download_controller.task_added.connect(self._on_task_added)
         self.download_controller.task_updated.connect(self._on_task_updated)
         self.download_controller.task_error.connect(self._on_task_error)
         self.download_controller.task_finished.connect(self._on_task_finished)
+
+    def _on_source_plan(self, plan) -> None:
+        """Spotify (provider) resolution result: playlist plans land on the
+        Playlists page (persisted with music metadata); track plans are
+        handled by the New Download page itself."""
+        if plan is None:
+            return
+        entries = getattr(plan, "entries", []) or []
+        if getattr(plan, "kind", "") == "track" and len(entries) <= 1:
+            return  # NewDownloadPage owns single-track previews
+        if "playlists" in self.pages:
+            self._persist_playlist(plan)
+            self.pages["playlists"].set_playlist(plan)
+            self.navigate_to("playlists")
 
     def _on_metadata_result(self, payload: dict) -> None:
         playlist = (payload or {}).get("playlist")
@@ -222,6 +237,11 @@ class MainWindow(QMainWindow):
                         "progress": 0.0,
                         "output_path": None,
                         "error_message": None,
+                        # Music metadata (Spotify TrackSpec entries; empty for
+                        # YouTube PlaylistEntry entries).
+                        "artist": getattr(e, "artist", "") or "",
+                        "album": getattr(e, "album", "") or "",
+                        "cover_url": getattr(e, "cover_url", "") or getattr(e, "thumbnail_url", "") or "",
                     }
                 )
             if items:
