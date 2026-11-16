@@ -445,9 +445,8 @@ def download_media(
         # names; %% escapes the literal % in yt-dlp outtmpl syntax.
         artist = str(meta.get("artist") or "")
         title = str(meta.get("title") or search_query)
-        outtmpl = str(out_dir / f"{artist} - {title}".replace("%", "%%") + ".%(ext)s")
-        if not artist:
-            outtmpl = str(out_dir / title.replace("%", "%%") + ".%(ext)s")
+        name = f"{artist} - {title}".replace("%", "%%") if artist else title.replace("%", "%%")
+        outtmpl = str(out_dir / (name + ".%(ext)s"))
     else:
         outtmpl = str(out_dir / "%(title).200B [%(id)s].%(ext)s")
 
@@ -546,16 +545,21 @@ def download_media(
     result = {"ok": True}
     if search_query and match_quality:
         result["match_quality"] = match_quality
-    if meta:
-        result["meta"] = dict(meta)
-        _apply_meta_tags(result, meta)
     if isinstance(info, dict):
+        # FFmpegExtractAudio can move the final path into requested_downloads
+        # instead of the top-level info dict; check both (and playlist entries
+        # for batch tasks) so the UI/queue always gets a real path.
+        top_path = info.get("filepath") or info.get("_filename") or ""
+        if not top_path:
+            reqs = info.get("requested_downloads") or []
+            if reqs and isinstance(reqs[0], dict):
+                top_path = reqs[0].get("filepath") or reqs[0].get("_filename") or ""
         result.update(
             {
                 "title": info.get("title"),
                 "id": info.get("id"),
                 "requested_downloads": info.get("requested_downloads"),
-                "filepath": info.get("filepath") or info.get("_filename"),
+                "filepath": top_path,
                 "ext": info.get("ext"),
             }
         )
@@ -574,4 +578,7 @@ def download_media(
                     # Store the parent folder of the first produced file so the
                     # task record points somewhere openable.
                     result["filepath"] = str(Path(filepaths[0]).parent)
+    if meta:
+        result["meta"] = dict(meta)
+        _apply_meta_tags(result, meta)
     return result
