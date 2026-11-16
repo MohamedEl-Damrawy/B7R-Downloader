@@ -30,6 +30,7 @@ class DownloadTask:
     error_message: Optional[str] = None
     playlist_id: Optional[str] = None
     playlist_items: Optional[str] = None  # PERF-04: persisted for correct retry of batch tasks
+    source_type: str = "youtube"  # v3: "youtube" | "spotify" (provider layer)
     created_at: str = field(default_factory=utc_now_iso)
     updated_at: str = field(default_factory=utc_now_iso)
     completed_at: Optional[str] = None

@@ -63,3 +63,28 @@ There is no connection pool and no long-lived shared connection.
 (Postgres/MySQL) or to a network share. In that case introduce an explicit
 session/pool layer behind `db_session()` — the repository call-sites will not
 need to change because they never touch connection objects directly.
+
+## SRC-01 — Source-provider layer (Spotify Option A)
+
+**Where:** `app/sources/` (`base.py`, `youtube.py`, `spotify.py`,
+`registry.py`), schema v3.
+
+**Decision:** user URLs resolve through a provider registry
+(`get_provider_for_url`). The YouTube provider is the always-registered
+catch-all that delegates to the existing `ytdlp_engine.extract_metadata`
+path — YouTube behavior is byte-identical to before the layer existed.
+Spotify (Phase B) is a *metadata* provider: audio never comes from Spotify
+(DRM); resolved Spotify tracks are matched to YouTube Music via
+`ytsearch1:"artist - title"` with a duration sanity gate at download time.
+
+**Consequences:**
+
+- Schema v3: `downloads.source_type` ("youtube" | "spotify"), and
+  `download_items.artist/album/cover_url` for music metadata. Migration is
+  idempotent (`_column_exists` guards, same pattern as v2).
+- PERF-04 playlist batching stays **YouTube-only**: Spotify entries have no
+  yt-dlp URL to share a page fetch with, so each matched track is its own
+  per-track task (one cheap `ytsearch1:` fetch).
+- Spotify provider is registered in Phase B when `resolve()` is implemented;
+  until then Spotify URLs fall through to the YouTube catch-all, exactly as
+  before (yt-dlp rejects them).

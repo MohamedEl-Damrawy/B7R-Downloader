@@ -16,8 +16,8 @@ class DownloadItemsRepository:
                 """
                 INSERT INTO download_items(
                     id, playlist_id, download_id, entry_index, source_url, title, thumbnail_url,
-                    status, progress, output_path, error_message
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    status, progress, output_path, error_message, artist, album, cover_url
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT(id) DO UPDATE SET
                     playlist_id=excluded.playlist_id,
                     download_id=excluded.download_id,
@@ -28,13 +28,17 @@ class DownloadItemsRepository:
                     status=excluded.status,
                     progress=excluded.progress,
                     output_path=excluded.output_path,
-                    error_message=excluded.error_message
+                    error_message=excluded.error_message,
+                    artist=excluded.artist,
+                    album=excluded.album,
+                    cover_url=excluded.cover_url
                 """,
                 [
                     (
                         it.get("id"), it.get("playlist_id"), it.get("download_id"), it.get("entry_index"),
                         it.get("source_url"), it.get("title"), it.get("thumbnail_url"), it.get("status"),
                         it.get("progress", 0.0), it.get("output_path"), it.get("error_message"),
+                        it.get("artist"), it.get("album"), it.get("cover_url"),
                     )
                     for it in items
                 ],

@@ -28,6 +28,7 @@ from app.engine.format_selector import audio_preset_for_quality, pick_format_for
 from app.models.download import DownloadTask, utc_now_iso
 from app.models.download_status import DownloadStatus, can_transition
 from app.services.settings_service import SettingsService
+from app.sources import get_provider_for_url
 from app.workers.download_worker import DownloadWorker
 from app.workers.metadata_worker import MetadataWorker
 
@@ -120,6 +121,13 @@ class DownloadController(QObject):
     def extract_metadata(self, url: str) -> None:
         logger.info("Queue metadata extraction: url=%s", redact_url(url))
         net = self._network_opts()
+        # Provider routing (Spotify plan Phase A): non-YouTube providers get
+        # their own resolution path in Phase B. Today every registered URL
+        # resolves to the YouTube fallback, so the existing worker path below
+        # is byte-identical to before.
+        provider = get_provider_for_url(url)
+        if provider is not None and provider.name != "youtube":
+            logger.info("Non-YouTube provider %s matched; dedicated worker pending (Phase B)", provider.name)
         worker = MetadataWorker(url, cookiefile=net.get("cookiefile"), proxy=net.get("proxy"))
         worker.signals.result.connect(self.metadata_result)
         worker.signals.error.connect(self.metadata_error)
@@ -445,6 +453,7 @@ class DownloadController(QObject):
             "error_message": task.error_message,
             "playlist_id": task.playlist_id,
             "playlist_items": task.playlist_items,
+            "source_type": task.source_type,
             "created_at": task.created_at,
             "updated_at": task.updated_at,
             "completed_at": task.completed_at,

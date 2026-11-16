@@ -87,7 +87,11 @@ def _patch_enqueue_env(test: unittest.TestCase, ctrl: DownloadController):
 
 
 class TestMigrationV2(unittest.TestCase):
-    """Schema v2: playlist_items column + recorded schema version."""
+    """Schema v2+ (now v3): playlist_items column + recorded schema version.
+
+    v3 added downloads.source_type and download_items artist/album/cover_url
+    (Spotify provider layer); the v2 column remains present and guarded.
+    """
 
     def test_fresh_db_has_playlist_items_column(self):
         with TemporaryDirectory() as td:
@@ -100,13 +104,13 @@ class TestMigrationV2(unittest.TestCase):
             importlib.reload(schema)
             importlib.reload(migrations)
 
-            self.assertEqual(schema.SCHEMA_VERSION, 2)
+            self.assertGreaterEqual(schema.SCHEMA_VERSION, 2)
             migrations.apply_migrations()
             with connection.db_session() as conn:
                 cols = [r["name"] for r in conn.execute("PRAGMA table_info(downloads)").fetchall()]
                 self.assertIn("playlist_items", cols)
                 ver = conn.execute("SELECT MAX(version) AS v FROM schema_version").fetchone()
-                self.assertEqual(ver["v"], 2)
+                self.assertEqual(ver["v"], schema.SCHEMA_VERSION)
 
             # Re-running migrations is idempotent.
             migrations.apply_migrations()

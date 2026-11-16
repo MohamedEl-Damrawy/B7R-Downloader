@@ -39,6 +39,21 @@ def apply_migrations() -> None:
         # re-downloading the whole playlist).
         if get_current_version(conn) < 2 and not _column_exists(conn, "downloads", "playlist_items"):
             conn.execute("ALTER TABLE downloads ADD COLUMN playlist_items TEXT")
+        # Spotify providers v3: downloads record their source ("youtube" /
+        # "spotify"); playlist items carry music metadata (artist/album/cover)
+        # for display and matched downloads. Guarded by _column_exists so the
+        # migration is idempotent on fresh DBs (columns already in CREATE) and
+        # on repeated calls.
+        if get_current_version(conn) < 3:
+            if not _column_exists(conn, "downloads", "source_type"):
+                conn.execute("ALTER TABLE downloads ADD COLUMN source_type TEXT")
+            for _tbl, _col in (
+                ("download_items", "artist"),
+                ("download_items", "album"),
+                ("download_items", "cover_url"),
+            ):
+                if not _column_exists(conn, _tbl, _col):
+                    conn.execute(f"ALTER TABLE {_tbl} ADD COLUMN {_col} TEXT")
         row = conn.execute("SELECT version FROM schema_version WHERE version = ?", (SCHEMA_VERSION,)).fetchone()
         if not row:
             conn.execute(

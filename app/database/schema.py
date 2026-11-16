@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-SCHEMA_VERSION = 2
+SCHEMA_VERSION = 3
 
 SCHEMA_STATEMENTS = [
     """
@@ -29,6 +29,7 @@ SCHEMA_STATEMENTS = [
         error_message TEXT,
         playlist_id TEXT,
         playlist_items TEXT,
+        source_type TEXT,
         created_at TEXT NOT NULL,
         updated_at TEXT,
         completed_at TEXT
@@ -57,6 +58,9 @@ SCHEMA_STATEMENTS = [
         progress REAL NOT NULL DEFAULT 0,
         output_path TEXT,
         error_message TEXT,
+        artist TEXT,
+        album TEXT,
+        cover_url TEXT,
         FOREIGN KEY (playlist_id) REFERENCES playlists(id) ON DELETE CASCADE,
         FOREIGN KEY (download_id) REFERENCES downloads(id) ON DELETE SET NULL
     );
