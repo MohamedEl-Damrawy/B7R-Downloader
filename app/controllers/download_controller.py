@@ -38,6 +38,13 @@ logger = get_logger(__name__)
 _DB_WRITE_INTERVAL_SEC = 0.5
 
 
+# PERF-04: number of index-only playlist entries bundled into a single batch
+# task. Each per-entry task would re-fetch the whole playlist page once per
+# item (N fetches + HTTP 429 risk); a batch task selects a comma list of
+# indices with one fetch per chunk instead.
+_PLAYLIST_BATCH_SIZE = 25
+
+
 class DownloadController(QObject):
     metadata_result = Signal(object)
     metadata_error = Signal(str)
@@ -60,6 +67,11 @@ class DownloadController(QObject):
         self._tasks: dict[str, dict] = {}
         self._persisted_status: dict[str, str] = {}
         self._last_progress_persist: dict[str, float] = {}
+        # PERF-04: per-batch progress aggregation. A batch task downloads N
+        # items sequentially; yt-dlp restarts at 0% per item, so the reported
+        # percentage would jump down between items. This state tracks how many
+        # items finished to compute a monotonic overall percentage.
+        self._batch_state: dict[str, dict] = {}
 
     def _max_concurrent(self) -> int:
         try:
@@ -127,6 +139,8 @@ class DownloadController(QObject):
         embed_metadata: bool = False,
         embed_thumbnail: bool = False,
         write_subs: bool = False,
+        playlist_item_ids: list[str] | None = None,
+        playlist_item_count: int = 0,
     ) -> str:
         if playlist_items and not is_valid_playlist_items(str(playlist_items)):
             logger.error(
@@ -166,6 +180,7 @@ class DownloadController(QObject):
             output_path=output_dir,
             status=DownloadStatus.QUEUED,
             playlist_id=playlist_id,
+            playlist_items=playlist_items,
         )
         self.repo.upsert(self._task_to_record(task))
         self._specs[task_id] = {
@@ -174,6 +189,8 @@ class DownloadController(QObject):
             "format_selector": fmt,
             "playlist_items": playlist_items,
             "playlist_item_id": playlist_item_id,
+            "playlist_item_ids": list(playlist_item_ids or []),
+            "playlist_item_count": int(playlist_item_count) if playlist_item_count else len(playlist_item_ids or []),
             "audio_format": audio_format,
             "embed_metadata": embed_metadata,
             "embed_thumbnail": embed_thumbnail,
@@ -182,11 +199,13 @@ class DownloadController(QObject):
             "cookiefile": net.get("cookiefile"),
             "proxy": net.get("proxy"),
         }
-        if playlist_item_id:
+        for item_id in ([playlist_item_id] if playlist_item_id else []) + list(playlist_item_ids or []):
+            if not item_id:
+                continue
             try:
-                self.items_repo.link_download(playlist_item_id, task_id, DownloadStatus.QUEUED.value)
+                self.items_repo.link_download(item_id, task_id, DownloadStatus.QUEUED.value)
             except Exception:
-                logger.exception("Failed to link playlist item %s to task %s", playlist_item_id, task_id)
+                logger.exception("Failed to link playlist item %s to task %s", item_id, task_id)
         self._pending.append(task_id)
         emitted = self._task_to_record(task)
         self._tasks[task_id] = emitted
@@ -208,43 +227,73 @@ class DownloadController(QObject):
         quality: str,
         entries: list,
         playlist_id: str | None = None,
+        playlist_title: str = "",
     ) -> list[str]:
         ids: list[str] = []
+        # PERF-04: entries without a direct URL are split into two groups.
+        # Direct-URL entries become cheap per-item tasks (single-video fetch).
+        # Index-only entries are bundled into batch tasks whose playlist_items
+        # is the comma-joined list of numeric indices, so one download_media
+        # call (and one playlist page fetch) covers _PLAYLIST_BATCH_SIZE items.
+        direct: list = []
+        index_only: list = []
         for e in entries:
             if not getattr(e, "available", True):
                 logger.info("Skipping unavailable playlist entry: title=%s", getattr(e, "title", ""))
                 continue
-            title = getattr(e, "title", "") or "Untitled"
-            thumb = getattr(e, "thumbnail_url", "") or ""
-            idx = getattr(e, "index", None)
             entry_url = getattr(e, "source_url", "") or ""
-            playlist_item_id = getattr(e, "playlist_item_id", None)
             if entry_url and str(entry_url).startswith("http"):
-                url = entry_url
-                playlist_items = None
-            elif playlist_url and isinstance(idx, int):
-                # Without a direct entry URL the item can only be targeted by its
-                # numeric playlist index; a video ID is NOT valid playlist_items.
-                url = playlist_url
-                playlist_items = str(idx)
+                direct.append(e)
+            elif playlist_url and isinstance(getattr(e, "index", None), int):
+                index_only.append(e)
             else:
                 logger.warning(
                     "Skipping playlist entry without direct URL or numeric index: title=%s",
-                    title,
+                    getattr(e, "title", ""),
                 )
-                continue
+
+        for e in direct:
             new_id = self.start_download(
-                url=url,
+                url=getattr(e, "source_url", ""),
                 output_dir=output_dir,
                 quality=quality,
-                title=title,
-                thumbnail_url=thumb,
+                title=getattr(e, "title", "") or "Untitled",
+                thumbnail_url=getattr(e, "thumbnail_url", "") or "",
                 playlist_id=playlist_id,
-                playlist_items=playlist_items,
-                playlist_item_id=playlist_item_id,
+                playlist_item_id=getattr(e, "playlist_item_id", None),
             )
             if new_id:
                 ids.append(new_id)
+
+        # Batches must walk the playlist in order: sort by index, chunk, and
+        # give yt-dlp the exact "i,j,k" selection list for each chunk.
+        index_only.sort(key=lambda e: getattr(e, "index", 0))
+        for chunk_start in range(0, len(index_only), _PLAYLIST_BATCH_SIZE):
+            chunk = index_only[chunk_start:chunk_start + _PLAYLIST_BATCH_SIZE]
+            items_str = ",".join(str(e.index) for e in chunk)
+            if playlist_title:
+                label = f"{playlist_title} ({len(chunk)} items)"
+            else:
+                label = f"Playlist batch ({len(chunk)} items)"
+            new_id = self.start_download(
+                url=playlist_url,
+                output_dir=output_dir,
+                quality=quality,
+                title=label,
+                thumbnail_url=getattr(chunk[0], "thumbnail_url", "") or "",
+                playlist_id=playlist_id,
+                playlist_items=items_str,
+                playlist_item_ids=[getattr(e, "playlist_item_id", None) for e in chunk],
+                playlist_item_count=len(chunk),
+            )
+            if new_id:
+                ids.append(new_id)
+                logger.info(
+                    "Batched %d playlist entries into task %s (playlist_items=%s)",
+                    len(chunk),
+                    new_id,
+                    items_str,
+                )
         return ids
 
     def cancel_download(self, task_id: str) -> None:
@@ -272,6 +321,7 @@ class DownloadController(QObject):
         playlist_item_id = None
         playlist_items = None
         playlist_url = None
+        task_url = (rec.get("source_url") or "").strip()
         if rec.get("playlist_id"):
             try:
                 from app.database.repositories.playlists_repo import PlaylistsRepository
@@ -279,24 +329,42 @@ class DownloadController(QObject):
                 playlist_url = (pl or {}).get("source_url")
             except Exception:
                 playlist_url = None
-        try:
-            item = self.items_repo.get_by_download_id(task_id)
-        except Exception:
-            item = None
-        if item:
-            playlist_item_id = item.get("id")
-            idx = item.get("entry_index")
-            item_url = (item.get("source_url") or "").strip()
-            task_url = (rec.get("source_url") or "").strip()
-            # Use playlist index selection when the original task targeted the playlist URL
-            # (not a direct entry URL), to avoid re-downloading the whole playlist.
-            if idx is not None and playlist_url and task_url == str(playlist_url).strip():
-                playlist_items = str(idx)
-            elif idx is not None and (not item_url or not item_url.startswith("http")) and task_url:
-                playlist_items = str(idx)
+
+        # PERF-04: prefer the persisted playlist_items selection (batch tasks
+        # always carry one). Fall back to the legacy single-item index mapping.
+        persisted_items = str(rec.get("playlist_items") or "").strip()
+        if persisted_items and is_valid_playlist_items(persisted_items):
+            playlist_items = persisted_items
+        else:
+            try:
+                item = self.items_repo.get_by_download_id(task_id)
+            except Exception:
+                item = None
+            if item:
+                playlist_item_id = item.get("id")
+                idx = item.get("entry_index")
+                item_url = (item.get("source_url") or "").strip()
+                # Use playlist index selection when the original task targeted
+                # the playlist URL (not a direct entry URL), to avoid
+                # re-downloading the whole playlist.
+                if idx is not None and playlist_url and task_url == str(playlist_url).strip():
+                    playlist_items = str(idx)
+                elif idx is not None and (not item_url or not item_url.startswith("http")) and task_url:
+                    playlist_items = str(idx)
+
+        # Guard: a task whose URL is the playlist URL with neither a persisted
+        # selection nor a linked item would download the ENTIRE playlist on
+        # retry. Refuse instead of silently re-enqueueing a full-playlist task.
+        if not playlist_items and not playlist_item_id and playlist_url and task_url == str(playlist_url).strip():
+            logger.error(
+                "Refusing to retry task %s: playlist-URL task without playlist_items or a linked item "
+                "(retrying would download the whole playlist). Re-select the items on the Playlists page instead.",
+                task_id,
+            )
+            return None
 
         # Re-enqueue as a new task to preserve history of prior attempt.
-        return self.start_download(
+        new_id = self.start_download(
             url=rec.get("source_url") or "",
             output_dir=rec.get("output_path") or "",
             quality=rec.get("selected_format") or "best",
@@ -306,6 +374,19 @@ class DownloadController(QObject):
             playlist_items=playlist_items,
             playlist_item_id=playlist_item_id,
         )
+        # Re-link every item that shared the old task (batch tasks link many)
+        # to the new task id so per-item status sync keeps working.
+        if new_id and not playlist_item_id:
+            try:
+                for linked in self.items_repo.list_by_download_id(task_id):
+                    linked_id = linked.get("id")
+                    if linked_id:
+                        self.items_repo.link_download(
+                            str(linked_id), new_id, DownloadStatus.QUEUED.value
+                        )
+            except Exception:
+                logger.exception("Failed to re-link items from task %s to retry task %s", task_id, new_id)
+        return new_id
 
     def _drain_queue(self) -> None:
         while len(self._active) < self._max_concurrent() and self._pending:
@@ -337,6 +418,10 @@ class DownloadController(QObject):
         worker.signals.error.connect(self._on_error)
         worker.signals.finished.connect(lambda tid=task_id: self._on_finished(tid))
         logger.info("Task started: id=%s url=%s", task_id, redact_url(spec.get("url", "")))
+        # PERF-04: initialize batch aggregation for multi-item batch tasks.
+        item_count = int(spec.get("playlist_item_count") or 0)
+        if item_count > 1:
+            self._batch_state[task_id] = {"completed": 0, "last_progress": 0.0}
         # Real EXTRACTING state: yt-dlp runs metadata extraction before the first
         # progress hook fires, which then flips the task to DOWNLOADING (DEAD-10).
         self._update_status(task_id, DownloadStatus.EXTRACTING, progress=0.0)
@@ -359,6 +444,7 @@ class DownloadController(QObject):
             "error_code": None,
             "error_message": task.error_message,
             "playlist_id": task.playlist_id,
+            "playlist_items": task.playlist_items,
             "created_at": task.created_at,
             "updated_at": task.updated_at,
             "completed_at": task.completed_at,
@@ -367,8 +453,10 @@ class DownloadController(QObject):
     def _sync_playlist_item(self, task_id: str, status: DownloadStatus, progress: float | None = None,
                              error_message: str | None = None, output_path: str | None = None) -> None:
         spec = self._specs.get(task_id) or {}
-        item_id = spec.get("playlist_item_id")
-        if not item_id:
+        # PERF-04: batch tasks have no single playlist_item_id but DO have a
+        # list of linked items; update_by_download_id syncs every item that
+        # shares this task's download_id.
+        if not spec.get("playlist_item_id") and not spec.get("playlist_item_ids"):
             return
         try:
             self.items_repo.update_by_download_id(
@@ -464,6 +552,24 @@ class DownloadController(QObject):
             status = DownloadStatus.PROCESSING
         else:
             status = DownloadStatus.DOWNLOADING
+        # PERF-04: aggregate per-item progress for batch tasks. yt-dlp restarts
+        # at 0% for each item inside one batch task; detect the restart (a
+        # sharp drop) to count finished items and report a monotonic overall
+        # percentage. Heuristic: a drop of more than 20 points means the next
+        # item started (per-item hooks never drop that far mid-download).
+        spec = self._specs.get(task_id) or {}
+        item_count = int(spec.get("playlist_item_count") or 0)
+        if item_count > 1 and task_id in self._batch_state:
+            state = self._batch_state[task_id]
+            if pct is not None:
+                if state["last_progress"] >= 20.0 and pct < state["last_progress"] - 20.0:
+                    state["completed"] += 1
+                state["last_progress"] = pct
+                overall = (state["completed"] + pct / 100.0) / item_count * 100.0
+                pct = max(0.0, min(100.0, overall))
+            else:
+                # postprocessing: keep the last overall percentage
+                pct = (state["completed"] + 1.0) / item_count * 100.0 if state["completed"] else None
         self._update_status(
             task_id,
             status,
@@ -501,5 +607,6 @@ class DownloadController(QObject):
         self._specs.pop(task_id, None)
         self._persisted_status.pop(task_id, None)
         self._last_progress_persist.pop(task_id, None)
+        self._batch_state.pop(task_id, None)
         self.task_finished.emit(task_id)
         self._drain_queue()

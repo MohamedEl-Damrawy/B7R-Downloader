@@ -98,6 +98,16 @@ class DownloadItemsRepository:
             ).fetchone()
             return dict(row) if row else None
 
+    def list_by_download_id(self, download_id: str) -> list[dict[str, Any]]:
+        """All items linked to a download (PERF-04: batch tasks link many)."""
+        with db_session() as conn:
+            rows = conn.execute(
+                "SELECT * FROM download_items WHERE download_id = ? "
+                "ORDER BY CASE WHEN entry_index IS NULL THEN 1 ELSE 0 END, entry_index ASC, id ASC",
+                (download_id,),
+            ).fetchall()
+            return [dict(r) for r in rows]
+
     def get(self, item_id: str) -> dict[str, Any] | None:
         with db_session() as conn:
             row = conn.execute("SELECT * FROM download_items WHERE id = ?", (item_id,)).fetchone()

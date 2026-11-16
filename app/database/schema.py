@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 
 SCHEMA_STATEMENTS = [
     """
@@ -28,6 +28,7 @@ SCHEMA_STATEMENTS = [
         error_code TEXT,
         error_message TEXT,
         playlist_id TEXT,
+        playlist_items TEXT,
         created_at TEXT NOT NULL,
         updated_at TEXT,
         completed_at TEXT

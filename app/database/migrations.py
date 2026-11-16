@@ -34,9 +34,19 @@ def apply_migrations() -> None:
             cur.fetchone()
         except Exception:
             conn.execute(SCHEMA_STATEMENTS[0])
+        # PERF-04 v2: persist playlist_items on downloads so batch tasks can be
+        # retried exactly (without it, retrying a playlist-URL task would risk
+        # re-downloading the whole playlist).
+        if get_current_version(conn) < 2 and not _column_exists(conn, "downloads", "playlist_items"):
+            conn.execute("ALTER TABLE downloads ADD COLUMN playlist_items TEXT")
         row = conn.execute("SELECT version FROM schema_version WHERE version = ?", (SCHEMA_VERSION,)).fetchone()
         if not row:
             conn.execute(
                 "INSERT INTO schema_version(version, applied_at) VALUES (?, ?)",
                 (SCHEMA_VERSION, _utc_now()),
             )
+
+
+def _column_exists(conn, table: str, column: str) -> bool:
+    rows = conn.execute(f"PRAGMA table_info({table})").fetchall()
+    return any(r["name"] == column for r in rows)

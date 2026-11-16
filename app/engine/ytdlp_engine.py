@@ -427,4 +427,19 @@ def download_media(
                 "ext": info.get("ext"),
             }
         )
+        # PERF-04: playlist/batch results have no playlist-level filepath; the
+        # per-item paths live in the entries. Expose them so callers (and the
+        # "Open Folder" flow) can resolve the batch output directory.
+        if info.get("_type") == "playlist" or not result["filepath"]:
+            filepaths = [
+                str(e.get("filepath") or e.get("_filename"))
+                for e in (info.get("entries") or [])
+                if isinstance(e, dict) and (e.get("filepath") or e.get("_filename"))
+            ]
+            if filepaths:
+                result["filepaths"] = filepaths
+                if not result["filepath"]:
+                    # Store the parent folder of the first produced file so the
+                    # task record points somewhere openable.
+                    result["filepath"] = str(Path(filepaths[0]).parent)
     return result

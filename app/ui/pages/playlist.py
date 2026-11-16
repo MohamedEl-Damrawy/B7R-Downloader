@@ -363,6 +363,7 @@ class PlaylistsPage(QWidget):
                 quality=quality,
                 entries=selected,
                 playlist_id=playlist_id,
+                playlist_title=str(getattr(self._playlist, "title", "") or ""),
             )
             QMessageBox.information(
                 self,
