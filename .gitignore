@@ -12,6 +12,8 @@ ENV/
 build/
 dist/
 dist_release/
+deployment/
+build_log.txt
 *.egg-info/
 
 # PyInstaller/Nuitka artifacts (future)

@@ -15,8 +15,8 @@ exec_directory = .
 # path to the project file relative to project_dir
 project_file = 
 
-# application icon
-icon = C:\Users\moham\AppData\Local\Programs\Python\Python312\Lib\site-packages\PySide6\scripts\deploy_lib\pyside_icon.ico
+# application icon (feat-14 = keep in sync with scripts/make_icon.py and VeloDownloader.spec)
+icon = resources/icons/app.ico
 
 [python]
 
@@ -38,18 +38,16 @@ excluded_qml_plugins =
 modules = Core,Gui,Network,Widgets
 
 # qt plugins used by the application. only relevant for desktop deployment
-# NOTE (QUAL-05): keep --file-version/--product-version below in sync with
-# APP_VERSION in app/core/constants.py (single source of truth).
+# note (qual-05) = keep --file-version/--product-version below in sync with
+# app_version in app/core/constants.py (single source of truth).
 plugins = accessiblebridge,egldeviceintegrations,generic,iconengines,imageformats,networkaccess,networkinformation,platforminputcontexts,platforms,platformthemes,styles,tls
 
 [android]
-
 wheel_pyside = 
 wheel_shiboken = 
 plugins = 
 
 [ios]
-
 wheel_pyside = 
 wheel_shiboken = 
 xcframework_path = 
@@ -62,17 +60,17 @@ signing_style = Automatic
 header_search_paths = 
 
 [nuitka]
-
 macos.permissions = 
 
 # mode of using nuitka. accepts standalone or onefile. default = standalone
 mode = standalone
 
 # include app data/resources and bundled binaries/licenses
-extra_args = --quiet --noinclude-qt-translations --include-data-dir=resources=resources --include-data-dir=vendor=vendor --include-data-dir=licenses=licenses --include-data-files=LICENSE=LICENSE --windows-console-mode=disable --company-name=Mohamed El-Damrawy (Individual) --product-name=Velo Downloader --file-version=0.1.0.0 --product-version=0.1.0.0 --file-description=Velo Downloader --copyright=Copyright (c) 2026 Mohamed El-Damrawy
+# note = values containing spaces MUST be quoted (the deploy tool shlex-splits
+# this line; unquoted spaces turn words into stray positional arguments).
+extra_args = --noinclude-qt-translations --include-data-dir=resources=resources --include-data-dir=vendor=vendor --include-data-dir=licenses=licenses --include-data-files=LICENSE=LICENSE --windows-console-mode=disable --company-name="Mohamed El-Damrawy (Individual)" --product-name="Velo Downloader" --file-version=0.1.0.0 --product-version=0.1.0.0 --file-description="Velo Downloader" --copyright="Copyright (c) 2026 Mohamed El-Damrawy"
 
 [buildozer]
-
 mode = debug
 recipe_dir = 
 jars_dir = 
@@ -80,3 +78,4 @@ ndk_path =
 sdk_path = 
 local_libs = 
 arch = 
+
