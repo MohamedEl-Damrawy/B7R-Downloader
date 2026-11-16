@@ -37,11 +37,10 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: checkedonce
 
 [Files]
-; Everything from the Nuitka standalone dist: exe + _internal runtime +
-; bundled resources (styles/fonts/i18n/icons), vendor ffmpeg + its README,
-; LICENSE and licenses/. main.exe is renamed to VeloDownloader.exe.
-Source: "..\deployment\main.dist\*"; Excludes: "main.exe"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "..\deployment\main.dist\main.exe"; DestDir: "{app}"; DestName: "{#MyAppExeName}"; Flags: ignoreversion
+; Everything from the PyInstaller onedir dist: VeloDownloader.exe + _internal\
+; runtime + bundled resources (styles/fonts/i18n/icons), vendor ffmpeg + its
+; README, LICENSE and licenses/.
+Source: "..\dist\VeloDownloader\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
