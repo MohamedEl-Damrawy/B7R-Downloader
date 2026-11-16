@@ -10,6 +10,9 @@ from __future__ import annotations
 
 from app.sources.base import SourceError, SourcePlan, SourceProvider, TrackSpec
 from app.sources.registry import get_provider_for_url, register_provider
+from app.sources.spotify import SpotifyProvider
+
+register_provider(SpotifyProvider())
 
 __all__ = [
     "SourceError",

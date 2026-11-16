@@ -46,6 +46,7 @@ def _build_postprocessors(
     embed_metadata: bool = False,
     embed_thumbnail: bool = False,
     sponsorblock: bool = False,
+    audio_quality: str = "192",
 ) -> list[dict[str, Any]]:
     """Build the yt-dlp postprocessor list (FEAT-01/02/03). Pure helper."""
     pps: list[dict[str, Any]] = []
@@ -64,7 +65,7 @@ def _build_postprocessors(
             {
                 "key": "FFmpegExtractAudio",
                 "preferredcodec": audio_format,
-                "preferredquality": "192",
+                "preferredquality": str(audio_quality or "192"),
             }
         )
     if embed_metadata:
@@ -305,6 +306,111 @@ def extract_metadata(
     return video, None
 
 
+def _pick_match_entry(
+    entries: list[dict[str, Any]],
+    expected_duration: Optional[int],
+    tolerance: int = 12,
+) -> tuple[Optional[dict[str, Any]], str]:
+    """Pick the best ytsearch candidate by duration; pure helper.
+
+    Returns (entry, match_quality) where match_quality is "exact" (within
+    tolerance), "loose" (best-effort first candidate after no duration match)
+    or "unknown" (no expected duration to compare).
+    """
+    if not entries:
+        return None, "no_results"
+    if expected_duration is None:
+        return entries[0], "unknown"
+    for entry in entries:
+        duration = entry.get("duration")
+        if duration is None:
+            continue
+        try:
+            if abs(float(duration) - float(expected_duration)) <= float(tolerance):
+                return entry, "exact"
+        except Exception:
+            continue
+    return entries[0], "loose"
+
+
+def _candidate_url(entry: dict[str, Any]) -> str:
+    """Best direct URL for a flat ytsearch entry."""
+    url = str(entry.get("webpage_url") or entry.get("url") or "")
+    if url.startswith("http"):
+        return url
+    entry_id = str(entry.get("id") or "")
+    if entry_id:
+        return f"https://www.youtube.com/watch?v={entry_id}"
+    return ""
+
+
+def _apply_meta_tags(result: dict[str, Any], meta: dict[str, Any]) -> None:
+    """Best-effort Spotify-style metadata embedding; never fails the task."""
+    from app.engine import audio_tags
+
+    filepath = str(result.get("filepath") or result.get("_filename") or "")
+    has_tags = any(str(meta.get(k) or "") for k in ("title", "artist", "album"))
+    if not filepath or not has_tags:
+        return
+    cover: Optional[bytes] = None
+    mime = "image/jpeg"
+    cover_url = str(meta.get("cover_url") or "")
+    if cover_url:
+        try:
+            import requests
+
+            resp = requests.get(cover_url, timeout=15, headers={"User-Agent": "Mozilla/5.0"})
+            if resp.ok:
+                cover = resp.content
+                mime = (resp.headers.get("Content-Type") or mime).split(";")[0]
+        except Exception:
+            logger.info("Cover fetch failed (tags saved without cover): %s", cover_url)
+    if audio_tags.embed_metadata(
+        filepath,
+        title=str(meta.get("title") or ""),
+        artist=str(meta.get("artist") or ""),
+        album=str(meta.get("album") or ""),
+        cover_image=cover,
+        cover_mime=mime,
+    ):
+        result["tagged"] = True
+
+
+def _resolve_match_candidate(
+    yt_dlp: Any,
+    opts: dict[str, Any],
+    query: str,
+    expected_duration: Optional[int],
+    tolerance: int = 12,
+) -> tuple[str, str]:
+    """Fetch ytsearch5 candidates (one request) and pick by duration gate."""
+    probe = {
+        k: v
+        for k, v in opts.items()
+        if k not in ("progress_hooks", "postprocessor_hooks", "postprocessors", "outtmpl", "playlist_items")
+    }
+    probe["extract_flat"] = True
+    probe["quiet"] = True
+    probe["noplaylist"] = True
+    with yt_dlp.YoutubeDL(probe) as ydl:
+        info = ydl.extract_info(f"ytsearch5:{query}", download=False)
+    entries = [e for e in ((info or {}).get("entries") or []) if isinstance(e, dict)]
+    entry, quality = _pick_match_entry(entries, expected_duration, tolerance)
+    if entry is None:
+        raise DownloadError("No search results found for this track on YouTube.")
+    url = _candidate_url(entry)
+    if not url:
+        raise DownloadError("Search returned no usable candidate.")
+    logger.info(
+        "Match search %r -> id=%s quality=%s (expected=%ss)",
+        query,
+        entry.get("id"),
+        quality,
+        expected_duration,
+    )
+    return url, quality
+
+
 def download_media(
     url: str,
     output_dir: str,
@@ -320,6 +426,9 @@ def download_media(
     sponsorblock: bool = False,
     cookiefile: Optional[str] = None,
     proxy: Optional[str] = None,
+    search_query: Optional[str] = None,
+    meta: Optional[dict[str, Any]] = None,
+    audio_quality: Optional[str] = None,
 ) -> dict[str, Any]:
     """Download media to output_dir. Returns basic result info."""
     yt_dlp = _lazy_yt_dlp()
@@ -330,7 +439,17 @@ def download_media(
         output_dir = str(get_default_download_dir())
     out_dir = Path(output_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
-    outtmpl = str(out_dir / "%(title).200B [%(id)s].%(ext)s")
+    meta = dict(meta or {})
+    if search_query:
+        # Matched-download mode (Spotify plan): literal "Artist - Title" file
+        # names; %% escapes the literal % in yt-dlp outtmpl syntax.
+        artist = str(meta.get("artist") or "")
+        title = str(meta.get("title") or search_query)
+        outtmpl = str(out_dir / f"{artist} - {title}".replace("%", "%%") + ".%(ext)s")
+        if not artist:
+            outtmpl = str(out_dir / title.replace("%", "%%") + ".%(ext)s")
+    else:
+        outtmpl = str(out_dir / "%(title).200B [%(id)s].%(ext)s")
 
     def hook(d: dict[str, Any]) -> None:
         if cancel_token and cancel_token.cancelled:
@@ -379,6 +498,7 @@ def download_media(
         embed_metadata=embed_metadata,
         embed_thumbnail=embed_thumbnail,
         sponsorblock=sponsorblock,
+        audio_quality=str(audio_quality or "192"),
     )
     if pps:
         opts["postprocessors"] = pps
@@ -398,17 +518,24 @@ def download_media(
         opts["ffmpeg_location"] = ffmpeg_location
 
     safe_url = redact_url(url)
+    match_quality = None
+    download_url = url
+    if search_query:
+        download_url, match_quality = _resolve_match_candidate(
+            yt_dlp, opts, search_query, meta.get("duration_sec")
+        )
     logger.info(
-        "Starting download: url=%s output=%s format=%s playlist_items=%s ffmpeg=%s",
+        "Starting download: url=%s output=%s format=%s playlist_items=%s ffmpeg=%s%s",
         safe_url,
         output_dir,
         format_selector,
         playlist_items,
         ffmpeg_location or "default",
+        f" match={match_quality}" if search_query else "",
     )
     try:
         with yt_dlp.YoutubeDL(opts) as ydl:
-            info = ydl.extract_info(url, download=True)
+            info = ydl.extract_info(download_url, download=True)
     except CancelledError:
         logger.info("Download cancelled: url=%s", safe_url)
         raise
@@ -417,6 +544,11 @@ def download_media(
         raise _classify_download_error(exc) from exc
 
     result = {"ok": True}
+    if search_query and match_quality:
+        result["match_quality"] = match_quality
+    if meta:
+        result["meta"] = dict(meta)
+        _apply_meta_tags(result, meta)
     if isinstance(info, dict):
         result.update(
             {

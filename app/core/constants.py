@@ -50,6 +50,10 @@ SETTINGS_SCHEMA_VERSION = "schema_version"
 SETTINGS_COOKIEFILE = "ytdlp_cookiefile"
 SETTINGS_PROXY = "ytdlp_proxy"
 SETTINGS_SPONSORBLOCK = "sponsorblock_mark"
+# Spotify provider (Option A): client-credentials for metadata only; audio
+# never comes from Spotify. Free pair from Spotify Developer Dashboard.
+SETTINGS_SPOTIFY_CLIENT_ID = "spotify_client_id"
+SETTINGS_SPOTIFY_CLIENT_SECRET = "spotify_client_secret"
 
 # FEAT-06: refuse enqueueing when the destination drive has less free space.
 MIN_FREE_SPACE_BYTES = 100 * 1024 * 1024  # 100 MB

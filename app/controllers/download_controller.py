@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import shutil
 import time
 import uuid
@@ -24,13 +25,15 @@ from app.core.logger import get_logger
 from app.core.validators import is_valid_playlist_items, redact_url
 from app.database.repositories.download_items_repo import DownloadItemsRepository
 from app.database.repositories.downloads_repo import DownloadsRepository
-from app.engine.format_selector import audio_preset_for_quality, pick_format_for_quality
+from app.engine.format_selector import audio_preset_for_quality, music_preset_for_quality, pick_format_for_quality
 from app.models.download import DownloadTask, utc_now_iso
 from app.models.download_status import DownloadStatus, can_transition
 from app.services.settings_service import SettingsService
 from app.sources import get_provider_for_url
+from app.sources.base import SourcePlan, TrackSpec
 from app.workers.download_worker import DownloadWorker
 from app.workers.metadata_worker import MetadataWorker
+from app.workers.provider_metadata_worker import ProviderMetadataWorker
 
 logger = get_logger(__name__)
 
@@ -55,6 +58,10 @@ class DownloadController(QObject):
     task_updated = Signal(object)
     task_error = Signal(str, str)  # task_id, message
     task_finished = Signal(str)
+
+    # Spotify plan: emitted when a non-YouTube provider resolves a URL into
+    # a SourcePlan (track/album/playlist metadata). Phase C wires the UI.
+    source_plan_ready = Signal(object)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -121,13 +128,17 @@ class DownloadController(QObject):
     def extract_metadata(self, url: str) -> None:
         logger.info("Queue metadata extraction: url=%s", redact_url(url))
         net = self._network_opts()
-        # Provider routing (Spotify plan Phase A): non-YouTube providers get
-        # their own resolution path in Phase B. Today every registered URL
-        # resolves to the YouTube fallback, so the existing worker path below
-        # is byte-identical to before.
+        # Provider routing (Spotify plan): non-YouTube providers resolve into
+        # a SourcePlan via their own worker; YouTube keeps the legacy path.
         provider = get_provider_for_url(url)
         if provider is not None and provider.name != "youtube":
-            logger.info("Non-YouTube provider %s matched; dedicated worker pending (Phase B)", provider.name)
+            logger.info("Provider routing: url=%s provider=%s", redact_url(url), provider.name)
+            worker = ProviderMetadataWorker(url, provider)
+            worker.signals.result.connect(lambda payload: self.source_plan_ready.emit((payload or {}).get("plan")))
+            worker.signals.error.connect(self.metadata_error)
+            worker.signals.finished.connect(self.metadata_finished)
+            self.pool.start(worker)
+            return
         worker = MetadataWorker(url, cookiefile=net.get("cookiefile"), proxy=net.get("proxy"))
         worker.signals.result.connect(self.metadata_result)
         worker.signals.error.connect(self.metadata_error)
@@ -149,6 +160,9 @@ class DownloadController(QObject):
         write_subs: bool = False,
         playlist_item_ids: list[str] | None = None,
         playlist_item_count: int = 0,
+        search_query: str | None = None,
+        meta: dict | None = None,
+        source_type: str = "youtube",
     ) -> str:
         if playlist_items and not is_valid_playlist_items(str(playlist_items)):
             logger.error(
@@ -159,6 +173,11 @@ class DownloadController(QObject):
             return ""
         task_id = uuid.uuid4().hex
         audio_format = audio_preset_for_quality(quality)
+        audio_quality: str | None = None
+        music = music_preset_for_quality(quality)
+        if music:
+            audio_format = music["codec"]
+            audio_quality = music["quality"]
         fmt = pick_format_for_quality([], quality) or "bv*+ba/b"
         # Resolve/prepare the output directory; fall back to the default when empty
         # so a task never ends up writing to the process working directory.
@@ -189,8 +208,9 @@ class DownloadController(QObject):
             status=DownloadStatus.QUEUED,
             playlist_id=playlist_id,
             playlist_items=playlist_items,
+            source_type=source_type,
         )
-        self.repo.upsert(self._task_to_record(task))
+        self.repo.upsert(self._task_to_record(task, meta=meta if (search_query or meta) else None))
         self._specs[task_id] = {
             "url": url,
             "output_dir": output_dir,
@@ -200,12 +220,18 @@ class DownloadController(QObject):
             "playlist_item_ids": list(playlist_item_ids or []),
             "playlist_item_count": int(playlist_item_count) if playlist_item_count else len(playlist_item_ids or []),
             "audio_format": audio_format,
+            "audio_quality": audio_quality,
             "embed_metadata": embed_metadata,
             "embed_thumbnail": embed_thumbnail,
             "write_subs": write_subs,
             "sponsorblock": self._sponsorblock_enabled(),
             "cookiefile": net.get("cookiefile"),
             "proxy": net.get("proxy"),
+            # Matched-download mode (Spotify plan): the search query routes
+            # the worker into ytsearch + duration gate; meta carries tags.
+            "search_query": search_query or None,
+            "meta": dict(meta or {}),
+            "source_type": source_type,
         }
         for item_id in ([playlist_item_id] if playlist_item_id else []) + list(playlist_item_ids or []):
             if not item_id:
@@ -215,7 +241,7 @@ class DownloadController(QObject):
             except Exception:
                 logger.exception("Failed to link playlist item %s to task %s", item_id, task_id)
         self._pending.append(task_id)
-        emitted = self._task_to_record(task)
+        emitted = self._task_to_record(task, meta=meta if (search_query or meta) else None)
         self._tasks[task_id] = emitted
         self.task_added.emit(emitted)
         logger.info(
@@ -304,6 +330,66 @@ class DownloadController(QObject):
                 )
         return ids
 
+    @staticmethod
+    def _spec_meta_from_track(track: TrackSpec) -> dict:
+        """Normalized meta dict persisted with matched (Spotify) tasks."""
+        return {
+            "title": track.title or "",
+            "artist": track.artist or "",
+            "album": track.album or "",
+            "cover_url": track.cover_url or "",
+            "duration_sec": track.duration_sec,
+            "search_query": track.search_query or "",
+        }
+
+    def start_source_plan(
+        self,
+        plan: SourcePlan,
+        output_dir: str,
+        quality: str,
+        playlist_id: str | None = None,
+    ) -> list[str]:
+        """Enqueue tasks for a resolved SourcePlan (Spotify provider flow).
+
+        Every entry is its own per-track task (one cheap ytsearch1 fetch);
+        PERF-04 playlist batching stays YouTube-only (SRC-01).
+        """
+        if plan is None or not getattr(plan, "entries", None):
+            return []
+        ids: list[str] = []
+        if plan.kind == "track":
+            track = plan.entries[0]
+            new_id = self.start_download(
+                url=plan.source_url or track.source_url,
+                output_dir=output_dir,
+                quality=quality,
+                title=track.title or "",
+                thumbnail_url=track.cover_url or "",
+                playlist_id=playlist_id,
+                search_query=track.search_query,
+                meta=self._spec_meta_from_track(track),
+                source_type=track.source_type or "spotify",
+            )
+            return [new_id] if new_id else []
+        for track in plan.entries:
+            if not track.available:
+                logger.info("Skipping unavailable Spotify entry: title=%s", track.title)
+                continue
+            new_id = self.start_download(
+                url=track.source_url,
+                output_dir=output_dir,
+                quality=quality,
+                title=track.title or "",
+                thumbnail_url=track.cover_url or "",
+                playlist_id=playlist_id,
+                search_query=track.search_query,
+                meta=self._spec_meta_from_track(track),
+                source_type=track.source_type or "spotify",
+            )
+            if new_id:
+                ids.append(new_id)
+        return ids
+
     def cancel_download(self, task_id: str) -> None:
         if task_id in self._pending:
             try:
@@ -372,6 +458,27 @@ class DownloadController(QObject):
             return None
 
         # Re-enqueue as a new task to preserve history of prior attempt.
+        # Matched (Spotify) tasks rebuild the exact search + tags from the
+        # persisted source_meta JSON; without it the retry would re-extract
+        # the Spotify URL with yt-dlp (unsupported) instead of ytsearch.
+        source_type = (rec.get("source_type") or "youtube").strip()
+        matched_meta: dict | None = None
+        matched_query: str | None = None
+        if source_type == "spotify":
+            try:
+                blob = json.loads(rec.get("source_meta") or "{}")
+                matched_query = str(blob.get("search_query") or "").strip() or None
+                matched_meta = blob or None
+            except Exception:
+                logger.exception("Invalid source_meta JSON on task %s", task_id)
+                matched_meta = None
+            if not matched_query:
+                logger.error(
+                    "Refusing to retry Spotify task %s: no persisted search_query in source_meta.",
+                    task_id,
+                )
+                return None
+
         new_id = self.start_download(
             url=rec.get("source_url") or "",
             output_dir=rec.get("output_path") or "",
@@ -381,6 +488,9 @@ class DownloadController(QObject):
             playlist_id=rec.get("playlist_id"),
             playlist_items=playlist_items,
             playlist_item_id=playlist_item_id,
+            search_query=matched_query,
+            meta=matched_meta,
+            source_type=source_type,
         )
         # Re-link every item that shared the old task (batch tasks link many)
         # to the new task id so per-item status sync keeps working.
@@ -418,6 +528,9 @@ class DownloadController(QObject):
             sponsorblock=bool(spec.get("sponsorblock")),
             cookiefile=spec.get("cookiefile"),
             proxy=spec.get("proxy"),
+            search_query=spec.get("search_query"),
+            meta=spec.get("meta") or None,
+            audio_quality=spec.get("audio_quality"),
         )
         self._workers[task_id] = worker
         self._active.add(task_id)
@@ -435,7 +548,7 @@ class DownloadController(QObject):
         self._update_status(task_id, DownloadStatus.EXTRACTING, progress=0.0)
         self.pool.start(worker)
 
-    def _task_to_record(self, task: DownloadTask) -> dict:
+    def _task_to_record(self, task: DownloadTask, meta: dict | None = None) -> dict:
         return {
             "id": task.id,
             "source_url": task.source_url,
@@ -454,6 +567,9 @@ class DownloadController(QObject):
             "playlist_id": task.playlist_id,
             "playlist_items": task.playlist_items,
             "source_type": task.source_type,
+            # Matched (Spotify) tasks persist search tags as JSON so retry can
+            # rebuild the exact ytsearch + metadata embedding.
+            "source_meta": json.dumps(meta, ensure_ascii=False) if meta else None,
             "created_at": task.created_at,
             "updated_at": task.updated_at,
             "completed_at": task.completed_at,
@@ -596,6 +712,16 @@ class DownloadController(QObject):
             out_path = result.get("filepath") or result.get("_filename")
             logger.info("Task completed: id=%s path=%s", task_id, out_path)
             self._update_status(task_id, DownloadStatus.COMPLETED, progress=100.0, completed=True, output_path=out_path)
+            # Matched (Spotify) downloads record a loose-match warning without
+            # failing the task: users can spot/redo suspicious matches.
+            match_quality = str(result.get("match_quality") or "")
+            if match_quality and match_quality != "exact":
+                try:
+                    self.repo.update_status(
+                        task_id, DownloadStatus.COMPLETED, error_code=f"match_quality={match_quality}"
+                    )
+                except Exception:
+                    logger.debug("Could not record match_quality for task %s", task_id, exc_info=True)
 
     def _on_error(self, message: str) -> None:
         task_id = ""

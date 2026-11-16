@@ -47,6 +47,10 @@ def apply_migrations() -> None:
         if get_current_version(conn) < 3:
             if not _column_exists(conn, "downloads", "source_type"):
                 conn.execute("ALTER TABLE downloads ADD COLUMN source_type TEXT")
+            if not _column_exists(conn, "downloads", "source_meta"):
+                # JSON blob (search_query + title/artist/album/cover/duration)
+                # so retrying a Spotify matched task rebuilds the exact search.
+                conn.execute("ALTER TABLE downloads ADD COLUMN source_meta TEXT")
             for _tbl, _col in (
                 ("download_items", "artist"),
                 ("download_items", "album"),

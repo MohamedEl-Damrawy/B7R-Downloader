@@ -24,13 +24,17 @@ class TestProviderRouting(unittest.TestCase):
         self.assertIsNotNone(p)
         self.assertEqual(p.name, "youtube")
 
-    def test_spotify_url_not_registered_in_phase_a(self):
-        # Spotify resolves in Phase B; until registered, Spotify URLs fall
-        # through to the YouTube catch-all (yt-dlp will reject them, exactly
-        # like before the provider layer existed).
+    def test_spotify_url_routes_to_spotify_provider(self):
+        # Spotify (Phase B) is a registered provider; audio comes from
+        # YouTube Music at download time via matched tasks.
         p = get_provider_for_url("https://open.spotify.com/playlist/abc")
         self.assertIsNotNone(p)
-        self.assertEqual(p.name, "youtube")
+        self.assertEqual(p.name, "spotify")
+
+    def test_spotify_uri_routes_to_spotify_provider(self):
+        p = get_provider_for_url("spotify:track:4uLU6hMCjMI75M1A2tKUQC")
+        self.assertIsNotNone(p)
+        self.assertEqual(p.name, "spotify")
 
     def test_invalid_url_returns_none(self):
         self.assertIsNone(get_provider_for_url("not a url"))
@@ -150,12 +154,15 @@ class TestSpotifyUrlDetection(unittest.TestCase):
         self.assertFalse(p.matches_url(""))
         self.assertFalse(p.matches_url("random text"))
 
-    def test_resolve_not_implemented_in_phase_a(self):
-        from app.sources.base import SourceError
+    def test_resolve_wraps_client_errors_as_source_error(self):
         from app.sources.spotify import SpotifyProvider
 
-        with self.assertRaises(SourceError):
-            SpotifyProvider().resolve("https://open.spotify.com/track/x")
+        class FailingClient:
+            def track(self, track_id):
+                raise RuntimeError("boom")
+
+        with self.assertRaises(Exception):
+            SpotifyProvider(client=FailingClient()).resolve("https://open.spotify.com/track/x")
 
 
 if __name__ == "__main__":

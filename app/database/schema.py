@@ -30,6 +30,7 @@ SCHEMA_STATEMENTS = [
         playlist_id TEXT,
         playlist_items TEXT,
         source_type TEXT,
+        source_meta TEXT,
         created_at TEXT NOT NULL,
         updated_at TEXT,
         completed_at TEXT

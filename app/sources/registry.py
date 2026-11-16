@@ -52,7 +52,11 @@ def _reset_registry() -> None:
 def _ensure_default_registry() -> None:
     """Idempotently install the built-in providers (module import side effect)."""
     global _YOUTUBE_FALLBACK
+    from app.sources.spotify import SpotifyProvider
     from app.sources.youtube import YouTubeProvider
 
     if _YOUTUBE_FALLBACK is None:
         _YOUTUBE_FALLBACK = YouTubeProvider()
+    names = {getattr(p, "name", "") for p in _PROVIDERS}
+    if "spotify" not in names:
+        register_provider(SpotifyProvider())

@@ -26,6 +26,9 @@ class DownloadWorker(BaseWorker):
         sponsorblock: bool = False,
         cookiefile: str | None = None,
         proxy: str | None = None,
+        search_query: str | None = None,
+        meta: dict | None = None,
+        audio_quality: str | None = None,
     ):
         super().__init__()
         self.task_id = task_id
@@ -40,6 +43,12 @@ class DownloadWorker(BaseWorker):
         self.sponsorblock = sponsorblock
         self.cookiefile = cookiefile
         self.proxy = proxy
+        # Matched-download mode (Spotify plan): search_query triggers
+        # ytsearch resolution + duration gate in the engine; meta carries the
+        # Spotify-derived tags embedded after the download.
+        self.search_query = search_query
+        self.meta = dict(meta or {})
+        self.audio_quality = audio_quality
         self.cancel_token = CancelToken()
 
     def cancel(self) -> None:
@@ -66,6 +75,9 @@ class DownloadWorker(BaseWorker):
                 sponsorblock=self.sponsorblock,
                 cookiefile=self.cookiefile,
                 proxy=self.proxy,
+                search_query=self.search_query,
+                meta=self.meta,
+                audio_quality=self.audio_quality,
             )
             self.signals.result.emit({"task_id": self.task_id, "result": result})
         except Exception as exc:

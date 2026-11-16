@@ -81,6 +81,22 @@ AUDIO_PRESETS: dict[str, str] = {
     "audio_m4a": "m4a",
 }
 
+# Spotify plan: matched (music) quality presets. FFmpegExtractAudio target
+# codec + bitrate; "flac" is an honest lossless container over a lossy
+# source — UI copy must always label it "(lossy source)".
+MUSIC_PRESETS: dict[str, dict[str, str]] = {
+    "mp3_320": {"codec": "mp3", "quality": "320"},
+    "m4a_256": {"codec": "m4a", "quality": "256"},
+    "flac": {"codec": "flac", "quality": "0"},
+}
+
+
+def music_preset_for_quality(quality: str) -> dict[str, str] | None:
+    """Return {"codec", "quality"} for music presets, else None."""
+    q = (quality or "").strip().lower()
+    preset = MUSIC_PRESETS.get(q)
+    return dict(preset) if preset else None
+
 
 def audio_preset_for_quality(quality: str) -> str | None:
     """Return the target audio codec ("mp3"/"m4a") when quality is audio-only."""

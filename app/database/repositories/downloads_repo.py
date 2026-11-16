@@ -14,7 +14,7 @@ class DownloadsRepository:
         cols = [
             "id","source_url","title","thumbnail_url","selected_format","output_path","status",
             "progress","downloaded_bytes","total_bytes","speed","eta","error_code","error_message",
-            "playlist_id","playlist_items","source_type","created_at","updated_at","completed_at"
+            "playlist_id","playlist_items","source_type","source_meta","created_at","updated_at","completed_at"
         ]
         values = [task.get(c) for c in cols]
         placeholders = ",".join(["?"] * len(cols))
