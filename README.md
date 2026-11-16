@@ -20,6 +20,8 @@ The app can also check for updates itself: **Settings → Check App Updates**.
   from YouTube Music, embedded and converted to MP3 320 / M4A 256 / FLAC
   (lossy source). No Spotify login; no DRM circumvention — Spotify is used
   for metadata only. Optional free API credentials in Settings → Spotify.
+  Note: Spotify's 2026 developer rules restrict playlist metadata to
+  playlists you own; tracks and albums always work.
 - Optional subtitles, embedded metadata and thumbnail, SponsorBlock marking
 - Playlist inspector: see all entries and pick exactly the items you want
 - Live queue with per-item progress, cancel, retry, and searchable history

@@ -162,5 +162,61 @@ class TestCredentialsPath(unittest.TestCase):
             SpotifyProvider(client=FailingClient()).resolve("https://open.spotify.com/playlist/pid")
 
 
+class TestFeb2026PlaylistEndpoint(unittest.TestCase):
+    """Spotify's Feb-2026 rename: GET /playlists/{id}/tracks -> /items."""
+
+    def test_new_endpoint_shape_used_when_legacy_missing(self):
+        from app.sources.spotify import SpotifyProvider
+
+        meta = {"name": "Playlist P", "images": []}
+
+        class NewApiOnlyClient:
+            """Post-2026-02-11 Development Mode app: no legacy endpoint."""
+
+            def __init__(self, page):
+                self._page = page
+
+            def playlist(self, playlist_id):
+                return meta
+
+            def _get(self, path, **kwargs):
+                assert "/items" in path
+                return self._page
+
+        page = {
+            "items": [
+                {"item": _track(name=f"T{i}")} for i in range(1, 3)
+            ],
+            "next": None,
+        }
+        plan = SpotifyProvider(client=NewApiOnlyClient(page)).resolve(
+            "https://open.spotify.com/playlist/pid"
+        )
+        self.assertEqual([t.title for t in plan.entries], ["T1", "T2"])
+        self.assertEqual([t.index for t in plan.entries], [1, 2])
+
+    def test_both_endpoints_failing_is_actionable(self):
+        from app.sources.spotify import _PLAYLIST_ACCESS_MESSAGE, SpotifyProvider
+
+        meta = {"name": "P", "images": []}
+
+        class NoAccessClient:
+            def playlist(self, playlist_id):
+                return meta
+
+            def playlist_items(self, playlist_id):
+                raise RuntimeError("404 legacy removed")
+
+            def _get(self, path, **kwargs):
+                raise RuntimeError("403 not owned")
+
+        with self.assertRaises(SourceError) as ctx:
+            SpotifyProvider(client=NoAccessClient()).resolve(
+                "https://open.spotify.com/playlist/pid"
+            )
+        self.assertIn("not accessible", str(ctx.exception))
+        self.assertTrue(_PLAYLIST_ACCESS_MESSAGE)
+
+
 if __name__ == "__main__":
     unittest.main()

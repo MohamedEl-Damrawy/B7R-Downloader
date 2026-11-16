@@ -96,3 +96,13 @@ Spotify (Phase B) is a *metadata* provider: audio never comes from Spotify
 - Loose duration matches (no candidate within ±12 s of the Spotify duration)
   still download (first candidate) and are recorded as
   `match_quality=loose` in `downloads.error_code` so history surfaces them.
+- **Spotify Feb-2026 developer rules** (blog 2026-02-06): Development Mode
+  now requires a **Premium** app owner, and playlist contents are limited to
+  playlists the authenticated owner collaborates on — third-party public
+  playlists are no longer readable, so playlist links may fail with an
+  actionable SourceError while track/album links keep working (catalog
+  endpoints Get Track / Get Album / Get Album Tracks / Search remain
+  available; client-credentials still works for catalog metadata). spotipy
+  2.26 still calls the removed `GET /playlists/{id}/tracks`; the provider
+  falls back to the renamed `GET /playlists/{id}/items` and normalizes the
+  `items[].item` field rename.

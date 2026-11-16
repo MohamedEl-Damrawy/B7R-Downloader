@@ -161,6 +161,59 @@ def _track_to_spec(track: dict, index: Optional[int], album_name: str = "", cove
     )
 
 
+_PLAYLIST_ACCESS_MESSAGE = (
+    "Playlist contents are not accessible with the current Spotify developer "
+    "credentials. Spotify's February 2026 rules restrict playlist contents to "
+    "the authenticated owner in Developer Mode. Track and album links still "
+    "work fully."
+)
+
+
+def _playlist_items_page(sp: Any, playlist_id: str) -> dict:
+    """Fetch the first page of playlist items across the Feb-2026 API rename.
+
+    spotipy 2.26 calls GET /playlists/{id}/tracks, which new (post
+    2026-02-11) Development Mode apps no longer serve; those apps must use
+    the renamed GET /playlists/{id}/items endpoint instead.
+    """
+    try:
+        return sp.playlist_items(playlist_id) or {}
+    except Exception:
+        logger.debug("Legacy playlist items endpoint failed; trying /items", exc_info=True)
+    try:
+        return sp._get(f"playlists/{playlist_id}/items", limit=100) or {}
+    except Exception as exc:
+        logger.info("Playlist items inaccessible: playlist=%s", playlist_id)
+        raise SourceError(_PLAYLIST_ACCESS_MESSAGE) from exc
+
+
+def _page_entries(page: dict) -> list[dict]:
+    """Normalize playlist item entries across old (track) and new (item) shapes.
+
+    Pre-Feb-2026 pages carry ``items[].track``; the renamed endpoint returns
+    ``items[].item`` (and Get Playlist may nest the paging object under
+    ``items`` itself).
+    """
+    items = (page or {}).get("items") or []
+    if isinstance(items, dict):  # nested paging object (Get Playlist shape)
+        items = items.get("items") or []
+    out: list[dict] = []
+    for it in items:
+        if not isinstance(it, dict):
+            continue
+        track = it.get("track") or it.get("item") or {}
+        if isinstance(track, dict) and track:
+            out.append(track)
+    return out
+
+
+def _page_next(page: dict) -> str:
+    nxt = (page or {}).get("next")
+    if not nxt and isinstance((page or {}).get("items"), dict):
+        nxt = (page or {}).get("items", {}).get("next")
+    return str(nxt) if nxt else ""
+
+
 class SpotifyProvider(SourceProvider):
     """Metadata provider for Spotify track/album/playlist URLs."""
 
@@ -244,15 +297,12 @@ class SpotifyProvider(SourceProvider):
             cover_url = str(images[0].get("url") or "")
         entries: list[TrackSpec] = []
         index = 0
-        results = sp.playlist_items(playlist_id) or {}
+        results = _playlist_items_page(sp, playlist_id)
         while True:
-            for item in results.get("items") or []:
+            for track in _page_entries(results):
                 index += 1
-                track = (item or {}).get("track") or {}
-                if not track:
-                    continue
                 entries.append(_track_to_spec(track, index=index, cover_url=cover_url))
-            nxt = (results.get("next") or "")
+            nxt = _page_next(results)
             if not nxt:
                 break
             _throttle()
