@@ -7,6 +7,11 @@ APP_ORG = "Velo"
 APP_VERSION = "0.1.0"
 APP_DESCRIPTION = "Modern desktop downloader for authorized video and playlist content."
 
+# GitHub project repository (update checks + public downloads).
+APP_REPO_URL = "https://github.com/MohamedEl-Damrawy/B7R-Downloader"
+APP_RELEASES_PAGE = f"{APP_REPO_URL}/releases"
+APP_RELEASES_API = "https://api.github.com/repos/MohamedEl-Damrawy/B7R-Downloader/releases/latest"
+
 APP_COPYRIGHT = "Copyright (c) 2026 Mohamed El-Damrawy"
 APP_DEVELOPER = "Mohamed El-Damrawy"
 APP_DEVELOPER_LINKEDIN = "https://www.linkedin.com/in/mohamed-eldamrawy/"

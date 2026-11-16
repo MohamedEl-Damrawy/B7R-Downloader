@@ -183,5 +183,13 @@
   "Could not reach PyPI.\nInstalled yt-dlp: %s": "تعذر الوصول إلى PyPI.\nنسخة yt-dlp المثبتة: %s",
   "yt-dlp is up to date (%s).": "نسخة yt-dlp محدثة (%s).",
   "Installed yt-dlp: %s\nLatest release: %s\n\nUpdate by upgrading the installed yt-dlp package (pip install -U yt-dlp), then rebuild/repackage the app.": "نسخة yt-dlp المثبتة: %s\nأحدث إصدار: %s\n\nحدّث عبر ترقية حزمة yt-dlp المثبتة (pip install -U yt-dlp) ثم أعد بناء/تجميع التطبيق.",
-  "Premium Download Manager": "مدير تنزيلات متكامل"
+  "Premium Download Manager": "مدير تنزيلات متكامل",
+  "Check App Updates": "فحص تحديثات التطبيق",
+  "App Update": "تحديث التطبيق",
+  "Open Releases Page": "فتح صفحة الإصدارات",
+  "A new version is available.\nInstalled: %s\nLatest: %s": "يتوفر إصدار جديد.\nالمثبت: %s\nالأحدث: %s",
+  "The app is up to date (version %s).": "نسخة التطبيق محدثة (إصدار %s).",
+  "No published releases yet (installed: %s).\nCheck the project's GitHub page for new versions:\n%s": "لا توجد إصدارات منشورة بعد (المثبت: %s).\nراجع صفحة المشروع على GitHub للإصدارات الجديدة:\n%s",
+  "Could not reach GitHub.\nInstalled: %s": "تعذر الوصول إلى GitHub.\nالمثبت: %s",
+  "Project page / downloads:": "صفحة المشروع / التنزيلات:"
 }

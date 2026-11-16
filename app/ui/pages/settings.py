@@ -54,6 +54,25 @@ class _YtdlpCheckThread:
         return _Thread()
 
 
+class _AppCheckThread:
+    """Background thread for the app self-update check (GitHub Releases)."""
+
+    @staticmethod
+    def make() -> "object":
+        from PySide6.QtCore import QThread, Signal
+
+        class _Thread(QThread):
+            done = Signal(str)
+
+            def run(self) -> None:
+                from app.services.app_update_service import check_for_app_update
+
+                r = check_for_app_update()
+                self.done.emit(f"{r['status']}|{r['latest']}|{r['url']}")
+
+        return _Thread()
+
+
 class SettingsPage(QWidget):
     def __init__(self, parent: QWidget | None = None):
         super().__init__(parent)
@@ -140,10 +159,12 @@ class SettingsPage(QWidget):
         actions = QHBoxLayout()
         self.save_btn = QPushButton(self.tr("Save Settings"))
         self.save_btn.setProperty("class", "Primary")
+        self.app_update_btn = QPushButton(self.tr("Check App Updates"))
         self.update_check_btn = QPushButton(self.tr("Check yt-dlp Updates"))
         self.about_btn = QPushButton(self.tr("About"))
         self.licenses_btn = QPushButton(self.tr("Licenses"))
         actions.addWidget(self.save_btn)
+        actions.addWidget(self.app_update_btn)
         actions.addWidget(self.update_check_btn)
         actions.addWidget(self.about_btn)
         actions.addWidget(self.licenses_btn)
@@ -154,6 +175,7 @@ class SettingsPage(QWidget):
         layout.addStretch(1)
 
         self.save_btn.clicked.connect(self._save)
+        self.app_update_btn.clicked.connect(self._check_app_update)
         self.update_check_btn.clicked.connect(self._check_ytdlp_update)
         self.about_btn.clicked.connect(lambda: AboutDialog(self).exec())
         self.licenses_btn.clicked.connect(lambda: LicensesDialog(self).exec())
@@ -263,3 +285,52 @@ class SettingsPage(QWidget):
         self._update_thread.done.connect(_finished)
         self._update_thread.finished.connect(self._update_thread.deleteLater)
         self._update_thread.start()
+
+    def _check_app_update(self) -> None:
+        """App self-update check against the project's GitHub Releases."""
+        from app.core.constants import APP_REPO_URL, APP_VERSION
+
+        self.app_update_btn.setEnabled(False)
+        self.app_update_btn.setText(self.tr("Checking..."))
+
+        def _finished(result: str) -> None:
+            self.app_update_btn.setEnabled(True)
+            self.app_update_btn.setText(self.tr("Check App Updates"))
+            status, latest, url = (result or "unreachable||").split("|", 2)
+            url = url or APP_REPO_URL
+            if status == "update_available":
+                box = QMessageBox(self)
+                box.setIcon(QMessageBox.Information)
+                box.setWindowTitle(self.tr("App Update"))
+                box.setText(self.tr("A new version is available.\nInstalled: %s\nLatest: %s") % (APP_VERSION, latest))
+                open_btn = box.addButton(self.tr("Open Releases Page"), QMessageBox.AcceptRole)
+                box.addButton(QMessageBox.Close)
+                box.exec()
+                if box.clickedButton() is open_btn:
+                    from PySide6.QtCore import QUrl
+                    from PySide6.QtGui import QDesktopServices
+
+                    QDesktopServices.openUrl(QUrl(url))
+            elif status == "up_to_date":
+                QMessageBox.information(
+                    self,
+                    self.tr("App Update"),
+                    self.tr("The app is up to date (version %s).") % APP_VERSION,
+                )
+            elif status == "no_releases":
+                no_releases_msg = self.tr(
+                    "No published releases yet (installed: %s).\n"
+                    "Check the project's GitHub page for new versions:\n%s"
+                )
+                QMessageBox.information(self, self.tr("App Update"), no_releases_msg % (APP_VERSION, url))
+            else:
+                QMessageBox.warning(
+                    self,
+                    self.tr("App Update"),
+                    self.tr("Could not reach GitHub.\nInstalled: %s") % APP_VERSION,
+                )
+
+        self._app_update_thread = _AppCheckThread.make()
+        self._app_update_thread.done.connect(_finished)
+        self._app_update_thread.finished.connect(self._app_update_thread.deleteLater)
+        self._app_update_thread.start()

@@ -3,17 +3,17 @@
   <context>
     <name>AboutDialog</name>
     <message>
-      <location filename="../../app/ui/dialogs/about_dialog.py" line="24" />
+      <location filename="../../app/ui/dialogs/about_dialog.py" line="25" />
       <source>About %s</source>
       <translation>حول %s</translation>
     </message>
     <message>
-      <location filename="../../app/ui/dialogs/about_dialog.py" line="28" />
+      <location filename="../../app/ui/dialogs/about_dialog.py" line="29" />
       <source>Version: %s</source>
       <translation>الإصدار: %s</translation>
     </message>
     <message>
-      <location filename="../../app/ui/dialogs/about_dialog.py" line="56" />
+      <location filename="../../app/ui/dialogs/about_dialog.py" line="66" />
       <source>For authorized sources only. No DRM/paywall/access-control circumvention. Not affiliated with YouTube or other third-party services.</source>
       <translation>للاستخدام مع المصادر المصرح بها فقط. لا يوجد تجاوز للحماية الرقمية أو المحتوى المدفوع. غير تابع لـ YouTube أو أي خدمات طرف ثالث.</translation>
     </message>
@@ -711,7 +711,7 @@ Continue anyway?</source>
     </message>
     <message>
       <location filename="../../app/ui/pages/playlist.py" line="184" />
-      <location filename="../../app/ui/pages/playlist.py" line="374" />
+      <location filename="../../app/ui/pages/playlist.py" line="375" />
       <source>Error</source>
       <translation>خطأ</translation>
     </message>
@@ -771,57 +771,57 @@ Continue anyway?</source>
 المتابعة على أي حال؟</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/playlist.py" line="369" />
+      <location filename="../../app/ui/pages/playlist.py" line="370" />
       <source>Downloads queued</source>
       <translation>تمت جدولة التنزيلات</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/playlist.py" line="370" />
+      <location filename="../../app/ui/pages/playlist.py" line="371" />
       <source>Queued %d selected item(s).</source>
       <translation>تمت جدولة %d عنصراً محدداً.</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/playlist.py" line="380" />
+      <location filename="../../app/ui/pages/playlist.py" line="381" />
       <source>Unavailable</source>
       <translation>غير متاح</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/playlist.py" line="381" />
+      <location filename="../../app/ui/pages/playlist.py" line="382" />
       <source>Load a playlist and ensure controller is ready.</source>
       <translation>حمّل قائمة تشغيل وتأكد من جاهزية المتحكم.</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/playlist.py" line="388" />
+      <location filename="../../app/ui/pages/playlist.py" line="389" />
       <source>Not saved</source>
       <translation>غير محفوظة</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/playlist.py" line="389" />
+      <location filename="../../app/ui/pages/playlist.py" line="390" />
       <source>Playlist must be saved/loaded with an ID to retry items.</source>
       <translation>يجب حفظ/تحميل قائمة التشغيل بمعرّف لإعادة محاولة عناصرها.</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/playlist.py" line="415" />
+      <location filename="../../app/ui/pages/playlist.py" line="416" />
       <source>Nothing to retry</source>
       <translation>لا شيء لإعادة المحاولة</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/playlist.py" line="416" />
+      <location filename="../../app/ui/pages/playlist.py" line="417" />
       <source>No failed or cancelled items to retry.</source>
       <translation>لا توجد عناصر فاشلة أو ملغاة لإعادة المحاولة.</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/playlist.py" line="434" />
+      <location filename="../../app/ui/pages/playlist.py" line="435" />
       <source>Queued retry for %d item(s).</source>
       <translation>تمت جدولة إعادة المحاولة لـ %d عنصراً.</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/playlist.py" line="436" />
+      <location filename="../../app/ui/pages/playlist.py" line="437" />
       <source>%d item(s) had no previous download task to retry.</source>
       <translation>%d عنصراً ليس لها مهمة تنزيل سابقة لإعادة المحاولة.</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/playlist.py" line="437" />
+      <location filename="../../app/ui/pages/playlist.py" line="438" />
       <source>Retry</source>
       <translation>إعادة المحاولة</translation>
     </message>
@@ -935,197 +935,204 @@ Continue anyway?</source>
   <context>
     <name>SettingsPage</name>
     <message>
-      <location filename="../../app/ui/pages/settings.py" line="65" />
-      <location filename="../../app/ui/pages/settings.py" line="232" />
+      <location filename="../../app/ui/pages/settings.py" line="84" />
+      <location filename="../../app/ui/pages/settings.py" line="254" />
       <source>Settings</source>
       <translation>الإعدادات</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/settings.py" line="65" />
+      <location filename="../../app/ui/pages/settings.py" line="84" />
       <source>Configure defaults, concurrency, and application information</source>
       <translation>اضبط الافتراضيات والتزامن ومعلومات التطبيق</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/settings.py" line="75" />
-      <location filename="../../app/ui/pages/settings.py" line="88" />
+      <location filename="../../app/ui/pages/settings.py" line="94" />
+      <location filename="../../app/ui/pages/settings.py" line="107" />
       <source>Browse</source>
       <translation>استعراض</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/settings.py" line="79" />
+      <location filename="../../app/ui/pages/settings.py" line="98" />
       <source>Default download path</source>
       <translation>مسار التنزيلات الافتراضي</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/settings.py" line="83" />
+      <location filename="../../app/ui/pages/settings.py" line="102" />
       <source>Max concurrent downloads</source>
       <translation>أقصى عدد تنزيلات متزامنة</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/settings.py" line="87" />
+      <location filename="../../app/ui/pages/settings.py" line="106" />
       <source>Path to a Netscape-format cookies.txt (optional)</source>
       <translation>مسار ملف cookies.txt بصيغة Netscape (اختياري)</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/settings.py" line="93" />
+      <location filename="../../app/ui/pages/settings.py" line="112" />
       <source>Cookies file</source>
       <translation>ملف الكوكيز</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/settings.py" line="96" />
+      <location filename="../../app/ui/pages/settings.py" line="115" />
       <source>e.g. http://127.0.0.1:8080 (optional)</source>
       <translation>مثال: http://127.0.0.1:8080 (اختياري)</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/settings.py" line="97" />
+      <location filename="../../app/ui/pages/settings.py" line="116" />
       <source>Proxy</source>
       <translation>البروكسي</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/settings.py" line="100" />
+      <location filename="../../app/ui/pages/settings.py" line="119" />
       <source>Mark SponsorBlock segments (sponsor/intro/outro/...)</source>
       <translation>وسم مقاطع SponsorBlock (رعاية/مقدمة/خاتمة/...)</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/settings.py" line="101" />
+      <location filename="../../app/ui/pages/settings.py" line="120" />
       <source>SponsorBlock</source>
       <translation>SponsorBlock</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/settings.py" line="105" />
+      <location filename="../../app/ui/pages/settings.py" line="124" />
       <source>Dark</source>
       <translation>داكن</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/settings.py" line="106" />
+      <location filename="../../app/ui/pages/settings.py" line="125" />
       <source>Light</source>
       <translation>فاتح</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/settings.py" line="107" />
-      <location filename="../../app/ui/pages/settings.py" line="118" />
+      <location filename="../../app/ui/pages/settings.py" line="126" />
+      <location filename="../../app/ui/pages/settings.py" line="137" />
       <source>Applies after restarting the app.</source>
       <translation>يُطبَّق بعد إعادة تشغيل التطبيق.</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/settings.py" line="112" />
+      <location filename="../../app/ui/pages/settings.py" line="131" />
       <source>Theme</source>
       <translation>الثيم</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/settings.py" line="123" />
+      <location filename="../../app/ui/pages/settings.py" line="142" />
       <source>Language</source>
       <translation>اللغة</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/settings.py" line="127" />
+      <location filename="../../app/ui/pages/settings.py" line="146" />
       <source>About and third-party notices are available below. Release metadata may require owner confirmation.</source>
       <translation>بيانات «حول» وإشعارات الطرف الثالث متاحة أدناه. بيانات الإصدار قد تتطلب تأكيد المالك.</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/settings.py" line="133" />
+      <location filename="../../app/ui/pages/settings.py" line="152" />
       <source>Legal</source>
       <translation>قانوني</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/settings.py" line="138" />
+      <location filename="../../app/ui/pages/settings.py" line="157" />
       <source>FFmpeg</source>
       <translation>FFmpeg</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/settings.py" line="141" />
+      <location filename="../../app/ui/pages/settings.py" line="160" />
       <source>Save Settings</source>
       <translation>حفظ الإعدادات</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/settings.py" line="143" />
-      <location filename="../../app/ui/pages/settings.py" line="243" />
+      <location filename="../../app/ui/pages/settings.py" line="162" />
+      <location filename="../../app/ui/pages/settings.py" line="298" />
+      <source>Check App Updates</source>
+      <translation>فحص تحديثات التطبيق</translation>
+    </message>
+    <message>
+      <location filename="../../app/ui/pages/settings.py" line="163" />
+      <location filename="../../app/ui/pages/settings.py" line="265" />
       <source>Check yt-dlp Updates</source>
       <translation>فحص تحديثات yt-dlp</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/settings.py" line="144" />
+      <location filename="../../app/ui/pages/settings.py" line="164" />
       <source>About</source>
       <translation>حول</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/settings.py" line="145" />
+      <location filename="../../app/ui/pages/settings.py" line="165" />
       <source>Licenses</source>
       <translation>التراخيص</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/settings.py" line="189" />
+      <location filename="../../app/ui/pages/settings.py" line="211" />
       <source>Detected: ffmpeg (%s) | ffprobe (%s)</source>
       <translation>تم الاكتشاف: ffmpeg (%s) | ffprobe (%s)</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/settings.py" line="193" />
+      <location filename="../../app/ui/pages/settings.py" line="215" />
       <source>Partial detection: ensure both ffmpeg and ffprobe are bundled/available.</source>
       <translation>اكتشاف جزئي: تأكد من وجود ffmpeg وffprobe كليهما.</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/settings.py" line="197" />
+      <location filename="../../app/ui/pages/settings.py" line="219" />
       <source>Not detected. Bundle FFmpeg/FFprobe in vendor/ffmpeg for packaged builds.</source>
       <translation>لم يتم الاكتشاف. ضع FFmpeg/FFprobe في vendor/ffmpeg لبناء الحزمة.</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/settings.py" line="200" />
+      <location filename="../../app/ui/pages/settings.py" line="222" />
       <source>Status unavailable.</source>
       <translation>الحالة غير متاحة.</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/settings.py" line="204" />
+      <location filename="../../app/ui/pages/settings.py" line="226" />
       <source>Select default download folder</source>
       <translation>اختر مجلد التنزيلات الافتراضي</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/settings.py" line="210" />
+      <location filename="../../app/ui/pages/settings.py" line="232" />
       <source>Select cookies.txt (Netscape format)</source>
       <translation>اختر cookies.txt (صيغة Netscape)</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/settings.py" line="221" />
+      <location filename="../../app/ui/pages/settings.py" line="243" />
       <source>Invalid folder</source>
       <translation>مجلد غير صالح</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/settings.py" line="221" />
+      <location filename="../../app/ui/pages/settings.py" line="243" />
       <source>Cannot use download folder:
 %s</source>
       <translation>تعذر استخدام مجلد التنزيلات:
 %s</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/settings.py" line="233" />
+      <location filename="../../app/ui/pages/settings.py" line="255" />
       <source>Settings saved. Theme and language changes apply after restart.</source>
       <translation>تم حفظ الإعدادات. تغييرات الثيم واللغة تُطبَّق بعد إعادة التشغيل.</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/settings.py" line="239" />
+      <location filename="../../app/ui/pages/settings.py" line="261" />
+      <location filename="../../app/ui/pages/settings.py" line="294" />
       <source>Checking...</source>
       <translation>جارٍ الفحص...</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/settings.py" line="248" />
-      <location filename="../../app/ui/pages/settings.py" line="252" />
-      <location filename="../../app/ui/pages/settings.py" line="256" />
+      <location filename="../../app/ui/pages/settings.py" line="270" />
+      <location filename="../../app/ui/pages/settings.py" line="274" />
+      <location filename="../../app/ui/pages/settings.py" line="278" />
       <source>yt-dlp Update</source>
       <translation>تحديث yt-dlp</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/settings.py" line="249" />
+      <location filename="../../app/ui/pages/settings.py" line="271" />
       <source>Could not reach PyPI.
 Installed yt-dlp: %s</source>
       <translation>تعذر الوصول إلى PyPI.
 نسخة yt-dlp المثبتة: %s</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/settings.py" line="252" />
+      <location filename="../../app/ui/pages/settings.py" line="274" />
       <source>yt-dlp is up to date (%s).</source>
       <translation>نسخة yt-dlp محدثة (%s).</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/settings.py" line="257" />
+      <location filename="../../app/ui/pages/settings.py" line="279" />
       <source>Installed yt-dlp: %s
 Latest release: %s
 
@@ -1134,6 +1141,49 @@ Update by upgrading the installed yt-dlp package (pip install -U yt-dlp), then r
 أحدث إصدار: %s
 
 حدّث عبر ترقية حزمة yt-dlp المثبتة (pip install -U yt-dlp) ثم أعد بناء/تجميع التطبيق.</translation>
+    </message>
+    <message>
+      <location filename="../../app/ui/pages/settings.py" line="304" />
+      <location filename="../../app/ui/pages/settings.py" line="317" />
+      <location filename="../../app/ui/pages/settings.py" line="325" />
+      <location filename="../../app/ui/pages/settings.py" line="329" />
+      <source>App Update</source>
+      <translation>تحديث التطبيق</translation>
+    </message>
+    <message>
+      <location filename="../../app/ui/pages/settings.py" line="305" />
+      <source>A new version is available.
+Installed: %s
+Latest: %s</source>
+      <translation>يتوفر إصدار جديد.
+المثبت: %s
+الأحدث: %s</translation>
+    </message>
+    <message>
+      <location filename="../../app/ui/pages/settings.py" line="306" />
+      <source>Open Releases Page</source>
+      <translation>فتح صفحة الإصدارات</translation>
+    </message>
+    <message>
+      <location filename="../../app/ui/pages/settings.py" line="318" />
+      <source>The app is up to date (version %s).</source>
+      <translation>نسخة التطبيق محدثة (إصدار %s).</translation>
+    </message>
+    <message>
+      <location filename="../../app/ui/pages/settings.py" line="322" />
+      <source>No published releases yet (installed: %s).
+Check the project's GitHub page for new versions:
+%s</source>
+      <translation>لا توجد إصدارات منشورة بعد (المثبت: %s).
+راجع صفحة المشروع على GitHub للإصدارات الجديدة:
+%s</translation>
+    </message>
+    <message>
+      <location filename="../../app/ui/pages/settings.py" line="330" />
+      <source>Could not reach GitHub.
+Installed: %s</source>
+      <translation>تعذر الوصول إلى GitHub.
+المثبت: %s</translation>
     </message>
   </context>
   <context>
