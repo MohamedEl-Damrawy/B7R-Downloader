@@ -66,7 +66,7 @@ def shots(theme: str, rtl: bool = False) -> None:
         pages.append(("window_only_dashboard", dash))
     except Exception as exc:  # noqa: BLE001
         print(f"[{theme}] FAIL window: {exc}")
-    return pages
+
 
     for name, page in pages:
         # Real app hosts pages inside a QWidget#Root container; replicate so

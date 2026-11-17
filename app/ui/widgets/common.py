@@ -42,6 +42,10 @@ class EmptyState(CardFrame):
     def __init__(self, title: str, message: str, icon: str = "", parent: QWidget | None = None):
         super().__init__(parent)
         self.setObjectName("EmptyCard")  # 12px radius + 28px padding via QSS
+        # Spec G: compact card (360-480px wide, >=176px tall), centered in the
+        # content region — pages align it, never stretch it full-bleed.
+        self.setMinimumHeight(176)
+        self.setMaximumWidth(480)
         layout = QVBoxLayout(self)
         layout.setContentsMargins(28, 28, 28, 28)
         layout.setAlignment(Qt.AlignCenter)
@@ -58,7 +62,7 @@ class EmptyState(CardFrame):
                 pixmap_icon = render_svg_icon(icon, muted, size=40, dpr=self.devicePixelRatioF() or 1.0)
                 if pixmap_icon is not None:
                     ic.setPixmap(pixmap_icon.pixmap(40, 40))
-                    layout.addWidget(ic)
+                    layout.addWidget(ic, 0, Qt.AlignHCenter)
                     layout.addSpacing(8)
             except Exception:
                 pass

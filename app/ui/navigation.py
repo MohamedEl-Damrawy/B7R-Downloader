@@ -87,18 +87,23 @@ class Sidebar(QWidget):
         layout.setContentsMargins(20, 16, 20, 16)
         layout.setSpacing(4)
 
-        # Brand mark: bundled app icon rendered at 40px, theme-independent
-        # (the SVG carries its own fixed brand colors).
+        # Brand: mark (background-free SVG) + wordmark as native text so it
+        # reads correctly in both themes and mirrors in RTL. The bundled
+        # logo.svg's <text> element cannot be rasterized by Qt's SVG engine,
+        # so the wordmark is rendered by Qt itself (Velo bold + Downloader).
+        row = QHBoxLayout()
+        row.setContentsMargins(0, 0, 0, 0)
+        row.setSpacing(10)
         mark = QLabel()
-        mark.setFixedHeight(40)
+        mark.setFixedSize(36, 36)
         mark.setAlignment(Qt.AlignCenter)
         try:
             from app.core.paths import get_resources_dir
             from app.ui.widgets.icons import render_svg_file_pixmap
 
             pm = render_svg_file_pixmap(
-                get_resources_dir() / "icons" / "app_icon.svg",
-                40,
+                get_resources_dir() / "icons" / "brand_mark.svg",
+                36,
                 dpr=self.devicePixelRatioF() or 1.0,
             )
             if pm is not None:
@@ -107,16 +112,19 @@ class Sidebar(QWidget):
                 mark.hide()
         except Exception:
             mark.hide()
-        layout.addWidget(mark)
-        layout.addSpacing(8)
-
-        brand = QLabel("VeloDownloader")
-        brand.setObjectName("BrandTitle")  # 16px/600 via QSS
+        row.addWidget(mark)
+        text_col = QVBoxLayout()
+        text_col.setContentsMargins(0, 0, 0, 0)
+        text_col.setSpacing(2)
+        brand = QLabel('<span style="font-weight:700">Velo</span><span>Downloader</span>')
+        brand.setObjectName("BrandTitle")  # 16px/600 base via QSS; Velo bolder
         sub = QLabel(self.tr("Premium Download Manager"))
         sub.setObjectName("BrandSubtitle")  # 11px secondary via QSS
-        layout.addWidget(brand)
-        layout.addWidget(sub)
-        layout.addSpacing(24)
+        text_col.addWidget(brand)
+        text_col.addWidget(sub)
+        row.addLayout(text_col, 1)
+        layout.addLayout(row)
+        layout.addSpacing(20)
 
         items = [
             ("dashboard", self.tr("Dashboard")),

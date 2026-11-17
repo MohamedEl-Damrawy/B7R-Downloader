@@ -105,7 +105,7 @@ class PlaylistsPage(QWidget):
         )
         self.empty_state.setVisible(False)
         # stretch=1: fills the page when the card is hidden (no blank void).
-        layout.addWidget(self.empty_state, 1)
+        layout.addWidget(self.empty_state, 1, Qt.AlignHCenter | Qt.AlignVCenter)
 
         self.load_saved_btn.clicked.connect(self._load_saved_playlist)
         self.refresh_btn.clicked.connect(self.refresh_item_statuses)

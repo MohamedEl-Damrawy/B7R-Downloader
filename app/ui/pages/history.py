@@ -71,7 +71,7 @@ class HistoryPage(QWidget):
             icon="history",  # Lucide history
         )
         # stretch=1: fills the page when the list is hidden (no blank void).
-        layout.addWidget(self.empty, 1)
+        layout.addWidget(self.empty, 1, Qt.AlignHCenter | Qt.AlignVCenter)
         self._update_actions()
 
     def set_controller(self, controller) -> None:

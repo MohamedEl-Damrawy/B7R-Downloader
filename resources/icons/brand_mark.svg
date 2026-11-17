@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 96 96" role="img" aria-labelledby="title">
+  <title id="title">VeloDownloader mark</title>
+  <g fill="none" stroke="#24A99A" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M50 24v31"/>
+    <path d="m35 43 15 15 15-15"/>
+    <path d="M27 64v8a5 5 0 0 0 5 5h36a5 5 0 0 0 5-5v-8"/>
+  </g>
+  <path d="M20 30h9M16 41h9" fill="none" stroke="#75D6C7" stroke-width="4" stroke-linecap="round"/>
+</svg>

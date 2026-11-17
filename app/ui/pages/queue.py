@@ -141,7 +141,7 @@ class QueuePage(QWidget):
         )
         # stretch=1: when the list is hidden, the empty state fills the page
         # instead of leaving a large blank area above a bottom-pinned card.
-        layout.addWidget(self.empty, 1)
+        layout.addWidget(self.empty, 1, Qt.AlignHCenter | Qt.AlignVCenter)
         self._refresh_empty()
         self._update_action_buttons()
 

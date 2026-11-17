@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QGridLayout,
     QHBoxLayout,
@@ -57,7 +58,7 @@ class DashboardPage(QWidget):
         )
         # stretch=1: when the list is hidden, the empty state fills the page
         # instead of leaving a large blank area above a bottom-pinned card.
-        layout.addWidget(self.empty, 1)
+        layout.addWidget(self.empty, 1, Qt.AlignHCenter | Qt.AlignVCenter)
 
     def refresh_data(self) -> None:
         try:
