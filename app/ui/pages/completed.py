@@ -34,7 +34,8 @@ class CompletedPage(QWidget):
         self.list_widget.itemSelectionChanged.connect(self._update_actions)
         layout.addWidget(self.list_widget, 1)
         self.empty = EmptyState(self.tr("No completed downloads"), self.tr("Completed items will be listed here."))
-        layout.addWidget(self.empty)
+        # stretch=1: fills the page when the list is hidden (no blank void).
+        layout.addWidget(self.empty, 1)
         self._update_actions()
 
     def set_controller(self, controller) -> None:

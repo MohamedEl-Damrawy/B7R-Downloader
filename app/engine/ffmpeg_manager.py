@@ -11,6 +11,10 @@ from typing import Optional
 
 from app.core.paths import get_vendor_ffmpeg_dir
 
+# Hide console windows when a GUI process spawns console tools (PowerShell,
+# taskkill). Without this a PowerShell flash appears on every app start.
+_NO_WINDOW = subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0
+
 
 def _exe_name(base: str) -> str:
     return f"{base}.exe" if os.name == "nt" else base
@@ -72,6 +76,7 @@ def kill_bundled_ffmpeg_orphans() -> int:
             capture_output=True,
             text=True,
             timeout=15,
+            creationflags=_NO_WINDOW,
         )
         data = json.loads(out.stdout or "null")
         rows = data if isinstance(data, list) else ([data] if data else [])
@@ -95,6 +100,7 @@ def kill_bundled_ffmpeg_orphans() -> int:
                 ["taskkill", "/PID", str(pid), "/F", "/T"],
                 capture_output=True,
                 timeout=10,
+                creationflags=_NO_WINDOW,
             )
             killed += 1
         except Exception:

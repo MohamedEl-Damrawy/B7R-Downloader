@@ -76,7 +76,7 @@ class TestOrphanFfmpegCleanup(unittest.TestCase):
         ]
         calls: list[list[str]] = []
 
-        def fake_run(cmd, capture_output=True, text=True, timeout=None):
+        def fake_run(cmd, capture_output=True, text=True, timeout=None, **kwargs):
             calls.append(list(cmd))
             out = json.dumps(rows) if "Get-CimInstance" in " ".join(cmd) else ""
             return SimpleNamespace(stdout=out, returncode=0)

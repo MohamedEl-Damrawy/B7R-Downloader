@@ -44,8 +44,10 @@ class PlaylistsPage(QWidget):
         saved_row.addWidget(self.load_saved_btn)
         layout.addLayout(saved_row)
 
-        opts = QHBoxLayout()
-        opts.addWidget(QLabel(self.tr("Quality:")))
+        self.opts_row = QWidget()
+        opts_layout = QHBoxLayout(self.opts_row)
+        opts_layout.setContentsMargins(0, 0, 0, 0)
+        opts_layout.addWidget(QLabel(self.tr("Quality:")))
         self.quality_combo = QComboBox()
         self.quality_combo.addItem(self.tr("Best available"), "best")
         self.quality_combo.addItem(self.tr("1080p (if available)"), "1080p")
@@ -54,14 +56,18 @@ class PlaylistsPage(QWidget):
         # FEAT-01: audio-only presets (converted with FFmpegExtractAudio).
         self.quality_combo.addItem(self.tr("Audio only — MP3"), "audio_mp3")
         self.quality_combo.addItem(self.tr("Audio only — M4A"), "audio_m4a")
-        opts.addWidget(self.quality_combo)
-        opts.addWidget(QLabel(self.tr("Output:")))
+        opts_layout.addWidget(self.quality_combo)
+        opts_layout.addWidget(QLabel(self.tr("Output:")))
         self.output_input = QLineEdit()
         self.output_input.setPlaceholderText(self.tr("Default download folder"))
-        opts.addWidget(self.output_input, 1)
-        layout.addLayout(opts)
+        opts_layout.addWidget(self.output_input, 1)
+        layout.addWidget(self.opts_row)
 
-        actions = QHBoxLayout()
+        # Actions row wrapped in a container so it can be hidden with the
+        # quality/output row when no playlist is loaded.
+        self.actions_row = QWidget()
+        actions = QHBoxLayout(self.actions_row)
+        actions.setContentsMargins(0, 0, 0, 0)
         self.refresh_btn = QPushButton(self.tr("Refresh Status"))
         self.select_all_btn = QPushButton(self.tr("Select All"))
         self.deselect_all_btn = QPushButton(self.tr("Deselect All"))
@@ -78,7 +84,7 @@ class PlaylistsPage(QWidget):
         actions.addWidget(self.download_selected_btn)
         actions.addStretch(1)
         actions.addWidget(self.selected_label)
-        layout.addLayout(actions)
+        layout.addWidget(self.actions_row)
 
         self.card = CardFrame()
         card_layout = QVBoxLayout(self.card)
@@ -97,7 +103,8 @@ class PlaylistsPage(QWidget):
             self.tr("Paste a playlist URL in New Download to inspect entries."),
         )
         self.empty_state.setVisible(False)
-        layout.addWidget(self.empty_state)
+        # stretch=1: fills the page when the card is hidden (no blank void).
+        layout.addWidget(self.empty_state, 1)
 
         self.load_saved_btn.clicked.connect(self._load_saved_playlist)
         self.refresh_btn.clicked.connect(self.refresh_item_statuses)
@@ -114,6 +121,9 @@ class PlaylistsPage(QWidget):
     def _show_empty(self, empty: bool) -> None:
         self.card.setVisible(not empty)
         self.empty_state.setVisible(empty)
+        # Quality/Output + action rows are meaningless with no playlist loaded.
+        self.opts_row.setVisible(not empty)
+        self.actions_row.setVisible(not empty)
 
     def refresh_saved_playlists(self) -> None:
         current = self.saved_combo.currentData()

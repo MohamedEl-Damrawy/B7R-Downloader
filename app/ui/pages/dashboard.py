@@ -51,7 +51,9 @@ class DashboardPage(QWidget):
         self.recent_list = QListWidget()
         layout.addWidget(self.recent_list, 1)
         self.empty = EmptyState(self.tr("No recent activity"), self.tr("Start a new download to see activity here."))
-        layout.addWidget(self.empty)
+        # stretch=1: when the list is hidden, the empty state fills the page
+        # instead of leaving a large blank area above a bottom-pinned card.
+        layout.addWidget(self.empty, 1)
 
     def refresh_data(self) -> None:
         try:

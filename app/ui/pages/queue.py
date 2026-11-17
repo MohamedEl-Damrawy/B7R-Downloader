@@ -135,7 +135,9 @@ class QueuePage(QWidget):
         self.list_widget.itemSelectionChanged.connect(self._update_action_buttons)
         layout.addWidget(self.list_widget, 1)
         self.empty = EmptyState(self.tr("Queue is empty"), self.tr("Queued and active downloads will appear here."))
-        layout.addWidget(self.empty)
+        # stretch=1: when the list is hidden, the empty state fills the page
+        # instead of leaving a large blank area above a bottom-pinned card.
+        layout.addWidget(self.empty, 1)
         self._refresh_empty()
         self._update_action_buttons()
 

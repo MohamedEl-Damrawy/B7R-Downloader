@@ -201,3 +201,16 @@ QStatusBar {
     background: @sidebar@;
     color: @text_secondary@;
 }
+/* Modal dialogs (QMessageBox/About/Licenses) follow the theme too; without
+   an explicit text color the question text renders dark-on-dark. */
+QDialog, QMessageBox {
+    background-color: @card@;
+    color: @text_main@;
+}
+QDialog QLabel, QMessageBox QLabel {
+    color: @text_main@;
+    background: transparent;
+}
+QMessageBox QPushButton {
+    min-width: 72px;
+}

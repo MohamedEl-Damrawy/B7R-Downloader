@@ -1,0 +1,63 @@
+"""Offscreen visual audit: render every page in light + dark, save PNGs."""
+from __future__ import annotations
+
+import os
+
+os.environ["QT_QPA_PLATFORM"] = "offscreen"
+os.environ.setdefault("QT_QPA_FONTDIR", r"C:\Windows\Fonts")
+os.environ.setdefault("LOCALAPPDATA", os.path.join(os.environ.get("TEMP", "."), "velo_audit"))
+
+import sys
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
+from PySide6.QtWidgets import QApplication, QVBoxLayout, QWidget
+
+from app.ui.theme.style_loader import load_theme_qss
+
+OUT = os.path.join(os.path.dirname(__file__), "..", "..", "_ui_audit")
+os.makedirs(OUT, exist_ok=True)
+
+app = QApplication.instance() or QApplication([])
+
+
+def shots(theme: str) -> None:
+    app.setStyleSheet(load_theme_qss(theme))
+    from app.ui.pages import completed, dashboard, history, new_download, playlist, queue, settings
+
+    pages = []
+    for name, cls, needs in [
+        ("dashboard", dashboard.DashboardPage, ()),
+        ("new_download", new_download.NewDownloadPage, ()),
+        ("queue", queue.QueuePage, ()),
+        ("history", history.HistoryPage, ()),
+        ("completed", completed.CompletedPage, ()),
+        ("playlist", playlist.PlaylistsPage, ()),
+        ("settings", settings.SettingsPage, ()),
+    ]:
+        try:
+            page = cls()
+            pages.append((name, page))
+        except Exception as exc:  # noqa: BLE001
+            print(f"[{theme}] FAIL init {name}: {exc}")
+
+    for name, page in pages:
+        # Real app hosts pages inside a QWidget#Root container; replicate so
+        # the QSS background/color cascade matches production.
+        root = QWidget()
+        root.setObjectName("Root")
+        rl = QVBoxLayout(root)
+        rl.setContentsMargins(0, 0, 0, 0)
+        rl.addWidget(page)
+        root.resize(1000, 720)
+        root.show()
+        app.processEvents()
+        path = os.path.join(OUT, f"{theme}_{name}.png")
+        root.grab().save(path)
+        print(f"[{theme}] {name} -> {path}")
+        root.close()
+
+
+shots("light")
+shots("dark")
+print("DONE")
