@@ -9,7 +9,7 @@ from PySide6.QtCore import QTimer
 from PySide6.QtWidgets import QHBoxLayout, QMainWindow, QStackedWidget, QStatusBar, QWidget
 
 from app.controllers.download_controller import DownloadController
-from app.core.constants import APP_NAME, APP_VERSION
+from app.core.constants import APP_NAME
 from app.core.logger import get_logger
 from app.core.validators import is_http_url
 from app.database.repositories.download_items_repo import DownloadItemsRepository
@@ -30,7 +30,8 @@ logger = get_logger(__name__)
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle(f"{APP_NAME} {APP_VERSION}")
+        # UI/UX final: plain product name — no version suffix in the title.
+        self.setWindowTitle(APP_NAME)
         self.resize(1200, 760)
 
         self.download_controller = DownloadController(self)

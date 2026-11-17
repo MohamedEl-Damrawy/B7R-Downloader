@@ -4,7 +4,7 @@ from __future__ import annotations
 
 APP_NAME = "Velo Downloader"
 APP_ORG = "Velo"
-APP_VERSION = "0.1.0"
+APP_VERSION = "0.2.0"
 APP_DESCRIPTION = "Modern desktop downloader for authorized video and playlist content."
 
 # GitHub project repository (update checks + public downloads).

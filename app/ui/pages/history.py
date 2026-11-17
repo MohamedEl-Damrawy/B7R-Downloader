@@ -68,7 +68,7 @@ class HistoryPage(QWidget):
         self.empty = EmptyState(
             self.tr("No download history"),
             self.tr("Finished and failed downloads will appear here."),
-            icon="\u21B6",  # ↶
+            icon="history",  # Lucide history
         )
         # stretch=1: fills the page when the list is hidden (no blank void).
         layout.addWidget(self.empty, 1)

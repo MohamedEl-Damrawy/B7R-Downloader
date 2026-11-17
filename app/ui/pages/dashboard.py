@@ -53,7 +53,7 @@ class DashboardPage(QWidget):
         self.empty = EmptyState(
             self.tr("Nothing here yet"),
             self.tr("Your recent activity will appear here."),
-            icon="\u25F7",  # ◷
+            icon="clock",  # Lucide clock (Lucide family, spec G)
         )
         # stretch=1: when the list is hidden, the empty state fills the page
         # instead of leaving a large blank area above a bottom-pinned card.

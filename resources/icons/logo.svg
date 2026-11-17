@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="520" height="112" viewBox="0 0 520 112" role="img" aria-labelledby="title desc">
+  <title id="title">VeloDownloader</title>
+  <desc id="desc">A teal download arrow and tray inside a deep ink rounded square, followed by the VeloDownloader wordmark.</desc>
+  <rect x="12" y="14" width="84" height="84" rx="22" fill="#111820"/>
+  <g fill="none" stroke="#24A99A" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M54 32v28"/>
+    <path d="m40 49 14 14 14-14"/>
+    <path d="M34 67v7a5 5 0 0 0 5 5h30a5 5 0 0 0 5-5v-7"/>
+  </g>
+  <path d="M28 35h8M25 45h8" fill="none" stroke="#75D6C7" stroke-width="4" stroke-linecap="round"/>
+  <text x="116" y="70" font-family="Segoe UI, Arial, sans-serif" font-size="34" letter-spacing="-1.15" fill="#202B2A">
+    <tspan font-weight="650">Velo</tspan><tspan font-weight="400">Downloader</tspan>
+  </text>
+</svg>

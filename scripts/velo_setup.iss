@@ -3,7 +3,7 @@
 ; NOTE: keep AppVersion in sync with APP_VERSION in app/core/constants.py.
 
 #define MyAppName "Velo Downloader"
-#define MyAppVersion "0.1.0"
+#define MyAppVersion "0.2.0"
 #define MyAppPublisher "Mohamed El-Damrawy (Individual)"
 #define MyAppURL "https://github.com/MohamedEl-Damrawy/B7R-Downloader"
 #define MyAppExeName "VeloDownloader.exe"
@@ -21,7 +21,7 @@ DefaultGroupName={#MyAppName}
 DisableProgramGroupPage=yes
 LicenseFile=..\LICENSE
 OutputDir=..\dist_release
-OutputBaseFilename=VeloDownloader-0.1.0-setup
+OutputBaseFilename=VeloDownloader-0.2.0-setup
 SetupIconFile=..\resources\icons\app.ico
 UninstallDisplayIcon={app}\{#MyAppExeName}
 Compression=lzma2/max

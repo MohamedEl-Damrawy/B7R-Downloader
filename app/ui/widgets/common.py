@@ -35,7 +35,8 @@ class StatCard(CardFrame):
 class EmptyState(CardFrame):
     """Centered empty-state card (design spec section G).
 
-    icon: Unicode glyph shown above the title (omit if coverage is poor).
+    icon: key of a bundled Lucide SVG (resources/icons/nav/<key>.svg),
+    rendered 40px in the theme's muted tone; omit for text-only.
     """
 
     def __init__(self, title: str, message: str, icon: str = "", parent: QWidget | None = None):
@@ -46,11 +47,21 @@ class EmptyState(CardFrame):
         layout.setAlignment(Qt.AlignCenter)
         layout.setSpacing(0)
         if icon:
-            ic = QLabel(icon)
-            ic.setObjectName("EmptyIcon")
-            ic.setAlignment(Qt.AlignCenter)
-            layout.addWidget(ic)
-            layout.addSpacing(8)
+            try:
+                from app.ui.widgets.icons import render_svg_icon, theme_colors
+
+                muted, _ = theme_colors()
+                ic = QLabel()
+                ic.setObjectName("EmptyIcon")
+                ic.setAlignment(Qt.AlignCenter)
+                ic.setFixedSize(40, 40)
+                pixmap_icon = render_svg_icon(icon, muted, size=40, dpr=self.devicePixelRatioF() or 1.0)
+                if pixmap_icon is not None:
+                    ic.setPixmap(pixmap_icon.pixmap(40, 40))
+                    layout.addWidget(ic)
+                    layout.addSpacing(8)
+            except Exception:
+                pass
         t = QLabel(title)
         t.setProperty("class", "EmptyTitle")
         t.setAlignment(Qt.AlignCenter)

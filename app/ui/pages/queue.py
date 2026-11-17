@@ -137,7 +137,7 @@ class QueuePage(QWidget):
         self.empty = EmptyState(
             self.tr("Your queue is clear"),
             self.tr("Downloads you start will appear here."),
-            icon="\u2193",  # ↓
+            icon="arrow_down",  # Lucide arrow-down
         )
         # stretch=1: when the list is hidden, the empty state fills the page
         # instead of leaving a large blank area above a bottom-pinned card.

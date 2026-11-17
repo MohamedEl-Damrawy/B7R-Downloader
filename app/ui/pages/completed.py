@@ -36,7 +36,7 @@ class CompletedPage(QWidget):
         self.empty = EmptyState(
             self.tr("Nothing completed yet"),
             self.tr("Your completed downloads will appear here."),
-            icon="\u2713",  # ✓
+            icon="completed",  # Lucide circle-check
         )
         # stretch=1: fills the page when the list is hidden (no blank void).
         layout.addWidget(self.empty, 1)

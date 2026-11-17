@@ -101,7 +101,7 @@ class PlaylistsPage(QWidget):
         self.empty_state = EmptyState(
             self.tr("No playlist loaded"),
             self.tr("Choose a saved playlist and select Load to view its videos."),
-            icon="\u25A4",  # ▤
+            icon="playlists",  # Lucide list-video
         )
         self.empty_state.setVisible(False)
         # stretch=1: fills the page when the card is hidden (no blank void).

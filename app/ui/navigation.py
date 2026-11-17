@@ -11,67 +11,16 @@ RTL notes:
 
 from __future__ import annotations
 
-from PySide6.QtCore import QByteArray, QRectF, Qt, Signal
-from PySide6.QtGui import QColor, QIcon, QPainter, QPixmap
-from PySide6.QtSvg import QSvgRenderer  # noqa: F401  (ensures bundling)
+from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import QHBoxLayout, QLabel, QPushButton, QVBoxLayout, QWidget
 
-from app.core.paths import get_resources_dir
-
-# Lucide outline icon family (24x24 viewBox, 2px stroke, round caps/joins,
-# no fill) shipped as editable SVG files under resources/icons/nav/.
-ICON_DIR = "nav"
-ICON_SIZE = 20  # rendered size in px
-ICON_LABEL_GAP = 12
-ROW_HEIGHT = 44
-
-
-def _resolve_theme() -> str:
-    """Same resolution rule as application.run (FEAT-08)."""
-    try:
-        from app.core.constants import SETTINGS_THEME
-        from app.services.settings_service import SettingsService
-
-        value = str(SettingsService().get(SETTINGS_THEME, "dark") or "dark").strip().lower()
-        return value if value in ("dark", "light") else "dark"
-    except Exception:
-        return "dark"
-
-
-def _theme_colors() -> tuple[str, str]:
-    """(muted, active) icon/label colors from the active theme palette."""
-    from app.ui.theme.palette import palette_for_theme
-
-    palette = palette_for_theme(_resolve_theme())
-    muted = palette.get("text_secondary", "#AAB8B8")
-    active = palette.get("primary", "#24A99A")
-    return muted, active
-
-
-def render_nav_icon(key: str, color: str, size: int = ICON_SIZE, dpr: float = 1.0) -> QIcon | None:
-    """Render a bundled Lucide SVG in the given stroke color as a QIcon.
-
-    The SVG files use the #STROKE placeholder so one file serves both the
-    muted and the active (teal) states. Returns None when unavailable
-    (missing file / QtSvg unavailable) so callers fall back to text-only.
-    """
-    path = get_resources_dir() / "icons" / ICON_DIR / f"{key}.svg"
-    if not path.exists():
-        return None
-    try:
-        svg = path.read_text(encoding="utf-8").replace("#STROKE", QColor(color).name())
-        renderer = QSvgRenderer(QByteArray(svg.encode("utf-8")))
-        if not renderer.isValid():
-            return None
-        pm = QPixmap(int(size * dpr), int(size * dpr))
-        pm.fill(Qt.transparent)
-        painter = QPainter(pm)
-        renderer.render(painter, QRectF(0, 0, size * dpr, size * dpr))
-        painter.end()
-        pm.setDevicePixelRatio(dpr)
-        return QIcon(pm)
-    except Exception:
-        return None
+from app.ui.widgets.icons import (
+    ICON_LABEL_GAP,
+    ICON_SIZE,
+    ROW_HEIGHT,
+    render_svg_icon,
+    theme_colors,
+)
 
 
 class NavButton(QPushButton):
@@ -86,8 +35,7 @@ class NavButton(QPushButton):
     def __init__(self, key: str, label: str, parent: QWidget | None = None):
         super().__init__(parent)
         self._key = key
-        self._label = label
-        self._muted_color, self._active_color = _theme_colors()
+        self._muted_color, self._active_color = theme_colors()
 
         self._icon_label = QLabel()
         self._icon_label.setFixedSize(ICON_SIZE, ICON_SIZE)
@@ -115,7 +63,7 @@ class NavButton(QPushButton):
         self._text_label.setStyleSheet(
             f"background: transparent; color: {color}; font-weight: {weight};"
         )
-        icon = render_nav_icon(self._key, color, dpr=self.devicePixelRatioF() or 1.0)
+        icon = render_svg_icon(self._key, color, dpr=self.devicePixelRatioF() or 1.0)
         if icon is not None:
             self._icon_label.setPixmap(icon.pixmap(ICON_SIZE, ICON_SIZE))
         else:
@@ -136,9 +84,31 @@ class Sidebar(QWidget):
         self._buttons: dict[str, NavButton] = {}
 
         layout = QVBoxLayout(self)
-        # Brand area ~88px: 16px top + 16px bottom margins + 2 labels.
         layout.setContentsMargins(20, 16, 20, 16)
         layout.setSpacing(4)
+
+        # Brand mark: bundled app icon rendered at 40px, theme-independent
+        # (the SVG carries its own fixed brand colors).
+        mark = QLabel()
+        mark.setFixedHeight(40)
+        mark.setAlignment(Qt.AlignCenter)
+        try:
+            from app.core.paths import get_resources_dir
+            from app.ui.widgets.icons import render_svg_file_pixmap
+
+            pm = render_svg_file_pixmap(
+                get_resources_dir() / "icons" / "app_icon.svg",
+                40,
+                dpr=self.devicePixelRatioF() or 1.0,
+            )
+            if pm is not None:
+                mark.setPixmap(pm)
+            else:
+                mark.hide()
+        except Exception:
+            mark.hide()
+        layout.addWidget(mark)
+        layout.addSpacing(8)
 
         brand = QLabel("VeloDownloader")
         brand.setObjectName("BrandTitle")  # 16px/600 via QSS
