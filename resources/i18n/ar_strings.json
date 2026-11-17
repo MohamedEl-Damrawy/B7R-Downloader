@@ -191,5 +191,11 @@
   "The app is up to date (version %s).": "نسخة التطبيق محدثة (إصدار %s).",
   "No published releases yet (installed: %s).\nCheck the project's GitHub page for new versions:\n%s": "لا توجد إصدارات منشورة بعد (المثبت: %s).\nراجع صفحة المشروع على GitHub للإصدارات الجديدة:\n%s",
   "Could not reach GitHub.\nInstalled: %s": "تعذر الوصول إلى GitHub.\nالمثبت: %s",
-  "Project page / downloads:": "صفحة المشروع / التنزيلات:"
+  "Project page / downloads:": "صفحة المشروع / التنزيلات:",
+  "Delete Selected": "حذف المحدد",
+  "Clear All": "مسح الكل",
+  "Remove %d selected entries from history? Downloaded files are not deleted.": "إزالة %d من العناصر المحددة من السجل؟ الملفات المحملة لن تُحذف.",
+  "Delete records": "حذف السجلات",
+  "Clear history": "مسح السجل",
+  "Remove ALL entries from history? Downloaded files are not deleted.": "إزالة كل العناصر من السجل؟ الملفات المحملة لن تُحذف."
 }

@@ -9,6 +9,9 @@ QWidget#Sidebar {
     background-color: @sidebar@;
     border-right: 1px solid #1e2c40;
 }
+QWidget#Sidebar QLabel#BrandTitle {
+    color: @text_main@;
+}
 QPushButton.NavButton {
     background: transparent;
     color: @text_secondary@;
@@ -27,7 +30,7 @@ QPushButton.NavButton[active="true"] {
 }
 QFrame.Card, QWidget.Card {
     background-color: @card@;
-    border: 1px solid #22344d;
+    border: 1px solid #2E425E;
     border-radius: 12px;
 }
 QLabel.Title {
@@ -39,12 +42,47 @@ QLabel.Subtitle {
     color: @text_secondary@;
     font-size: 12px;
 }
-QLineEdit, QComboBox, QTextEdit {
+QLabel#ThumbPreview {
+    color: @text_secondary@;
+    background-color: #0f1a29;
+    border: 1px solid #2a3c56;
+    border-radius: 8px;
+}
+QLineEdit, QComboBox, QTextEdit, QSpinBox {
     background-color: #0f1a29;
     border: 1px solid #2a3c56;
     border-radius: 8px;
     padding: 8px 10px;
     color: @text_main@;
+}
+QLineEdit:focus, QComboBox:focus, QTextEdit:focus, QSpinBox:focus {
+    border: 1px solid @primary@;
+}
+QComboBox QAbstractItemView {
+    background-color: #0f1a29;
+    color: @text_main@;
+    border: 1px solid #2a3c56;
+    selection-background-color: @secondary@;
+    selection-color: @text_main@;
+}
+QComboBox::drop-down {
+    border: none;
+    width: 22px;
+}
+QPushButton {
+    background-color: #1B2A3E;
+    color: @text_main@;
+    border: 1px solid #2a3c56;
+    border-radius: 8px;
+    padding: 8px 12px;
+}
+QPushButton:hover {
+    background-color: #223450;
+}
+QPushButton:disabled {
+    color: #5C6B7E;
+    background-color: #141F2E;
+    border: 1px solid #22344d;
 }
 QPushButton.Primary {
     background-color: @primary@;
@@ -55,6 +93,11 @@ QPushButton.Primary {
     font-weight: 600;
 }
 QPushButton.Primary:hover { background-color: #47aaaa; }
+QPushButton.Primary:disabled {
+    background-color: #1E3A3A;
+    color: #5F7A7A;
+    border: none;
+}
 QPushButton.Danger {
     background-color: @accent@;
     color: @text_main@;
@@ -62,14 +105,36 @@ QPushButton.Danger {
     border-radius: 8px;
     padding: 8px 12px;
 }
+QPushButton.Danger:hover { background-color: #D41741; }
+QPushButton.Danger:disabled {
+    background-color: #4A1B26;
+    color: #6E5A60;
+    border: none;
+}
 QListWidget {
     background-color: @card@;
-    border: 1px solid #22344d;
+    border: 1px solid #2E425E;
     border-radius: 12px;
+    padding: 4px;
+}
+QListWidget::item {
+    padding: 6px 10px;
+    border-radius: 6px;
+}
+QListWidget::item:hover {
+    background-color: #1B2A3E;
 }
 QListWidget::item:selected {
     background-color: @secondary@;
-    border-radius: 8px;
+    color: @text_main@;
+    border-radius: 6px;
+}
+QListWidget::item:selected:hover {
+    background-color: #1B567F;
+}
+QCheckBox {
+    spacing: 8px;
+    color: @text_main@;
 }
 QProgressBar {
     background-color: #0f1a29;
@@ -87,6 +152,39 @@ QLabel#QueueRowTitle {
 QLabel#QueueRowInfo {
     color: @text_secondary@;
     font-size: 12px;
+}
+QScrollBar:vertical {
+    background: transparent;
+    width: 10px;
+    margin: 2px;
+}
+QScrollBar::handle:vertical {
+    background: #2A3C56;
+    border-radius: 5px;
+    min-height: 24px;
+}
+QScrollBar::handle:vertical:hover { background: #3A517A; }
+QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+    height: 0;
+}
+QScrollBar:horizontal {
+    background: transparent;
+    height: 10px;
+    margin: 2px;
+}
+QScrollBar::handle:horizontal {
+    background: #2A3C56;
+    border-radius: 5px;
+    min-width: 24px;
+}
+QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal {
+    width: 0;
+}
+QToolTip {
+    background-color: #101A28;
+    color: @text_main@;
+    border: 1px solid #2E425E;
+    padding: 4px 6px;
 }
 QStatusBar {
     background: @sidebar@;

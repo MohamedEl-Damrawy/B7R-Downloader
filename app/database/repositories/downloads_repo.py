@@ -110,6 +110,22 @@ class DownloadsRepository:
             cur = conn.execute("DELETE FROM downloads WHERE id = ?", (download_id,))
             return (cur.rowcount or 0) > 0
 
+    def delete_many(self, download_ids: list[str]) -> int:
+        """Remove several history records at once; returns rows deleted."""
+        ids = [str(i) for i in (download_ids or []) if str(i or "").strip()]
+        if not ids:
+            return 0
+        placeholders = ",".join(["?"] * len(ids))
+        with db_session() as conn:
+            cur = conn.execute(f"DELETE FROM downloads WHERE id IN ({placeholders})", ids)
+            return cur.rowcount if cur.rowcount is not None else 0
+
+    def delete_all(self) -> int:
+        """Clear the entire history (metadata only; files stay on disk)."""
+        with db_session() as conn:
+            cur = conn.execute("DELETE FROM downloads")
+            return cur.rowcount if cur.rowcount is not None else 0
+
     def mark_interrupted(self, message: str = "Interrupted by application restart") -> int:
         now_statuses = ("Extracting", "Downloading", "Processing")
         placeholders = ",".join(["?"] * len(now_statuses))

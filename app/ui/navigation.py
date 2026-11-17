@@ -20,9 +20,11 @@ class Sidebar(QWidget):
         layout.setSpacing(8)
 
         brand = QLabel("Velo Downloader")
-        brand.setStyleSheet("font-size: 18px; font-weight: 700; color: #F4F7FA;")
+        brand.setObjectName("BrandTitle")
+        brand.setStyleSheet("font-size: 18px; font-weight: 700;")
         sub = QLabel(self.tr("Premium Download Manager"))
-        sub.setStyleSheet("font-size: 11px; color: #91A2B5;")
+        sub.setProperty("class", "Subtitle")
+        sub.setStyleSheet("font-size: 11px;")
         layout.addWidget(brand)
         layout.addWidget(sub)
         layout.addSpacing(12)

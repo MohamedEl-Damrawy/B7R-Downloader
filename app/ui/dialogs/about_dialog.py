@@ -59,7 +59,7 @@ class AboutDialog(QDialog):
         )
         legal.setWordWrap(True)
         legal.setTextFormat(Qt.RichText)
-        legal.setStyleSheet("color: #91A2B5;")
+        legal.setProperty("class", "Subtitle")
         layout.addWidget(legal)
 
         note = QLabel(
@@ -67,6 +67,6 @@ class AboutDialog(QDialog):
                     "Not affiliated with YouTube or other third-party services.")
         )
         note.setWordWrap(True)
-        note.setStyleSheet("color: #91A2B5;")
+        note.setProperty("class", "Subtitle")
         layout.addWidget(note)
         layout.addStretch(1)

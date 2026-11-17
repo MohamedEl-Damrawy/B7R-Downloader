@@ -24,7 +24,6 @@ class StatCard(CardFrame):
         self.value_label.setStyleSheet("font-size: 22px; font-weight: 600;")
         self.title_label = QLabel(title)
         self.title_label.setProperty("class", "Subtitle")
-        self.title_label.setStyleSheet("color: #91A2B5;")
         layout.addWidget(self.value_label)
         layout.addWidget(self.title_label)
 
@@ -44,7 +43,7 @@ class EmptyState(CardFrame):
         m = QLabel(message)
         m.setWordWrap(True)
         m.setAlignment(Qt.AlignCenter)
-        m.setStyleSheet("color: #91A2B5;")
+        m.setProperty("class", "Subtitle")
         layout.addWidget(t)
         layout.addSpacing(6)
         layout.addWidget(m)
@@ -62,6 +61,5 @@ class PageHeader(QWidget):
         if subtitle:
             sub = QLabel(subtitle)
             sub.setProperty("class", "Subtitle")
-            sub.setStyleSheet("color: #91A2B5;")
             layout.addWidget(sub)
         layout.addStretch(0)

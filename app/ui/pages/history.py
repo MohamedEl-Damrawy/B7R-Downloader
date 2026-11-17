@@ -8,6 +8,7 @@ import sys
 
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
+    QAbstractItemView,
     QHBoxLayout,
     QLineEdit,
     QListWidget,
@@ -46,16 +47,22 @@ class HistoryPage(QWidget):
         self.open_btn.clicked.connect(self._open_selected_folder)
         self.retry_btn = QPushButton(self.tr("Retry Selected"))
         self.retry_btn.clicked.connect(self._retry_selected)
-        self.delete_btn = QPushButton(self.tr("Delete Record"))
+        self.delete_btn = QPushButton(self.tr("Delete Selected"))
         self.delete_btn.setProperty("class", "Danger")
         self.delete_btn.clicked.connect(self._delete_selected)
+        self.clear_all_btn = QPushButton(self.tr("Clear All"))
+        self.clear_all_btn.setProperty("class", "Danger")
+        self.clear_all_btn.clicked.connect(self._clear_all)
         actions.addWidget(self.open_btn)
         actions.addWidget(self.retry_btn)
         actions.addWidget(self.delete_btn)
+        actions.addWidget(self.clear_all_btn)
         actions.addStretch(1)
         layout.addLayout(actions)
 
         self.list_widget = QListWidget()
+        # Multi-select so users can delete several records at once.
+        self.list_widget.setSelectionMode(QAbstractItemView.ExtendedSelection)
         self.list_widget.itemSelectionChanged.connect(self._update_actions)
         layout.addWidget(self.list_widget, 1)
         self.empty = EmptyState(self.tr("No history yet"), self.tr("Download history will appear here."))
@@ -102,29 +109,61 @@ class HistoryPage(QWidget):
         item = self.list_widget.currentItem()
         rec = item.data(Qt.UserRole) if item else {}
         status = (rec or {}).get("status")
+        selected = self.list_widget.selectedItems()
         self.open_btn.setEnabled(item is not None)
-        self.retry_btn.setEnabled(self._controller is not None and status in ("Failed", "Cancelled"))
-        self.delete_btn.setEnabled(item is not None)
+        self.retry_btn.setEnabled(
+            self._controller is not None and status in ("Failed", "Cancelled")
+        )
+        self.delete_btn.setEnabled(bool(selected))
+        self.clear_all_btn.setEnabled(self.list_widget.count() > 0)
 
     def _delete_selected(self) -> None:
-        """FEAT-11: delete the selected history record (files stay on disk)."""
-        item = self.list_widget.currentItem()
-        if not item:
+        """FEAT-11 + UI/UX: delete one or several selected history records."""
+        selected = self.list_widget.selectedItems()
+        if not selected:
             return
-        rec = item.data(Qt.UserRole) or {}
+        from PySide6.QtWidgets import QMessageBox
+
+        count = len(selected)
+        if count == 1:
+            msg = self.tr("Remove this entry from history? Downloaded files are not deleted.")
+        else:
+            msg = self.tr("Remove %d selected entries from history? Downloaded files are not deleted.") % count
+        reply = QMessageBox.question(
+            self,
+            self.tr("Delete records"),
+            msg,
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.No,
+        )
+        if reply != QMessageBox.Yes:
+            return
+        ids = [str((it.data(Qt.UserRole) or {}).get("id")) for it in selected]
+        ids = [i for i in ids if i and i != "None"]
+        try:
+            self.repo.delete_many(ids)
+        except Exception as exc:
+            QMessageBox.warning(self, self.tr("Delete failed"), str(exc))
+            return
+        self.refresh_data()
+
+    def _clear_all(self) -> None:
+        """UI/UX: wipe the whole history in one action (files stay on disk)."""
+        if self.list_widget.count() == 0:
+            return
         from PySide6.QtWidgets import QMessageBox
 
         reply = QMessageBox.question(
             self,
-            self.tr("Delete record"),
-            self.tr("Remove this entry from history? Downloaded files are not deleted."),
+            self.tr("Clear history"),
+            self.tr("Remove ALL entries from history? Downloaded files are not deleted."),
             QMessageBox.Yes | QMessageBox.No,
             QMessageBox.No,
         )
         if reply != QMessageBox.Yes:
             return
         try:
-            self.repo.delete(str(rec.get("id")))
+            self.repo.delete_all()
         except Exception as exc:
             QMessageBox.warning(self, self.tr("Delete failed"), str(exc))
             return

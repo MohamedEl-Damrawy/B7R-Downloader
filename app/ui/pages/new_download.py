@@ -75,14 +75,12 @@ class NewDownloadPage(QWidget):
         self.thumb_label = QLabel(self.tr("Thumbnail preview: none"))
         self.thumb_label.setMinimumHeight(120)
         self.thumb_label.setAlignment(Qt.AlignCenter)
-        self.thumb_label.setStyleSheet(
-            "color: #91A2B5; background-color: #0f1a29; border: 1px solid #2a3c56; border-radius: 8px;"
-        )
+        self.thumb_label.setObjectName("ThumbPreview")
         self.thumb_label.setWordWrap(True)
         form.addRow(self.tr("Thumbnail"), self.thumb_label)
 
         self.preview_label = QLabel(self.tr("Metadata preview will appear here after extraction."))
-        self.preview_label.setStyleSheet("color: #91A2B5;")
+        self.preview_label.setProperty("class", "Subtitle")
         self.preview_label.setWordWrap(True)
         self.preview_label.setTextInteractionFlags(Qt.TextSelectableByMouse)
         form.addRow(self.tr("Preview"), self.preview_label)

@@ -75,6 +75,33 @@ class TestDownloadsRepo(unittest.TestCase):
             self.assertFalse(repo.delete("del1"))  # already gone
             self.assertIsNone(repo.get_by_id("del1"))
 
+    def test_downloads_repo_delete_many_and_all(self):
+        """History bulk cleanup: delete_many removes the given ids; delete_all clears."""
+        with TemporaryDirectory() as td:
+            os.environ["LOCALAPPDATA"] = td
+            import app.core.paths as paths
+            import app.database.migrations as migrations
+            import app.database.repositories.downloads_repo as repo_mod
+
+            importlib.reload(paths)
+            importlib.reload(migrations)
+            importlib.reload(repo_mod)
+
+            migrations.apply_migrations()
+            repo = repo_mod.DownloadsRepository()
+            for tid in ("m1", "m2", "m3", "m4"):
+                repo.upsert(
+                    {"id": tid, "source_url": "https://example.com/v", "status": "Completed",
+                     "progress": 100.0, "created_at": "2026-01-01T00:00:00+00:00"}
+                )
+            self.assertEqual(repo.delete_many(["m1", "m3"]), 2)
+            self.assertIsNone(repo.get_by_id("m1"))
+            self.assertIsNone(repo.get_by_id("m3"))
+            self.assertIsNotNone(repo.get_by_id("m2"))
+            self.assertEqual(repo.delete_many([]), 0)  # no-op guard
+            self.assertEqual(repo.delete_all(), 2)
+            self.assertEqual(repo.list_recent(10), [])
+
     def test_mark_interrupted_marks_active_tasks_failed(self):
         with TemporaryDirectory() as td:
             os.environ["LOCALAPPDATA"] = td
