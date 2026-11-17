@@ -42,6 +42,17 @@ QLabel.Subtitle {
     color: @text_secondary@;
     font-size: 12px;
 }
+/* Explicit base text colors: Qt does not reliably cascade QSS color down
+   every widget chain, so unclassed labels/lists must be covered directly. */
+QLabel {
+    color: @text_main@;
+}
+QListWidget {
+    color: @text_main@;
+}
+QLabel#StatValue {
+    color: @text_main@;
+}
 QLabel#ThumbPreview {
     color: @text_secondary@;
     background-color: #F7FAFC;
