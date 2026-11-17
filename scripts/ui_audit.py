@@ -11,7 +11,7 @@ import sys
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from PySide6.QtWidgets import QApplication, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QApplication, QHBoxLayout, QVBoxLayout, QWidget
 
 from app.ui.theme.style_loader import load_theme_qss
 
@@ -23,6 +23,7 @@ app = QApplication.instance() or QApplication([])
 
 def shots(theme: str) -> None:
     app.setStyleSheet(load_theme_qss(theme))
+    from app.ui.navigation import Sidebar
     from app.ui.pages import completed, dashboard, history, new_download, playlist, queue, settings
 
     pages = []
@@ -40,6 +41,27 @@ def shots(theme: str) -> None:
             pages.append((name, page))
         except Exception as exc:  # noqa: BLE001
             print(f"[{theme}] FAIL init {name}: {exc}")
+
+    # Window-level shot: sidebar + dashboard (checks nav rail, brand, icons).
+    try:
+        win = QWidget()
+        win.setObjectName("Root")
+        wl = QHBoxLayout(win)
+        wl.setContentsMargins(0, 0, 0, 0)
+        wl.setSpacing(0)
+        sb = Sidebar()
+        sb.set_active("dashboard")
+        wl.addWidget(sb)
+        dash = dashboard.DashboardPage()
+        wl.addWidget(dash, 1)
+        win.resize(1280, 800)
+        win.show()
+        app.processEvents()
+        win.grab().save(os.path.join(OUT, f"{theme}_window.png"))
+        win.close()
+        pages.append(("window_only_dashboard", dash))
+    except Exception as exc:  # noqa: BLE001
+        print(f"[{theme}] FAIL window: {exc}")
 
     for name, page in pages:
         # Real app hosts pages inside a QWidget#Root container; replicate so

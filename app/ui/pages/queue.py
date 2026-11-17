@@ -110,8 +110,8 @@ class QueuePage(QWidget):
         super().__init__(parent)
         self._controller = None
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(24, 24, 24, 24)
-        layout.setSpacing(16)
+        layout.setContentsMargins(32, 28, 32, 32)
+        layout.setSpacing(24)
         layout.addWidget(PageHeader(self.tr("Download Queue"), self.tr("Monitor active and queued downloads")))
 
         actions = QHBoxLayout()
@@ -134,7 +134,11 @@ class QueuePage(QWidget):
         self.list_widget = QListWidget()
         self.list_widget.itemSelectionChanged.connect(self._update_action_buttons)
         layout.addWidget(self.list_widget, 1)
-        self.empty = EmptyState(self.tr("Queue is empty"), self.tr("Queued and active downloads will appear here."))
+        self.empty = EmptyState(
+            self.tr("Your queue is clear"),
+            self.tr("Downloads you start will appear here."),
+            icon="\u2193",  # ↓
+        )
         # stretch=1: when the list is hidden, the empty state fills the page
         # instead of leaving a large blank area above a bottom-pinned card.
         layout.addWidget(self.empty, 1)

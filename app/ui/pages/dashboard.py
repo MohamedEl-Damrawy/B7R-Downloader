@@ -23,8 +23,8 @@ class DashboardPage(QWidget):
         self.repo = DownloadsRepository()
         self.on_quick_download = None
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(24, 24, 24, 24)
-        layout.setSpacing(16)
+        layout.setContentsMargins(32, 28, 32, 32)
+        layout.setSpacing(24)
 
         header_row = QHBoxLayout()
         header = PageHeader(self.tr("Dashboard"), self.tr("Overview of downloads and recent activity"))
@@ -50,7 +50,11 @@ class DashboardPage(QWidget):
         layout.addWidget(QLabel(self.tr("Recent activity")))
         self.recent_list = QListWidget()
         layout.addWidget(self.recent_list, 1)
-        self.empty = EmptyState(self.tr("No recent activity"), self.tr("Start a new download to see activity here."))
+        self.empty = EmptyState(
+            self.tr("Nothing here yet"),
+            self.tr("Your recent activity will appear here."),
+            icon="\u25F7",  # ◷
+        )
         # stretch=1: when the list is hidden, the empty state fills the page
         # instead of leaving a large blank area above a bottom-pinned card.
         layout.addWidget(self.empty, 1)

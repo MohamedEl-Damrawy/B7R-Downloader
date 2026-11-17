@@ -78,8 +78,8 @@ class SettingsPage(QWidget):
         super().__init__(parent)
         self.settings = SettingsService()
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(24, 24, 24, 24)
-        layout.setSpacing(16)
+        layout.setContentsMargins(32, 28, 32, 32)
+        layout.setSpacing(24)
         layout.addWidget(
             PageHeader(self.tr("Settings"), self.tr("Configure defaults, concurrency, and application information"))
         )

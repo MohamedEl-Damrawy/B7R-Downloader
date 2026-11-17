@@ -19,7 +19,7 @@ class TestThemeLoading(unittest.TestCase):
         qss = load_theme_qss("dark")
         self.assertTrue(qss)
         self.assertNotIn("@", qss)  # all tokens resolved
-        self.assertIn("#0B1018", qss)  # dark main background
+        self.assertIn("#111820", qss)  # dark main background
 
     def test_load_dark_qss_alias(self):
         self.assertEqual(load_dark_qss(), load_theme_qss("dark"))
@@ -29,7 +29,7 @@ class TestThemeLoading(unittest.TestCase):
         self.assertTrue(qss)
         self.assertNotIn("@", qss)
         self.assertIn(palette_mod.LIGHT_PALETTE["main_bg"], qss)
-        self.assertNotIn("#0B1018", qss)  # dark background must not leak in
+        self.assertNotIn("#111820", qss)  # dark background must not leak in
 
     def test_unknown_theme_falls_back_to_dark(self):
         self.assertEqual(load_theme_qss("nonsense"), load_theme_qss("dark"))

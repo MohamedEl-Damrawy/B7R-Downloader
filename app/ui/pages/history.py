@@ -29,8 +29,8 @@ class HistoryPage(QWidget):
         self.repo = DownloadsRepository()
         self._controller = None
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(24, 24, 24, 24)
-        layout.setSpacing(16)
+        layout.setContentsMargins(32, 28, 32, 32)
+        layout.setSpacing(24)
         layout.addWidget(PageHeader(self.tr("History"), self.tr("Past download attempts and outcomes")))
 
         # FEAT-11: client-side search over the loaded history.
@@ -65,7 +65,11 @@ class HistoryPage(QWidget):
         self.list_widget.setSelectionMode(QAbstractItemView.ExtendedSelection)
         self.list_widget.itemSelectionChanged.connect(self._update_actions)
         layout.addWidget(self.list_widget, 1)
-        self.empty = EmptyState(self.tr("No history yet"), self.tr("Download history will appear here."))
+        self.empty = EmptyState(
+            self.tr("No download history"),
+            self.tr("Finished and failed downloads will appear here."),
+            icon="\u21B6",  # ↶
+        )
         # stretch=1: fills the page when the list is hidden (no blank void).
         layout.addWidget(self.empty, 1)
         self._update_actions()

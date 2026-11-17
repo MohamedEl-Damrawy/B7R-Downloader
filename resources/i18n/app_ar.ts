@@ -36,37 +36,45 @@
       <translation>فتح المجلد</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/completed.py" line="36" />
       <source>No completed downloads</source>
-      <translation>لا توجد تنزيلات مكتملة</translation>
+      <translation type="vanished">لا توجد تنزيلات مكتملة</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/completed.py" line="36" />
       <source>Completed items will be listed here.</source>
-      <translation>ستظهر العناصر المكتملة هنا.</translation>
+      <translation type="vanished">ستظهر العناصر المكتملة هنا.</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/completed.py" line="72" />
+      <location filename="../../app/ui/pages/completed.py" line="37" />
+      <source>Nothing completed yet</source>
+      <translation>لا توجد تنزيلات مكتملة بعد</translation>
+    </message>
+    <message>
+      <location filename="../../app/ui/pages/completed.py" line="38" />
+      <source>Your completed downloads will appear here.</source>
+      <translation>ستظهر هنا التنزيلات التي اكتملت.</translation>
+    </message>
+    <message>
+      <location filename="../../app/ui/pages/completed.py" line="77" />
       <source>No path</source>
       <translation>لا يوجد مسار</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/completed.py" line="72" />
+      <location filename="../../app/ui/pages/completed.py" line="77" />
       <source>No output folder is recorded for this item.</source>
       <translation>لا يوجد مجلد إخراج مسجل لهذا العنصر.</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/completed.py" line="80" />
+      <location filename="../../app/ui/pages/completed.py" line="85" />
       <source>Not found</source>
       <translation>غير موجود</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/completed.py" line="80" />
+      <location filename="../../app/ui/pages/completed.py" line="85" />
       <source>The output folder could not be found.</source>
       <translation>تعذر العثور على مجلد الإخراج.</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/completed.py" line="90" />
+      <location filename="../../app/ui/pages/completed.py" line="95" />
       <source>Open failed</source>
       <translation>فشل الفتح</translation>
     </message>
@@ -114,14 +122,22 @@
       <translation>النشاط الأخير</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/dashboard.py" line="53" />
-      <source>No recent activity</source>
-      <translation>لا يوجد نشاط أخير</translation>
+      <location filename="../../app/ui/pages/dashboard.py" line="54" />
+      <source>Nothing here yet</source>
+      <translation>لا يوجد نشاط بعد</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/dashboard.py" line="53" />
+      <location filename="../../app/ui/pages/dashboard.py" line="55" />
+      <source>Your recent activity will appear here.</source>
+      <translation>سيظهر نشاطك الأخير هنا.</translation>
+    </message>
+    <message>
+      <source>No recent activity</source>
+      <translation type="vanished">لا يوجد نشاط أخير</translation>
+    </message>
+    <message>
       <source>Start a new download to see activity here.</source>
-      <translation>ابدأ تنزيلاً جديداً ليظهر النشاط هنا.</translation>
+      <translation type="vanished">ابدأ تنزيلاً جديداً ليظهر النشاط هنا.</translation>
     </message>
   </context>
   <context>
@@ -156,14 +172,12 @@
       <translation type="vanished">حذف السجل</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/history.py" line="68" />
       <source>No history yet</source>
-      <translation>لا يوجد سجل بعد</translation>
+      <translation type="vanished">لا يوجد سجل بعد</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/history.py" line="68" />
       <source>Download history will appear here.</source>
-      <translation>سيظهر سجل التنزيلات هنا.</translation>
+      <translation type="vanished">سيظهر سجل التنزيلات هنا.</translation>
     </message>
     <message>
       <source>Delete record</source>
@@ -180,63 +194,73 @@
       <translation>مسح الكل</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/history.py" line="129" />
+      <location filename="../../app/ui/pages/history.py" line="69" />
+      <source>No download history</source>
+      <translation>لا يوجد سجل للتنزيلات</translation>
+    </message>
+    <message>
+      <location filename="../../app/ui/pages/history.py" line="70" />
+      <source>Finished and failed downloads will appear here.</source>
+      <translation>ستظهر هنا التنزيلات المكتملة والفاشلة.</translation>
+    </message>
+    <message>
+      <location filename="../../app/ui/pages/history.py" line="134" />
       <source>Remove this entry from history? Downloaded files are not deleted.</source>
       <translation>إزالة هذا الإدخال من السجل؟ الملفات المنزّلة لن تُحذف.</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/history.py" line="131" />
+      <location filename="../../app/ui/pages/history.py" line="136" />
       <source>Remove %d selected entries from history? Downloaded files are not deleted.</source>
       <translation>إزالة %d من العناصر المحددة من السجل؟ الملفات المحملة لن تُحذف.</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/history.py" line="134" />
+      <location filename="../../app/ui/pages/history.py" line="139" />
       <source>Delete records</source>
       <translation>حذف السجلات</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/history.py" line="146" />
-      <location filename="../../app/ui/pages/history.py" line="168" />
+      <location filename="../../app/ui/pages/history.py" line="151" />
+      <location filename="../../app/ui/pages/history.py" line="173" />
       <source>Delete failed</source>
       <translation>فشل الحذف</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/history.py" line="158" />
+      <location filename="../../app/ui/pages/history.py" line="163" />
       <source>Clear history</source>
       <translation>مسح السجل</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/history.py" line="159" />
+      <location filename="../../app/ui/pages/history.py" line="164" />
       <source>Remove ALL entries from history? Downloaded files are not deleted.</source>
       <translation>إزالة كل العناصر من السجل؟ الملفات المحملة لن تُحذف.</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/history.py" line="179" />
+      <location filename="../../app/ui/pages/history.py" line="184" />
       <source>No path</source>
       <translation>لا يوجد مسار</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/history.py" line="179" />
+      <location filename="../../app/ui/pages/history.py" line="184" />
       <source>No output folder is recorded for this item.</source>
       <translation>لا يوجد مجلد إخراج مسجل لهذا العنصر.</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/history.py" line="186" />
+      <location filename="../../app/ui/pages/history.py" line="191" />
       <source>Not found</source>
       <translation>غير موجود</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/history.py" line="186" />
+      <location filename="../../app/ui/pages/history.py" line="191" />
       <source>The output folder could not be found.</source>
       <translation>تعذر العثور على مجلد الإخراج.</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/history.py" line="196" />
+      <location filename="../../app/ui/pages/history.py" line="201" />
       <source>Open failed</source>
       <translation>فشل الفتح</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/history.py" line="209" />
+      <location filename="../../app/ui/pages/history.py" line="214" />
       <source>Retry failed</source>
       <translation>فشلت إعادة المحاولة</translation>
     </message>
@@ -354,108 +378,112 @@ Retry them now?</source>
     </message>
     <message>
       <location filename="../../app/ui/pages/new_download.py" line="75" />
-      <location filename="../../app/ui/pages/new_download.py" line="317" />
+      <location filename="../../app/ui/pages/new_download.py" line="320" />
       <source>Thumbnail preview: none</source>
       <translation>معاينة الصورة المصغرة: لا شيء</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/new_download.py" line="80" />
+      <location filename="../../app/ui/pages/new_download.py" line="81" />
       <source>Thumbnail</source>
       <translation>الصورة المصغرة</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/new_download.py" line="82" />
       <source>Metadata preview will appear here after extraction.</source>
-      <translation>ستظهر معاينة البيانات الوصفية هنا بعد الاستخراج.</translation>
+      <translation type="vanished">ستظهر معاينة البيانات الوصفية هنا بعد الاستخراج.</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/new_download.py" line="86" />
+      <location filename="../../app/ui/pages/new_download.py" line="84" />
+      <source>No preview yet — paste a video link and extract its details to see a preview.</source>
+      <translation>لا توجد معاينة بعد — ألصق رابط فيديو واستخرج تفاصيله لعرض المعاينة.</translation>
+    </message>
+    <message>
+      <location filename="../../app/ui/pages/new_download.py" line="89" />
       <source>Preview</source>
       <translation>المعاينة</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/new_download.py" line="89" />
+      <location filename="../../app/ui/pages/new_download.py" line="92" />
       <source>Extract Metadata</source>
       <translation>استخراج البيانات</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/new_download.py" line="91" />
+      <location filename="../../app/ui/pages/new_download.py" line="94" />
       <source>Download</source>
       <translation>تنزيل</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/new_download.py" line="108" />
+      <location filename="../../app/ui/pages/new_download.py" line="111" />
       <source>Best available (recommended)</source>
       <translation>أفضل متاح (موصى به)</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/new_download.py" line="109" />
+      <location filename="../../app/ui/pages/new_download.py" line="112" />
       <source>1080p (if available)</source>
       <translation>‏1080p (إن توفرت)</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/new_download.py" line="110" />
+      <location filename="../../app/ui/pages/new_download.py" line="113" />
       <source>720p (if available)</source>
       <translation>‏720p (إن توفرت)</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/new_download.py" line="111" />
+      <location filename="../../app/ui/pages/new_download.py" line="114" />
       <source>480p (if available)</source>
       <translation>‏480p (إن توفرت)</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/new_download.py" line="113" />
+      <location filename="../../app/ui/pages/new_download.py" line="116" />
       <source>Audio only — MP3</source>
       <translation>صوت فقط — MP3</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/new_download.py" line="114" />
+      <location filename="../../app/ui/pages/new_download.py" line="117" />
       <source>Audio only — M4A</source>
       <translation>صوت فقط — M4A</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/new_download.py" line="137" />
+      <location filename="../../app/ui/pages/new_download.py" line="140" />
       <source>Select download folder</source>
       <translation>اختر مجلد التنزيلات</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/new_download.py" line="146" />
+      <location filename="../../app/ui/pages/new_download.py" line="149" />
       <source>Missing URL</source>
       <translation>الرابط مفقود</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/new_download.py" line="147" />
+      <location filename="../../app/ui/pages/new_download.py" line="150" />
       <source>Please enter a supported video or playlist URL.</source>
       <translation>أدخل رابط فيديو أو قائمة تشغيل مدعومة.</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/new_download.py" line="152" />
+      <location filename="../../app/ui/pages/new_download.py" line="155" />
       <source>Invalid URL</source>
       <translation>رابط غير صالح</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/new_download.py" line="152" />
+      <location filename="../../app/ui/pages/new_download.py" line="155" />
       <source>Please enter a valid http(s) URL.</source>
       <translation>أدخل رابط http(s) صالحاً.</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/new_download.py" line="157" />
-      <location filename="../../app/ui/pages/new_download.py" line="247" />
+      <location filename="../../app/ui/pages/new_download.py" line="160" />
+      <location filename="../../app/ui/pages/new_download.py" line="250" />
       <source>Unavailable</source>
       <translation>غير متاح</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/new_download.py" line="158" />
+      <location filename="../../app/ui/pages/new_download.py" line="161" />
       <source>Metadata controller is not initialized.</source>
       <translation>متحكم البيانات الوصفية غير مهيأ.</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/new_download.py" line="166" />
+      <location filename="../../app/ui/pages/new_download.py" line="169" />
       <source>Extracting metadata...</source>
       <translation>جارٍ استخراج البيانات...</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/new_download.py" line="181" />
+      <location filename="../../app/ui/pages/new_download.py" line="184" />
       <source>Playlist detected: %s
 Entries: %d%s
 URL: %s
@@ -468,22 +496,22 @@ Open Playlists to review and select items.</source>
 افتح «قوائم التشغيل» لمراجعة العناصر واختيارها.</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/new_download.py" line="217" />
+      <location filename="../../app/ui/pages/new_download.py" line="220" />
       <source>Duration: %d:%02d:%02d</source>
       <translation>المدة: %d:%02d:%02d</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/new_download.py" line="218" />
+      <location filename="../../app/ui/pages/new_download.py" line="221" />
       <source>Duration: %d:%02d</source>
       <translation>المدة: %d:%02d</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/new_download.py" line="223" />
+      <location filename="../../app/ui/pages/new_download.py" line="226" />
       <source>Uploader: %s</source>
       <translation>الرافع: %s</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/new_download.py" line="227" />
+      <location filename="../../app/ui/pages/new_download.py" line="230" />
       <source>Title: %s
 URL: %s%s
 Formats found: %d
@@ -494,107 +522,107 @@ Quality selection uses sensible fallbacks when requested quality is unavailable.
 اختيار الجودة يستخدم بدائل منطقية عند عدم توفر الجودة المطلوبة.</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/new_download.py" line="234" />
+      <location filename="../../app/ui/pages/new_download.py" line="237" />
       <source>No metadata could be extracted.</source>
       <translation>تعذر استخراج أي بيانات وصفية.</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/new_download.py" line="239" />
+      <location filename="../../app/ui/pages/new_download.py" line="242" />
       <source>Thumbnail: available</source>
       <translation>الصورة المصغرة: متاحة</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/new_download.py" line="239" />
+      <location filename="../../app/ui/pages/new_download.py" line="242" />
       <source>Thumbnail: not available</source>
       <translation>الصورة المصغرة: غير متاحة</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/new_download.py" line="244" />
+      <location filename="../../app/ui/pages/new_download.py" line="247" />
       <source>Not ready</source>
       <translation>غير جاهز</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/new_download.py" line="244" />
+      <location filename="../../app/ui/pages/new_download.py" line="247" />
       <source>Extract video metadata first.</source>
       <translation>استخرج بيانات الفيديو أولاً.</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/new_download.py" line="247" />
+      <location filename="../../app/ui/pages/new_download.py" line="250" />
       <source>Download controller is not available.</source>
       <translation>متحكم التنزيل غير متاح.</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/new_download.py" line="257" />
+      <location filename="../../app/ui/pages/new_download.py" line="260" />
       <source>Invalid output folder</source>
       <translation>مجلد إخراج غير صالح</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/new_download.py" line="257" />
+      <location filename="../../app/ui/pages/new_download.py" line="260" />
       <source>Cannot use output folder:
 %s</source>
       <translation>تعذر استخدام مجلد الإخراج:
 %s</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/new_download.py" line="264" />
+      <location filename="../../app/ui/pages/new_download.py" line="267" />
       <source>FFmpeg not detected</source>
       <translation>لم يتم العثور على FFmpeg</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/new_download.py" line="265" />
+      <location filename="../../app/ui/pages/new_download.py" line="268" />
       <source>FFmpeg/FFprobe were not found. Some downloads or merges may fail.
 Continue anyway?</source>
       <translation>لم يتم العثور على FFmpeg/FFprobe. قد تفشل بعض التنزيلات أو عمليات الدمج.
 المتابعة على أي حال؟</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/new_download.py" line="284" />
+      <location filename="../../app/ui/pages/new_download.py" line="287" />
       <source>Queued download task: %s</source>
       <translation>تمت جدولة مهمة التنزيل: %s</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/new_download.py" line="293" />
+      <location filename="../../app/ui/pages/new_download.py" line="296" />
       <source>Download Error</source>
       <translation>خطأ في التنزيل</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/new_download.py" line="294" />
+      <location filename="../../app/ui/pages/new_download.py" line="297" />
       <source>Download failed.</source>
       <translation>فشل التنزيل.</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/new_download.py" line="298" />
+      <location filename="../../app/ui/pages/new_download.py" line="301" />
       <source>Failed to extract metadata.</source>
       <translation>فشل استخراج البيانات الوصفية.</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/new_download.py" line="299" />
+      <location filename="../../app/ui/pages/new_download.py" line="302" />
       <source>Metadata Error</source>
       <translation>خطأ في البيانات الوصفية</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/new_download.py" line="299" />
+      <location filename="../../app/ui/pages/new_download.py" line="302" />
       <source>Unable to extract metadata.</source>
       <translation>تعذر استخراج البيانات الوصفية.</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/new_download.py" line="320" />
+      <location filename="../../app/ui/pages/new_download.py" line="323" />
       <source>Thumbnail: available (loading preview...)</source>
       <translation>الصورة المصغرة: متاحة (جارٍ تحميل المعاينة...)</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/new_download.py" line="326" />
+      <location filename="../../app/ui/pages/new_download.py" line="329" />
       <source>Thumbnail: available (preview requires network-capable runtime)</source>
       <translation>الصورة المصغرة: متاحة (المعاينة تتطلب بيئة تدعم الشبكة)</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/new_download.py" line="343" />
+      <location filename="../../app/ui/pages/new_download.py" line="346" />
       <source>Thumbnail: available (preview too large)</source>
       <translation>الصورة المصغرة: متاحة (المعاينة كبيرة جداً)</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/new_download.py" line="351" />
-      <location filename="../../app/ui/pages/new_download.py" line="353" />
+      <location filename="../../app/ui/pages/new_download.py" line="354" />
+      <location filename="../../app/ui/pages/new_download.py" line="356" />
       <source>Thumbnail: available (could not render)</source>
       <translation>الصورة المصغرة: متاحة (تعذر عرضها)</translation>
     </message>
@@ -622,235 +650,239 @@ Continue anyway?</source>
       <translation>تحميل</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/playlist.py" line="48" />
+      <location filename="../../app/ui/pages/playlist.py" line="50" />
       <source>Quality:</source>
       <translation>الجودة:</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/playlist.py" line="50" />
+      <location filename="../../app/ui/pages/playlist.py" line="52" />
       <source>Best available</source>
       <translation>أفضل متاح</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/playlist.py" line="51" />
+      <location filename="../../app/ui/pages/playlist.py" line="53" />
       <source>1080p (if available)</source>
       <translation>‏1080p (إن توفرت)</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/playlist.py" line="52" />
+      <location filename="../../app/ui/pages/playlist.py" line="54" />
       <source>720p (if available)</source>
       <translation>‏720p (إن توفرت)</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/playlist.py" line="53" />
+      <location filename="../../app/ui/pages/playlist.py" line="55" />
       <source>480p (if available)</source>
       <translation>‏480p (إن توفرت)</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/playlist.py" line="55" />
+      <location filename="../../app/ui/pages/playlist.py" line="57" />
       <source>Audio only — MP3</source>
       <translation>صوت فقط — MP3</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/playlist.py" line="56" />
+      <location filename="../../app/ui/pages/playlist.py" line="58" />
       <source>Audio only — M4A</source>
       <translation>صوت فقط — M4A</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/playlist.py" line="58" />
+      <location filename="../../app/ui/pages/playlist.py" line="60" />
       <source>Output:</source>
       <translation>المخرجات:</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/playlist.py" line="60" />
+      <location filename="../../app/ui/pages/playlist.py" line="62" />
       <source>Default download folder</source>
       <translation>مجلد التنزيلات الافتراضي</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/playlist.py" line="65" />
+      <location filename="../../app/ui/pages/playlist.py" line="71" />
       <source>Refresh Status</source>
       <translation>تحديث الحالة</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/playlist.py" line="66" />
+      <location filename="../../app/ui/pages/playlist.py" line="72" />
       <source>Select All</source>
       <translation>تحديد الكل</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/playlist.py" line="67" />
+      <location filename="../../app/ui/pages/playlist.py" line="73" />
       <source>Deselect All</source>
       <translation>إلغاء تحديد الكل</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/playlist.py" line="68" />
+      <location filename="../../app/ui/pages/playlist.py" line="74" />
       <source>Retry Failed</source>
       <translation>إعادة المحاولة للفاشلة</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/playlist.py" line="69" />
+      <location filename="../../app/ui/pages/playlist.py" line="75" />
       <source>Download Selected</source>
       <translation>تنزيل المحدد</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/playlist.py" line="72" />
-      <location filename="../../app/ui/pages/playlist.py" line="318" />
+      <location filename="../../app/ui/pages/playlist.py" line="78" />
+      <location filename="../../app/ui/pages/playlist.py" line="329" />
       <source>Selected: %d</source>
       <translation>المحدد: %d</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/playlist.py" line="86" />
-      <location filename="../../app/ui/pages/playlist.py" line="226" />
+      <location filename="../../app/ui/pages/playlist.py" line="92" />
+      <location filename="../../app/ui/pages/playlist.py" line="237" />
       <source>No playlist loaded.</source>
       <translation>لا توجد قائمة تشغيل محمّلة.</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/playlist.py" line="96" />
+      <location filename="../../app/ui/pages/playlist.py" line="102" />
       <source>No playlist loaded</source>
       <translation>لا توجد قائمة تشغيل محمّلة</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/playlist.py" line="97" />
       <source>Paste a playlist URL in New Download to inspect entries.</source>
-      <translation>الصق رابط قائمة تشغيل في «تنزيل جديد» لاستعراض العناصر.</translation>
+      <translation type="vanished">الصق رابط قائمة تشغيل في «تنزيل جديد» لاستعراض العناصر.</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/playlist.py" line="122" />
+      <location filename="../../app/ui/pages/playlist.py" line="103" />
+      <source>Choose a saved playlist and select Load to view its videos.</source>
+      <translation>اختر قائمة محفوظة ثم اضغط تحميل لعرض مقاطعها.</translation>
+    </message>
+    <message>
+      <location filename="../../app/ui/pages/playlist.py" line="133" />
       <source>Select a saved playlist...</source>
       <translation>اختر قائمة تشغيل محفوظة...</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/playlist.py" line="141" />
+      <location filename="../../app/ui/pages/playlist.py" line="152" />
       <source>Select playlist</source>
       <translation>اختر قائمة تشغيل</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/playlist.py" line="141" />
+      <location filename="../../app/ui/pages/playlist.py" line="152" />
       <source>Choose a saved playlist to load.</source>
       <translation>اختر قائمة تشغيل محفوظة لتحميلها.</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/playlist.py" line="147" />
+      <location filename="../../app/ui/pages/playlist.py" line="158" />
       <source>Not found</source>
       <translation>غير موجود</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/playlist.py" line="147" />
+      <location filename="../../app/ui/pages/playlist.py" line="158" />
       <source>Saved playlist could not be found.</source>
       <translation>تعذر العثور على قائمة التشغيل المحفوظة.</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/playlist.py" line="184" />
-      <location filename="../../app/ui/pages/playlist.py" line="375" />
+      <location filename="../../app/ui/pages/playlist.py" line="195" />
+      <location filename="../../app/ui/pages/playlist.py" line="386" />
       <source>Error</source>
       <translation>خطأ</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/playlist.py" line="184" />
+      <location filename="../../app/ui/pages/playlist.py" line="195" />
       <source>Failed to load saved playlist: %s</source>
       <translation>فشل تحميل قائمة التشغيل المحفوظة: %s</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/playlist.py" line="206" />
+      <location filename="../../app/ui/pages/playlist.py" line="217" />
       <source> (Unavailable)</source>
       <translation> (غير متاح)</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/playlist.py" line="237" />
+      <location filename="../../app/ui/pages/playlist.py" line="248" />
       <source>%s   -   %d entries</source>
       <translation>%s   -   %d عنصراً</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/playlist.py" line="241" />
-      <location filename="../../app/ui/pages/playlist.py" line="288" />
+      <location filename="../../app/ui/pages/playlist.py" line="252" />
+      <location filename="../../app/ui/pages/playlist.py" line="299" />
       <source>Untitled</source>
       <translation>بدون عنوان</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/playlist.py" line="328" />
+      <location filename="../../app/ui/pages/playlist.py" line="339" />
       <source>No selection</source>
       <translation>لا يوجد تحديد</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/playlist.py" line="329" />
+      <location filename="../../app/ui/pages/playlist.py" line="340" />
       <source>Select at least one available playlist item.</source>
       <translation>حدد عنصراً واحداً متاحاً على الأقل من قائمة التشغيل.</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/playlist.py" line="340" />
+      <location filename="../../app/ui/pages/playlist.py" line="351" />
       <source>Invalid output folder</source>
       <translation>مجلد إخراج غير صالح</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/playlist.py" line="340" />
+      <location filename="../../app/ui/pages/playlist.py" line="351" />
       <source>Cannot use output folder:
 %s</source>
       <translation>تعذر استخدام مجلد الإخراج:
 %s</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/playlist.py" line="347" />
+      <location filename="../../app/ui/pages/playlist.py" line="358" />
       <source>FFmpeg not detected</source>
       <translation>لم يتم العثور على FFmpeg</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/playlist.py" line="348" />
+      <location filename="../../app/ui/pages/playlist.py" line="359" />
       <source>FFmpeg/FFprobe were not found. Some downloads or merges may fail.
 Continue anyway?</source>
       <translation>لم يتم العثور على FFmpeg/FFprobe. قد تفشل بعض التنزيلات أو عمليات الدمج.
 المتابعة على أي حال؟</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/playlist.py" line="370" />
+      <location filename="../../app/ui/pages/playlist.py" line="381" />
       <source>Downloads queued</source>
       <translation>تمت جدولة التنزيلات</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/playlist.py" line="371" />
+      <location filename="../../app/ui/pages/playlist.py" line="382" />
       <source>Queued %d selected item(s).</source>
       <translation>تمت جدولة %d عنصراً محدداً.</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/playlist.py" line="381" />
+      <location filename="../../app/ui/pages/playlist.py" line="392" />
       <source>Unavailable</source>
       <translation>غير متاح</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/playlist.py" line="382" />
+      <location filename="../../app/ui/pages/playlist.py" line="393" />
       <source>Load a playlist and ensure controller is ready.</source>
       <translation>حمّل قائمة تشغيل وتأكد من جاهزية المتحكم.</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/playlist.py" line="389" />
+      <location filename="../../app/ui/pages/playlist.py" line="400" />
       <source>Not saved</source>
       <translation>غير محفوظة</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/playlist.py" line="390" />
+      <location filename="../../app/ui/pages/playlist.py" line="401" />
       <source>Playlist must be saved/loaded with an ID to retry items.</source>
       <translation>يجب حفظ/تحميل قائمة التشغيل بمعرّف لإعادة محاولة عناصرها.</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/playlist.py" line="416" />
+      <location filename="../../app/ui/pages/playlist.py" line="427" />
       <source>Nothing to retry</source>
       <translation>لا شيء لإعادة المحاولة</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/playlist.py" line="417" />
+      <location filename="../../app/ui/pages/playlist.py" line="428" />
       <source>No failed or cancelled items to retry.</source>
       <translation>لا توجد عناصر فاشلة أو ملغاة لإعادة المحاولة.</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/playlist.py" line="435" />
+      <location filename="../../app/ui/pages/playlist.py" line="446" />
       <source>Queued retry for %d item(s).</source>
       <translation>تمت جدولة إعادة المحاولة لـ %d عنصراً.</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/playlist.py" line="437" />
+      <location filename="../../app/ui/pages/playlist.py" line="448" />
       <source>%d item(s) had no previous download task to retry.</source>
       <translation>%d عنصراً ليس لها مهمة تنزيل سابقة لإعادة المحاولة.</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/playlist.py" line="438" />
+      <location filename="../../app/ui/pages/playlist.py" line="449" />
       <source>Retry</source>
       <translation>إعادة المحاولة</translation>
     </message>
@@ -926,37 +958,45 @@ Continue anyway?</source>
       <translation>مسح المنتهية</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/queue.py" line="137" />
+      <location filename="../../app/ui/pages/queue.py" line="138" />
+      <source>Your queue is clear</source>
+      <translation>قائمة التنزيلات فارغة</translation>
+    </message>
+    <message>
+      <location filename="../../app/ui/pages/queue.py" line="139" />
+      <source>Downloads you start will appear here.</source>
+      <translation>ستظهر هنا التنزيلات التي تبدأها.</translation>
+    </message>
+    <message>
       <source>Queue is empty</source>
-      <translation>الطابور فارغ</translation>
+      <translation type="vanished">الطابور فارغ</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/queue.py" line="137" />
       <source>Queued and active downloads will appear here.</source>
-      <translation>ستظهر التنزيلات المجدولة والنشطة هنا.</translation>
+      <translation type="vanished">ستظهر التنزيلات المجدولة والنشطة هنا.</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/queue.py" line="244" />
+      <location filename="../../app/ui/pages/queue.py" line="250" />
       <source>No path</source>
       <translation>لا يوجد مسار</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/queue.py" line="244" />
+      <location filename="../../app/ui/pages/queue.py" line="250" />
       <source>No output folder is recorded for this item.</source>
       <translation>لا يوجد مجلد إخراج مسجل لهذا العنصر.</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/queue.py" line="251" />
+      <location filename="../../app/ui/pages/queue.py" line="257" />
       <source>Not found</source>
       <translation>غير موجود</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/queue.py" line="251" />
+      <location filename="../../app/ui/pages/queue.py" line="257" />
       <source>The output folder could not be found.</source>
       <translation>تعذر العثور على مجلد الإخراج.</translation>
     </message>
     <message>
-      <location filename="../../app/ui/pages/queue.py" line="261" />
+      <location filename="../../app/ui/pages/queue.py" line="267" />
       <source>Open failed</source>
       <translation>فشل الفتح</translation>
     </message>
@@ -1218,42 +1258,42 @@ Installed: %s</source>
   <context>
     <name>Sidebar</name>
     <message>
-      <location filename="../../app/ui/navigation.py" line="25" />
+      <location filename="../../app/ui/navigation.py" line="38" />
       <source>Premium Download Manager</source>
       <translation>مدير تنزيلات متكامل</translation>
     </message>
     <message>
-      <location filename="../../app/ui/navigation.py" line="33" />
+      <location filename="../../app/ui/navigation.py" line="45" />
       <source>Dashboard</source>
       <translation>الرئيسية</translation>
     </message>
     <message>
-      <location filename="../../app/ui/navigation.py" line="34" />
+      <location filename="../../app/ui/navigation.py" line="46" />
       <source>New Download</source>
       <translation>تنزيل جديد</translation>
     </message>
     <message>
-      <location filename="../../app/ui/navigation.py" line="35" />
+      <location filename="../../app/ui/navigation.py" line="47" />
       <source>Playlists</source>
       <translation>قوائم التشغيل</translation>
     </message>
     <message>
-      <location filename="../../app/ui/navigation.py" line="36" />
+      <location filename="../../app/ui/navigation.py" line="48" />
       <source>Download Queue</source>
       <translation>طابور التنزيل</translation>
     </message>
     <message>
-      <location filename="../../app/ui/navigation.py" line="37" />
+      <location filename="../../app/ui/navigation.py" line="49" />
       <source>Completed</source>
       <translation>مكتملة</translation>
     </message>
     <message>
-      <location filename="../../app/ui/navigation.py" line="38" />
+      <location filename="../../app/ui/navigation.py" line="50" />
       <source>History</source>
       <translation>السجل</translation>
     </message>
     <message>
-      <location filename="../../app/ui/navigation.py" line="39" />
+      <location filename="../../app/ui/navigation.py" line="51" />
       <source>Settings</source>
       <translation>الإعدادات</translation>
     </message>

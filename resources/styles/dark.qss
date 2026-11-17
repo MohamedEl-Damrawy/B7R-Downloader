@@ -1,216 +1,324 @@
-/* Velo Downloader - Premium Modern Dark */
+/* VeloDownloader — dark theme (design-spec v1.0)
+   Tokens are resolved at load time from app.ui.theme.palette.PALETTE. */
+
+/* ---------- Root / pages ---------- */
 QMainWindow, QWidget#Root {
     background-color: @main_bg@;
     color: @text_main@;
     font-family: @font_family@;
     font-size: @font_size@;
 }
-QWidget#Sidebar {
-    background-color: @sidebar@;
-    border-right: 1px solid #1e2c40;
+QWidget#Sidebar QLabel {
+    color: @text_main@;
+    background: transparent;
 }
 QWidget#Sidebar QLabel#BrandTitle {
-    color: @text_main@;
+    font-size: 16px;
+    font-weight: 600;
 }
+QWidget#Sidebar QLabel#BrandSubtitle {
+    color: @text_secondary@;
+    font-size: 11px;
+}
+
+/* ---------- Navigation ---------- */
 QPushButton.NavButton {
     background: transparent;
     color: @text_secondary@;
     border: none;
-    border-radius: 8px;
-    padding: 10px 14px;
-    /* no explicit text-align: default alignment follows layout direction (RTL-aware) */
+    border-radius: 6px;
+    padding: 10px 12px;
+    min-height: 24px;
+    /* alignment set in code (direction-aware); Qt QSS lacks text-align:start */
 }
 QPushButton.NavButton:hover {
-    background-color: @card@;
+    background-color: @surface_muted@;
     color: @text_main@;
 }
 QPushButton.NavButton[active="true"] {
-    background-color: @secondary@;
-    color: @text_main@;
+    background-color: @surface_selected@;
+    color: @primary@;
+    font-weight: 600;
 }
+QPushButton.NavButton:disabled {
+    color: @text_disabled@;
+}
+
+/* ---------- Cards / surfaces ---------- */
 QFrame.Card, QWidget.Card {
     background-color: @card@;
-    border: 1px solid #2E425E;
+    border: 1px solid @border@;
+    border-radius: 10px;
+}
+/* Empty-state card: slightly rounder and roomier than a plain card. */
+QFrame#EmptyCard {
     border-radius: 12px;
 }
 QLabel.Title {
-    font-size: 20px;
+    font-size: 24px;
     font-weight: 600;
     color: @text_main@;
 }
 QLabel.Subtitle {
     color: @text_secondary@;
-    font-size: 12px;
+    font-size: 13px;
 }
-/* Explicit base text colors: Qt does not reliably cascade QSS color down
-   every widget chain, so unclassed labels/lists must be covered directly. */
+QLabel.EmptyTitle {
+    font-size: 17px;
+    font-weight: 600;
+    color: @text_main@;
+}
+QLabel#EmptyIcon {
+    font-size: 40px;
+    color: @text_secondary@;
+}
+/* Explicit base text colors: Qt does not reliably cascade QSS color
+   down every widget chain, so unclassed labels/lists need direct rules. */
 QLabel {
     color: @text_main@;
+    background: transparent;
 }
 QListWidget {
     color: @text_main@;
 }
 QLabel#StatValue {
+    font-size: 27px;
+    font-weight: 600;
     color: @text_main@;
 }
 QLabel#ThumbPreview {
     color: @text_secondary@;
-    background-color: #0f1a29;
-    border: 1px solid #2a3c56;
-    border-radius: 8px;
-}
-QLineEdit, QComboBox, QTextEdit, QSpinBox {
-    background-color: #0f1a29;
-    border: 1px solid #2a3c56;
-    border-radius: 8px;
-    padding: 8px 10px;
-    color: @text_main@;
-}
-QLineEdit:focus, QComboBox:focus, QTextEdit:focus, QSpinBox:focus {
-    border: 1px solid @primary@;
-}
-QComboBox QAbstractItemView {
-    background-color: #0f1a29;
-    color: @text_main@;
-    border: 1px solid #2a3c56;
-    selection-background-color: @secondary@;
-    selection-color: @text_main@;
-}
-QComboBox::drop-down {
-    border: none;
-    width: 22px;
-}
-QPushButton {
-    background-color: #1B2A3E;
-    color: @text_main@;
-    border: 1px solid #2a3c56;
-    border-radius: 8px;
-    padding: 8px 12px;
-}
-QPushButton:hover {
-    background-color: #223450;
-}
-QPushButton:disabled {
-    color: #5C6B7E;
-    background-color: #141F2E;
-    border: 1px solid #22344d;
-}
-QPushButton.Primary {
-    background-color: @primary@;
-    color: #081018;
-    border: none;
-    border-radius: 8px;
-    padding: 9px 14px;
-    font-weight: 600;
-}
-QPushButton.Primary:hover { background-color: #47aaaa; }
-QPushButton.Primary:disabled {
-    background-color: #1E3A3A;
-    color: #5F7A7A;
-    border: none;
-}
-QPushButton.Danger {
-    background-color: @accent@;
-    color: @text_main@;
-    border: none;
-    border-radius: 8px;
-    padding: 8px 12px;
-}
-QPushButton.Danger:hover { background-color: #D41741; }
-QPushButton.Danger:disabled {
-    background-color: #4A1B26;
-    color: #6E5A60;
-    border: none;
-}
-QListWidget {
-    background-color: @card@;
-    border: 1px solid #2E425E;
-    border-radius: 12px;
-    padding: 4px;
-}
-QListWidget::item {
-    padding: 6px 10px;
+    background-color: @surface_muted@;
+    border: 1px dashed @border_strong@;
     border-radius: 6px;
-}
-QListWidget::item:hover {
-    background-color: #1B2A3E;
-}
-QListWidget::item:selected {
-    background-color: @secondary@;
-    color: @text_main@;
-    border-radius: 6px;
-}
-QListWidget::item:selected:hover {
-    background-color: #1B567F;
-}
-QCheckBox {
-    spacing: 8px;
-    color: @text_main@;
-}
-QProgressBar {
-    background-color: #0f1a29;
-    border: 1px solid #2a3c56;
-    border-radius: 4px;
-}
-QProgressBar::chunk {
-    background-color: @primary@;
-    border-radius: 4px;
 }
 QLabel#QueueRowTitle {
     color: @text_main@;
+    font-size: 14px;
     font-weight: 600;
 }
 QLabel#QueueRowInfo {
     color: @text_secondary@;
     font-size: 12px;
 }
+
+/* ---------- Inputs ---------- */
+QLineEdit, QTextEdit, QPlainTextEdit, QSpinBox {
+    background-color: @card@;
+    border: 1px solid @border@;
+    border-radius: 6px;
+    padding: 8px 12px;
+    color: @text_main@;
+    selection-background-color: @surface_selected@;
+}
+QLineEdit:hover, QTextEdit:hover, QSpinBox:hover { border: 1px solid @border_strong@; }
+QLineEdit:focus, QTextEdit:focus, QSpinBox:focus { border: 2px solid @focus@; }
+QLineEdit:disabled, QTextEdit:disabled, QSpinBox:disabled {
+    background-color: @control_disabled@;
+    color: @text_disabled@;
+    border: 1px solid @border@;
+}
+QLineEdit[placeholder-visible="true"] { color: @text_secondary@; }
+QComboBox {
+    background-color: @card@;
+    border: 1px solid @border@;
+    border-radius: 6px;
+    padding: 8px 12px;
+    color: @text_main@;
+    min-height: 22px;
+}
+QComboBox:hover { border: 1px solid @border_strong@; }
+QComboBox:focus { border: 2px solid @focus@; }
+QComboBox:disabled {
+    background-color: @control_disabled@;
+    color: @text_disabled@;
+}
+QComboBox::drop-down {
+    border: none;
+    width: 32px;
+}
+QComboBox QAbstractItemView {
+    background-color: @card@;
+    color: @text_main@;
+    border: 1px solid @border@;
+    border-radius: 6px;
+    selection-background-color: @surface_selected@;
+    selection-color: @text_main@;
+    outline: none;
+}
+QCheckBox {
+    spacing: 8px;
+    color: @text_main@;
+}
+QCheckBox::indicator {
+    width: 18px;
+    height: 18px;
+    border: 1px solid @border_strong@;
+    border-radius: 4px;
+    background-color: @card@;
+}
+QCheckBox::indicator:hover { border: 2px solid @border_strong@; }
+QCheckBox::indicator:checked {
+    background-color: @primary@;
+    border: 1px solid @primary@;
+}
+QCheckBox::indicator:disabled {
+    background-color: @control_disabled@;
+    border: 1px solid @border@;
+}
+
+/* ---------- Buttons ---------- */
+QPushButton {
+    background-color: @secondary@;
+    color: @text_main@;
+    border: 1px solid @border@;
+    border-radius: 6px;
+    padding: 8px 16px;
+    min-height: 22px;
+    font-weight: 600;
+}
+QPushButton:hover {
+    background-color: @surface_muted@;
+    border: 1px solid @border_strong@;
+}
+QPushButton:pressed {
+    background-color: @control_disabled@;
+}
+QPushButton:disabled {
+    color: @text_disabled@;
+    background-color: @control_disabled@;
+    border: 1px solid @border@;
+    font-weight: 400;
+}
+QPushButton:focus { outline: none; border: 2px solid @focus@; }
+QPushButton.Primary {
+    background-color: @primary@;
+    color: @on_primary@;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 16px;
+    font-weight: 600;
+}
+QPushButton.Primary:hover { background-color: #1E9588; }
+QPushButton.Primary:pressed { background-color: #1B877B; }
+QPushButton.Primary:disabled {
+    background-color: @control_disabled@;
+    color: @text_disabled@;
+    border: 1px solid @border@;
+    font-weight: 400;
+}
+QPushButton.Primary:focus { outline: none; border: 2px solid @accent@; }
+QPushButton.Danger {
+    background-color: transparent;
+    color: @error@;
+    border: 1px solid @error@;
+    border-radius: 6px;
+    padding: 8px 16px;
+    font-weight: 600;
+}
+QPushButton.Danger:hover {
+    background-color: #3A2A2A;
+    border: 1px solid @error@;
+    color: @error@;
+}
+QPushButton.Danger:pressed {
+    background-color: @error@;
+    color: #FFFFFF;
+}
+QPushButton.Danger:disabled {
+    background-color: transparent;
+    color: @text_disabled@;
+    border: 1px solid @border@;
+    font-weight: 400;
+}
+QPushButton.Danger:focus { outline: none; border: 2px solid @error@; }
+
+/* ---------- Lists ---------- */
+QListWidget {
+    background-color: @card@;
+    border: 1px solid @border@;
+    border-radius: 10px;
+    padding: 4px;
+    outline: none;
+}
+QListWidget::item {
+    padding: 8px 12px;
+    border-radius: 6px;
+    min-height: 24px;
+}
+QListWidget::item:hover {
+    background-color: @surface_muted@;
+}
+QListWidget::item:selected {
+    background-color: @surface_selected@;
+    color: @text_main@;
+}
+QListWidget::item:selected:hover {
+    background-color: @surface_selected@;
+}
+
+/* ---------- Progress ---------- */
+QProgressBar {
+    background-color: @surface_muted@;
+    border: none;
+    border-radius: 4px;
+    min-height: 8px;
+    max-height: 8px;
+}
+QProgressBar::chunk {
+    background-color: @primary@;
+    border-radius: 4px;
+}
+
+/* ---------- Global widgets ---------- */
 QScrollBar:vertical {
     background: transparent;
     width: 10px;
     margin: 2px;
 }
 QScrollBar::handle:vertical {
-    background: #2A3C56;
+    background: @border_strong@;
     border-radius: 5px;
     min-height: 24px;
 }
-QScrollBar::handle:vertical:hover { background: #3A517A; }
-QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
-    height: 0;
-}
+QScrollBar::handle:vertical:hover { background: @text_secondary@; }
+QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical { height: 0; }
 QScrollBar:horizontal {
     background: transparent;
     height: 10px;
     margin: 2px;
 }
 QScrollBar::handle:horizontal {
-    background: #2A3C56;
+    background: @border_strong@;
     border-radius: 5px;
     min-width: 24px;
 }
-QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal {
-    width: 0;
-}
+QScrollBar::handle:horizontal:hover { background: @text_secondary@; }
+QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal { width: 0; }
 QToolTip {
-    background-color: #101A28;
+    background-color: @surface_muted@;
     color: @text_main@;
-    border: 1px solid #2E425E;
-    padding: 4px 6px;
+    border: 1px solid @border_strong@;
+    border-radius: 6px;
+    padding: 6px 8px;
+    font-size: 12px;
 }
 QStatusBar {
     background: @sidebar@;
+    border-top: 1px solid @border@;
     color: @text_secondary@;
+    font-size: 12px;
+    padding: 4px 16px;
 }
-/* Modal dialogs (QMessageBox/About/Licenses) follow the theme too; without
-   an explicit text color the question text renders dark-on-dark. */
+
+/* ---------- Modal dialogs ---------- */
 QDialog, QMessageBox {
     background-color: @card@;
     color: @text_main@;
+    border: 1px solid @border@;
 }
 QDialog QLabel, QMessageBox QLabel {
     color: @text_main@;
     background: transparent;
 }
-QMessageBox QPushButton {
-    min-width: 72px;
-}
+QMessageBox QPushButton { min-width: 72px; }

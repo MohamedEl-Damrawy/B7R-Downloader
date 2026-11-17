@@ -18,10 +18,11 @@ class StatCard(CardFrame):
     def __init__(self, title: str, value: str = "0", parent: QWidget | None = None):
         super().__init__(parent)
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(16, 14, 16, 14)
+        # Card padding per design spec (20px); 8px rhythm.
+        layout.setContentsMargins(20, 18, 20, 18)
+        layout.setSpacing(6)
         self.value_label = QLabel(value)
-        self.value_label.setObjectName("StatValue")
-        self.value_label.setStyleSheet("font-size: 22px; font-weight: 600;")
+        self.value_label.setObjectName("StatValue")  # size/weight via QSS
         self.title_label = QLabel(title)
         self.title_label.setProperty("class", "Subtitle")
         layout.addWidget(self.value_label)
@@ -32,20 +33,34 @@ class StatCard(CardFrame):
 
 
 class EmptyState(CardFrame):
-    def __init__(self, title: str, message: str, parent: QWidget | None = None):
+    """Centered empty-state card (design spec section G).
+
+    icon: Unicode glyph shown above the title (omit if coverage is poor).
+    """
+
+    def __init__(self, title: str, message: str, icon: str = "", parent: QWidget | None = None):
         super().__init__(parent)
+        self.setObjectName("EmptyCard")  # 12px radius + 28px padding via QSS
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(24, 24, 24, 24)
+        layout.setContentsMargins(28, 28, 28, 28)
         layout.setAlignment(Qt.AlignCenter)
+        layout.setSpacing(0)
+        if icon:
+            ic = QLabel(icon)
+            ic.setObjectName("EmptyIcon")
+            ic.setAlignment(Qt.AlignCenter)
+            layout.addWidget(ic)
+            layout.addSpacing(8)
         t = QLabel(title)
-        t.setProperty("class", "Title")
+        t.setProperty("class", "EmptyTitle")
         t.setAlignment(Qt.AlignCenter)
+        layout.addWidget(t)
+        layout.addSpacing(6)
         m = QLabel(message)
         m.setWordWrap(True)
         m.setAlignment(Qt.AlignCenter)
         m.setProperty("class", "Subtitle")
-        layout.addWidget(t)
-        layout.addSpacing(6)
+        m.setMaximumWidth(440)
         layout.addWidget(m)
 
 

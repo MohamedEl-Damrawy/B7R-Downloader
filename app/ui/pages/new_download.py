@@ -29,8 +29,8 @@ class NewDownloadPage(QWidget):
         self._last_playlist = None
 
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(24, 24, 24, 24)
-        layout.setSpacing(16)
+        layout.setContentsMargins(32, 28, 32, 32)
+        layout.setSpacing(24)
         layout.addWidget(
             PageHeader(self.tr("New Download"), self.tr("Paste a supported URL to extract metadata and choose quality"))
         )
@@ -73,13 +73,16 @@ class NewDownloadPage(QWidget):
         form.addRow(self.tr("Extras"), extras_row)
 
         self.thumb_label = QLabel(self.tr("Thumbnail preview: none"))
-        self.thumb_label.setMinimumHeight(120)
+        # Design spec: 16:9 thumbnail preview, 160x90 minimum.
+        self.thumb_label.setMinimumSize(160, 90)
         self.thumb_label.setAlignment(Qt.AlignCenter)
         self.thumb_label.setObjectName("ThumbPreview")
         self.thumb_label.setWordWrap(True)
         form.addRow(self.tr("Thumbnail"), self.thumb_label)
 
-        self.preview_label = QLabel(self.tr("Metadata preview will appear here after extraction."))
+        self.preview_label = QLabel(
+            self.tr("No preview yet — paste a video link and extract its details to see a preview.")
+        )
         self.preview_label.setProperty("class", "Subtitle")
         self.preview_label.setWordWrap(True)
         self.preview_label.setTextInteractionFlags(Qt.TextSelectableByMouse)

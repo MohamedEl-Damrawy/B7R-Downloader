@@ -29,8 +29,8 @@ class PlaylistsPage(QWidget):
         self._playlist = None
         self._item_widgets: dict[str, QListWidgetItem] = {}
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(24, 24, 24, 24)
-        layout.setSpacing(16)
+        layout.setContentsMargins(32, 28, 32, 32)
+        layout.setSpacing(24)
         layout.addWidget(
             PageHeader(self.tr("Playlists"), self.tr("Inspect playlists and select individual items to download"))
         )
@@ -100,7 +100,8 @@ class PlaylistsPage(QWidget):
 
         self.empty_state = EmptyState(
             self.tr("No playlist loaded"),
-            self.tr("Paste a playlist URL in New Download to inspect entries."),
+            self.tr("Choose a saved playlist and select Load to view its videos."),
+            icon="\u25A4",  # ▤
         )
         self.empty_state.setVisible(False)
         # stretch=1: fills the page when the card is hidden (no blank void).

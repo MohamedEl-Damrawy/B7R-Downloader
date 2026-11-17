@@ -197,5 +197,15 @@
   "Remove %d selected entries from history? Downloaded files are not deleted.": "إزالة %d من العناصر المحددة من السجل؟ الملفات المحملة لن تُحذف.",
   "Delete records": "حذف السجلات",
   "Clear history": "مسح السجل",
-  "Remove ALL entries from history? Downloaded files are not deleted.": "إزالة كل العناصر من السجل؟ الملفات المحملة لن تُحذف."
+  "Remove ALL entries from history? Downloaded files are not deleted.": "إزالة كل العناصر من السجل؟ الملفات المحملة لن تُحذف.",
+  "Nothing here yet": "لا يوجد نشاط بعد",
+  "Your recent activity will appear here.": "سيظهر نشاطك الأخير هنا.",
+  "Your queue is clear": "قائمة التنزيلات فارغة",
+  "Downloads you start will appear here.": "ستظهر هنا التنزيلات التي تبدأها.",
+  "No download history": "لا يوجد سجل للتنزيلات",
+  "Finished and failed downloads will appear here.": "ستظهر هنا التنزيلات المكتملة والفاشلة.",
+  "Nothing completed yet": "لا توجد تنزيلات مكتملة بعد",
+  "Your completed downloads will appear here.": "ستظهر هنا التنزيلات التي اكتملت.",
+  "No preview yet — paste a video link and extract its details to see a preview.": "لا توجد معاينة بعد — ألصق رابط فيديو واستخرج تفاصيله لعرض المعاينة.",
+  "Choose a saved playlist and select Load to view its videos.": "اختر قائمة محفوظة ثم اضغط تحميل لعرض مقاطعها."
 }

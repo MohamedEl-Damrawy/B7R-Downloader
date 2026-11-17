@@ -19,8 +19,8 @@ class CompletedPage(QWidget):
         self.repo = DownloadsRepository()
         self._controller = None
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(24, 24, 24, 24)
-        layout.setSpacing(16)
+        layout.setContentsMargins(32, 28, 32, 32)
+        layout.setSpacing(24)
         layout.addWidget(PageHeader(self.tr("Completed"), self.tr("Successfully completed downloads")))
 
         actions = QHBoxLayout()
@@ -33,7 +33,11 @@ class CompletedPage(QWidget):
         self.list_widget = QListWidget()
         self.list_widget.itemSelectionChanged.connect(self._update_actions)
         layout.addWidget(self.list_widget, 1)
-        self.empty = EmptyState(self.tr("No completed downloads"), self.tr("Completed items will be listed here."))
+        self.empty = EmptyState(
+            self.tr("Nothing completed yet"),
+            self.tr("Your completed downloads will appear here."),
+            icon="\u2713",  # ✓
+        )
         # stretch=1: fills the page when the list is hidden (no blank void).
         layout.addWidget(self.empty, 1)
         self._update_actions()
