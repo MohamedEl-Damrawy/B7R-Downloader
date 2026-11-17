@@ -27,9 +27,7 @@ QPushButton.NavButton {
     color: @text_secondary@;
     border: none;
     border-radius: 6px;
-    padding: 10px 12px;
-    min-height: 24px;
-    /* alignment set in code (direction-aware); Qt QSS lacks text-align:start */
+    padding: 0; /* inner icon+label layout owns padding/height */
 }
 QPushButton.NavButton:hover {
     background-color: @surface_muted@;

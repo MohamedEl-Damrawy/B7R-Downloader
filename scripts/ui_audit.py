@@ -21,8 +21,12 @@ os.makedirs(OUT, exist_ok=True)
 app = QApplication.instance() or QApplication([])
 
 
-def shots(theme: str) -> None:
-    app.setStyleSheet(load_theme_qss(theme))
+def shots(theme: str, rtl: bool = False) -> None:
+    from PySide6.QtCore import Qt
+
+    app.setLayoutDirection(Qt.RightToLeft if rtl else Qt.LeftToRight)
+    suffix = "_rtl" if rtl else ""
+    app.setStyleSheet(load_theme_qss(theme, lang="ar" if rtl else ""))
     from app.ui.navigation import Sidebar
     from app.ui.pages import completed, dashboard, history, new_download, playlist, queue, settings
 
@@ -57,11 +61,12 @@ def shots(theme: str) -> None:
         win.resize(1280, 800)
         win.show()
         app.processEvents()
-        win.grab().save(os.path.join(OUT, f"{theme}_window.png"))
+        win.grab().save(os.path.join(OUT, f"{theme}{suffix}_window.png"))
         win.close()
         pages.append(("window_only_dashboard", dash))
     except Exception as exc:  # noqa: BLE001
         print(f"[{theme}] FAIL window: {exc}")
+    return pages
 
     for name, page in pages:
         # Real app hosts pages inside a QWidget#Root container; replicate so
@@ -74,7 +79,7 @@ def shots(theme: str) -> None:
         root.resize(1000, 720)
         root.show()
         app.processEvents()
-        path = os.path.join(OUT, f"{theme}_{name}.png")
+        path = os.path.join(OUT, f"{theme}{suffix}_{name}.png")
         root.grab().save(path)
         print(f"[{theme}] {name} -> {path}")
         root.close()
@@ -82,4 +87,5 @@ def shots(theme: str) -> None:
 
 shots("light")
 shots("dark")
+shots("dark", rtl=True)
 print("DONE")
